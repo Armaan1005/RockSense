@@ -1,7 +1,7 @@
 'use client';
 
 import * as React from 'react';
-import { MapContainer, TileLayer, Marker, Polygon, Polyline, Tooltip } from 'react-leaflet';
+import { useMap, Marker, Polygon, Polyline, Tooltip, useMapEvents } from 'react-leaflet';
 import type { LatLngTuple, RescueRoute, Team, PlacingMode } from '@/types';
 import { baseIcon, victimIcon } from './CustomIcons';
 import AnimatedTeam from './AnimatedTeam';
@@ -19,7 +19,7 @@ interface MapComponentProps {
 }
 
 const MapClickHandler = ({ onClick, placingMode }: { onClick: (latlng: L.LatLng) => void, placingMode: PlacingMode }) => {
-  const map = L.useMapEvents({
+  const map = useMapEvents({
     click(e) {
       onClick(e.latlng);
     },
@@ -46,23 +46,23 @@ const MapComponent: React.FC<MapComponentProps> = ({
   placingMode,
 }) => {
   const [isClient, setIsClient] = React.useState(false);
+  const map = useMap();
 
   React.useEffect(() => {
     setIsClient(true);
-  }, []);
+    // Recenter map when data changes
+    if (baseLocation) {
+        map.setView(baseLocation, 14);
+    } else if (avalancheZone.length > 0) {
+        const bounds = L.latLngBounds(avalancheZone);
+        map.fitBounds(bounds, { padding: [50, 50]});
+    }
 
+  }, [baseLocation, avalancheZone, map]);
+  
   return (
-    <MapContainer
-      center={[46.8527, -121.7604]} // Default to Mount Rainier
-      zoom={13}
-      scrollWheelZoom={true}
-      className="h-full w-full z-0"
-    >
-      <TileLayer
-        attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-        url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-      />
-      {isClient && <MapClickHandler onClick={onMapClick} placingMode={placingMode} />}
+    <>
+      <MapClickHandler onClick={onMapClick} placingMode={placingMode} />
 
       {baseLocation && <Marker position={baseLocation} icon={baseIcon}><Tooltip>Rescue Base</Tooltip></Marker>}
 
@@ -96,7 +96,7 @@ const MapComponent: React.FC<MapComponentProps> = ({
       {routes.map((route, index) => (
          <AnimatedTeam key={index} route={route} victimLocations={victimLocations} />
       ))}
-    </MapContainer>
+    </>
   );
 };
 

@@ -2,8 +2,10 @@
 
 import dynamic from 'next/dynamic';
 import * as React from 'react';
-import type { LatLngTuple, RescueRoute, HeatmapData, Team, PlacingMode } from '@/types';
+import type { LatLngTuple, RescueRoute, Team, PlacingMode } from '@/types';
 import { Skeleton } from '../ui/skeleton';
+import { MapContainer, TileLayer } from 'react-leaflet';
+import MapComponent from './MapComponent';
 
 interface MapWrapperProps {
   baseLocation: LatLngTuple | null;
@@ -15,11 +17,6 @@ interface MapWrapperProps {
   placingMode: PlacingMode;
 }
 
-const MapComponentWithNoSSR = dynamic(() => import('./MapComponent'), {
-  ssr: false,
-  loading: () => <Skeleton className="w-full h-full" />
-});
-
 const MapWrapper: React.FC<MapWrapperProps> = (props) => {
   const [isClient, setIsClient] = React.useState(false);
 
@@ -27,9 +24,28 @@ const MapWrapper: React.FC<MapWrapperProps> = (props) => {
     setIsClient(true);
   }, []);
 
+  if (!isClient) {
+    return (
+        <div className='h-full w-full p-4'>
+            <Skeleton className="w-full h-full" />
+        </div>
+    )
+  }
+
   return (
     <div className='h-full w-full p-4'>
-        {isClient ? <MapComponentWithNoSSR {...props} /> : <Skeleton className="w-full h-full" />}
+        <MapContainer
+            center={[46.8527, -121.7604]} // Default to Mount Rainier
+            zoom={13}
+            scrollWheelZoom={true}
+            className="h-full w-full z-0"
+        >
+            <TileLayer
+                attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+                url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+            />
+            <MapComponent {...props} />
+        </MapContainer>
     </div>
   );
 };
