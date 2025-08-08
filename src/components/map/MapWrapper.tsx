@@ -1,6 +1,7 @@
-'use client';
+"use client";
 
 import dynamic from 'next/dynamic';
+import * as React from 'react';
 import type { LatLngTuple, RescueRoute, HeatmapData, Team, PlacingMode } from '@/types';
 import { Skeleton } from '../ui/skeleton';
 
@@ -20,9 +21,15 @@ const MapComponentWithNoSSR = dynamic(() => import('./MapComponent'), {
 });
 
 const MapWrapper: React.FC<MapWrapperProps> = (props) => {
+  const [isClient, setIsClient] = React.useState(false);
+
+  React.useEffect(() => {
+    setIsClient(true);
+  }, []);
+
   return (
     <div className='h-full w-full p-4'>
-        <MapComponentWithNoSSR {...props} />
+        {isClient ? <MapComponentWithNoSSR {...props} /> : <Skeleton className="w-full h-full" />}
     </div>
   );
 };
