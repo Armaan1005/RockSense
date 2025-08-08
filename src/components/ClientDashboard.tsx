@@ -8,7 +8,6 @@ import { getRescueRoutesAction } from '@/lib/actions';
 import dynamic from 'next/dynamic';
 import Header from '@/components/Header';
 import RescueSidebar from '@/components/RescueSidebar';
-import Snowfall from '@/components/Snowfall';
 import { useToast } from '@/hooks/use-toast';
 import { Skeleton } from './ui/skeleton';
 
@@ -104,7 +103,6 @@ const ClientDashboard: React.FC = () => {
       <Header />
       <main className="flex flex-1 overflow-hidden">
         <div className="flex-1 relative h-full">
-          <Snowfall />
           <MapWrapper
             baseLocation={baseLocation}
             victimLocations={victimLocations}
