@@ -2,7 +2,7 @@
 "use client";
 
 import * as React from 'react';
-import type { LatLngTuple, PlacingMode, RescueRoute, Team } from '@/types';
+import type { LatLngTuple, PlacingMode, RescueRoute, Team, HeatmapDataPoint } from '@/types';
 import { getRescueRoutesAction } from '@/lib/actions';
 
 import dynamic from 'next/dynamic';
@@ -37,6 +37,7 @@ const ClientDashboard: React.FC = () => {
   const [isGenerating, setIsGenerating] = React.useState(false);
   const [routes, setRoutes] = React.useState<RescueRoute[]>([]);
   const [teams, setTeams] = React.useState<Team[]>([]);
+  const [heatmapData, setHeatmapData] = React.useState<HeatmapDataPoint[]>([]);
 
   const addMapPoint = (latlng: { lat: number; lng: number }) => {
     const newPoint: LatLngTuple = [latlng.lat, latlng.lng];
@@ -63,6 +64,7 @@ const ClientDashboard: React.FC = () => {
     setIsGenerating(true);
     setRoutes([]);
     setTeams([]);
+    setHeatmapData([]);
 
     try {
       const result = await getRescueRoutesAction({
@@ -73,6 +75,7 @@ const ClientDashboard: React.FC = () => {
       });
 
       setRoutes(result.routes);
+      setHeatmapData(result.heatmapData);
       
       const newTeams = result.routes.map(route => ({
         name: route.teamName,
@@ -96,6 +99,7 @@ const ClientDashboard: React.FC = () => {
     setRoutes([]);
     setPlacingMode(null);
     setTeams([]);
+    setHeatmapData([]);
   }
 
   return (
@@ -111,6 +115,7 @@ const ClientDashboard: React.FC = () => {
             onMapClick={addMapPoint}
             teams={teams}
             placingMode={placingMode}
+            heatmapData={heatmapData}
           />
         </div>
         <RescueSidebar

@@ -35,13 +35,17 @@ const RescueRouteSchema = z.object({
   priority: z.string().describe('Priority of the route (High, Medium, Low)'),
 });
 
+const HeatmapDataPointSchema = z.object({
+  latitude: z.number(),
+  longitude: z.number(),
+  intensity: z.number(),
+});
+export type HeatmapDataPoint = z.infer<typeof HeatmapDataPointSchema>;
+
+
 const GenerateRescueRoutesOutputSchema = z.object({
   routes: z.array(RescueRouteSchema).describe('An array of generated rescue routes.'),
-  heatmapData: z.array(z.object({
-    latitude: z.number(),
-    longitude: z.number(),
-    intensity: z.number(),
-  })).describe('Heatmap data indicating probability of finding victims (reds = high risk, blues = low).'),
+  heatmapData: z.array(HeatmapDataPointSchema).describe('Heatmap data indicating probability of finding victims (reds = high risk, blues = low).'),
 });
 
 export type GenerateRescueRoutesOutput = z.infer<typeof GenerateRescueRoutesOutputSchema>;

@@ -1,12 +1,14 @@
 'use client';
 
 import * as React from 'react';
-import { useMap, Marker, Polygon, Polyline, Tooltip, useMapEvents } from 'react-leaflet';
-import type { LatLngTuple, RescueRoute, Team, PlacingMode } from '@/types';
+import { Marker, Polygon, Polyline, Tooltip } from 'react-leaflet';
+import type { LatLngTuple, RescueRoute, Team, PlacingMode, HeatmapDataPoint } from '@/types';
 import { baseIcon, victimIcon } from './CustomIcons';
 import AnimatedTeam from './AnimatedTeam';
 import L from 'leaflet';
 import { TEAM_COLORS } from '../ClientDashboard';
+import { heatmapLayer } from './HeatmapLayer';
+import MapEvents from './MapEvents';
 
 interface MapComponentProps {
   baseLocation: LatLngTuple | null;
@@ -16,25 +18,8 @@ interface MapComponentProps {
   onMapClick: (latlng: { lat: number, lng: number }) => void;
   teams: Team[];
   placingMode: PlacingMode;
+  heatmapData: HeatmapDataPoint[];
 }
-
-const MapClickHandler = ({ onClick, placingMode }: { onClick: (latlng: L.LatLng) => void, placingMode: PlacingMode }) => {
-  const map = useMapEvents({
-    click(e) {
-      onClick(e.latlng);
-    },
-  });
-  
-  React.useEffect(() => {
-    if (placingMode) {
-      map.getContainer().style.cursor = 'crosshair';
-    } else {
-      map.getContainer().style.cursor = '';
-    }
-  }, [placingMode, map]);
-
-  return null;
-};
 
 const MapComponent: React.FC<MapComponentProps> = ({
   baseLocation,
@@ -44,25 +29,17 @@ const MapComponent: React.FC<MapComponentProps> = ({
   onMapClick,
   teams,
   placingMode,
+  heatmapData,
 }) => {
-  const [isClient, setIsClient] = React.useState(false);
-  const map = useMap();
-
-  React.useEffect(() => {
-    setIsClient(true);
-    // Recenter map when data changes
-    if (baseLocation) {
-        map.setView(baseLocation, 14);
-    } else if (avalancheZone.length > 0) {
-        const bounds = L.latLngBounds(avalancheZone);
-        map.fitBounds(bounds, { padding: [50, 50]});
-    }
-
-  }, [baseLocation, avalancheZone, map]);
-  
   return (
     <>
-      <MapClickHandler onClick={onMapClick} placingMode={placingMode} />
+      <MapEvents 
+        onMapClick={onMapClick} 
+        placingMode={placingMode} 
+        baseLocation={baseLocation}
+        avalancheZone={avalancheZone}
+        heatmapData={heatmapData}
+      />
 
       {baseLocation && <Marker position={baseLocation} icon={baseIcon}><Tooltip>Rescue Base</Tooltip></Marker>}
 

@@ -1,11 +1,10 @@
 "use client";
 
-import dynamic from 'next/dynamic';
 import * as React from 'react';
-import type { LatLngTuple, RescueRoute, Team, PlacingMode } from '@/types';
-import { Skeleton } from '../ui/skeleton';
+import type { LatLngTuple, RescueRoute, Team, PlacingMode, HeatmapDataPoint } from '@/types';
 import { MapContainer, TileLayer } from 'react-leaflet';
 import MapComponent from './MapComponent';
+import { Skeleton } from '../ui/skeleton';
 
 interface MapWrapperProps {
   baseLocation: LatLngTuple | null;
@@ -15,6 +14,7 @@ interface MapWrapperProps {
   onMapClick: (latlng: { lat: number, lng: number }) => void;
   teams: Team[];
   placingMode: PlacingMode;
+  heatmapData: HeatmapDataPoint[];
 }
 
 const MapWrapper: React.FC<MapWrapperProps> = (props) => {
@@ -24,16 +24,9 @@ const MapWrapper: React.FC<MapWrapperProps> = (props) => {
     setIsClient(true);
   }, []);
 
-  if (!isClient) {
-    return (
-        <div className='h-full w-full p-4'>
-            <Skeleton className="w-full h-full" />
-        </div>
-    )
-  }
-
   return (
     <div className='h-full w-full p-4'>
+      {isClient ? (
         <MapContainer
             center={[46.8527, -121.7604]} // Default to Mount Rainier
             zoom={13}
@@ -46,6 +39,9 @@ const MapWrapper: React.FC<MapWrapperProps> = (props) => {
             />
             <MapComponent {...props} />
         </MapContainer>
+      ) : (
+        <Skeleton className="w-full h-full" />
+      )}
     </div>
   );
 };
