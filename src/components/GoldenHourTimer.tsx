@@ -12,6 +12,7 @@ const GoldenHourTimer: React.FC<{ isRunning: boolean }> = ({ isRunning }) => {
 
   React.useEffect(() => {
     if (!isRunning || !isClient) {
+      // Reset timer when not running
       setTimeLeft(3600);
       return;
     }
@@ -24,6 +25,7 @@ const GoldenHourTimer: React.FC<{ isRunning: boolean }> = ({ isRunning }) => {
   }, [isRunning, isClient]);
 
   if (!isClient) {
+    // Render a placeholder or nothing on the server
     return <div className="text-2xl font-bold font-mono">60:00</div>;
   }
 

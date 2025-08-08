@@ -32,7 +32,8 @@ const AnimatedTeam: React.FC<AnimatedTeamProps> = ({ route, victimLocations }) =
   React.useEffect(() => {
     if (routePoints.length < 2 || !isClient) return;
 
-    setPosition(routePoints[0]);
+    let pos = routePoints[0];
+    setPosition(pos);
     const polyline = L.polyline(routePoints);
     const totalDistance = routePoints.reduce((acc, point, i) => {
         if (i === 0) return 0;
@@ -60,13 +61,14 @@ const AnimatedTeam: React.FC<AnimatedTeamProps> = ({ route, victimLocations }) =
             const ratio = (currentDistance - traveledDistance) / segmentDistance;
             const lat = start.lat + (end.lat - start.lat) * ratio;
             const lng = start.lng + (end.lng - start.lng) * ratio;
-            setPosition([lat, lng]);
+            pos = [lat, lng];
+            setPosition(pos);
             break;
         }
         traveledDistance += segmentDistance;
       }
       
-      const currentPos = position;
+      const currentPos = pos;
       if (currentPos) {
         const currentLatLng = L.latLng(currentPos);
         victimLocations.forEach((victim, index) => {
@@ -94,7 +96,7 @@ const AnimatedTeam: React.FC<AnimatedTeamProps> = ({ route, victimLocations }) =
     return () => {
       cancelAnimationFrame(animationFrameId);
     };
-  }, [routePoints, map, toast, route.teamName, victimLocations, isClient, position]);
+  }, [routePoints, map, toast, route.teamName, victimLocations, isClient]);
 
   if (!position || !isClient) return null;
 
