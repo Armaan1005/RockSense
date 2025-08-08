@@ -3,9 +3,16 @@
 import React, { useEffect, useState } from 'react';
 
 const Snowfall: React.FC = () => {
+    const [isClient, setIsClient] = useState(false);
     const [flakes, setFlakes] = useState<React.ReactElement[]>([]);
 
     useEffect(() => {
+        setIsClient(true);
+    }, []);
+
+    useEffect(() => {
+        if (!isClient) return;
+
         const createFlakes = () => {
             const newFlakes = Array.from({ length: 100 }).map((_, i) => {
                 const style: React.CSSProperties = {
@@ -21,7 +28,11 @@ const Snowfall: React.FC = () => {
         };
 
         createFlakes();
-    }, []);
+    }, [isClient]);
+
+    if (!isClient) {
+        return null;
+    }
 
     return (
         <>
