@@ -16,6 +16,12 @@ const AnimatedTeam: React.FC<AnimatedTeamProps> = ({ route, victimLocations }) =
   const map = useMap();
   const { toast } = useToast();
   const [position, setPosition] = React.useState<LatLngTuple | null>(null);
+  const [isClient, setIsClient] = React.useState(false);
+  
+  React.useEffect(() => {
+    setIsClient(true);
+  }, []);
+
   const routePoints = React.useMemo(() => route.routeCoordinates.map(coord => {
     const [lat, lng] = coord.split(',').map(parseFloat);
     return [lat, lng] as LatLngTuple;
@@ -24,11 +30,14 @@ const AnimatedTeam: React.FC<AnimatedTeamProps> = ({ route, victimLocations }) =
   const totalDuration = 15000; // 15 seconds for the entire route animation
 
   React.useEffect(() => {
-    if (routePoints.length < 2) return;
+    if (routePoints.length < 2 || !isClient) return;
 
     setPosition(routePoints[0]);
     const polyline = L.polyline(routePoints);
-    const totalDistance = polyline.getCenter().distanceTo(routePoints[routePoints.length - 1]) * 2; // approximation
+    const totalDistance = routePoints.reduce((acc, point, i) => {
+        if (i === 0) return 0;
+        return acc + L.latLng(routePoints[i-1]).distanceTo(L.latLng(point));
+    }, 0);
     
     let startTime: number | null = null;
     let animationFrameId: number;
@@ -56,9 +65,10 @@ const AnimatedTeam: React.FC<AnimatedTeamProps> = ({ route, victimLocations }) =
         }
         traveledDistance += segmentDistance;
       }
-
-      if (position) {
-        const currentLatLng = L.latLng(position);
+      
+      const currentPos = position;
+      if (currentPos) {
+        const currentLatLng = L.latLng(currentPos);
         victimLocations.forEach((victim, index) => {
             if (reachedVictims.has(index)) return;
             const victimLatLng = L.latLng(victim);
@@ -84,9 +94,9 @@ const AnimatedTeam: React.FC<AnimatedTeamProps> = ({ route, victimLocations }) =
     return () => {
       cancelAnimationFrame(animationFrameId);
     };
-  }, [routePoints, map, toast, route.teamName, victimLocations]);
+  }, [routePoints, map, toast, route.teamName, victimLocations, isClient, position]);
 
-  if (!position) return null;
+  if (!position || !isClient) return null;
 
   return <Marker position={position} icon={rescueTeamIcon} />;
 };

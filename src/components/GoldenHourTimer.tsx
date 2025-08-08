@@ -4,9 +4,14 @@ import * as React from 'react';
 
 const GoldenHourTimer: React.FC<{ isRunning: boolean }> = ({ isRunning }) => {
   const [timeLeft, setTimeLeft] = React.useState(3600);
+  const [isClient, setIsClient] = React.useState(false);
 
   React.useEffect(() => {
-    if (!isRunning) {
+    setIsClient(true);
+  }, []);
+
+  React.useEffect(() => {
+    if (!isRunning || !isClient) {
       setTimeLeft(3600);
       return;
     }
@@ -16,7 +21,11 @@ const GoldenHourTimer: React.FC<{ isRunning: boolean }> = ({ isRunning }) => {
     }, 1000);
 
     return () => clearInterval(timer);
-  }, [isRunning]);
+  }, [isRunning, isClient]);
+
+  if (!isClient) {
+    return <div className="text-2xl font-bold font-mono">60:00</div>;
+  }
 
   const minutes = Math.floor(timeLeft / 60);
   const seconds = timeLeft % 60;
@@ -28,18 +37,4 @@ const GoldenHourTimer: React.FC<{ isRunning: boolean }> = ({ isRunning }) => {
   );
 };
 
-const ClientOnlyGoldenHourTimer: React.FC<{ isRunning: boolean }> = ({ isRunning }) => {
-    const [isClient, setIsClient] = React.useState(false);
-
-    React.useEffect(() => {
-        setIsClient(true);
-    }, []);
-
-    if (!isClient) {
-        return <div className="text-2xl font-bold font-mono">60:00</div>;
-    }
-
-    return <GoldenHourTimer isRunning={isRunning} />;
-}
-
-export default ClientOnlyGoldenHourTimer;
+export default GoldenHourTimer;
