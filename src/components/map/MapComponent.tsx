@@ -1,7 +1,8 @@
 'use client';
 
+import * as React from 'react';
 import { MapContainer, TileLayer, Marker, Polygon, Polyline, Tooltip } from 'react-leaflet';
-import type { LatLngTuple, RescueRoute, HeatmapData, Team, PlacingMode } from '@/types';
+import type { LatLngTuple, RescueRoute, Team, PlacingMode } from '@/types';
 import { baseIcon, victimIcon } from './CustomIcons';
 import AnimatedTeam from './AnimatedTeam';
 import L from 'leaflet';
@@ -44,6 +45,12 @@ const MapComponent: React.FC<MapComponentProps> = ({
   teams,
   placingMode,
 }) => {
+  const [isClient, setIsClient] = React.useState(false);
+
+  React.useEffect(() => {
+    setIsClient(true);
+  }, []);
+
   return (
     <MapContainer
       center={[46.8527, -121.7604]} // Default to Mount Rainier
@@ -55,7 +62,7 @@ const MapComponent: React.FC<MapComponentProps> = ({
         attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
         url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
       />
-      <MapClickHandler onClick={onMapClick} placingMode={placingMode} />
+      {isClient && <MapClickHandler onClick={onMapClick} placingMode={placingMode} />}
 
       {baseLocation && <Marker position={baseLocation} icon={baseIcon}><Tooltip>Rescue Base</Tooltip></Marker>}
 
