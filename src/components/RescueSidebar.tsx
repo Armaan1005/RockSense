@@ -25,7 +25,7 @@ import type { PlacingMode, RescueRoute, Team } from '@/types';
 import { ScrollArea } from './ui/scroll-area';
 import { Separator } from './ui/separator';
 import { Badge } from './ui/badge';
-import { TEAM_COLORS } from './Dashboard';
+import { TEAM_COLORS } from './ClientDashboard';
 import GoldenHourTimer from './GoldenHourTimer';
 
 interface RescueSidebarProps {

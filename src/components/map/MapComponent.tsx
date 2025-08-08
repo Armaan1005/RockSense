@@ -6,7 +6,7 @@ import type { LatLngTuple, RescueRoute, Team, PlacingMode } from '@/types';
 import { baseIcon, victimIcon } from './CustomIcons';
 import AnimatedTeam from './AnimatedTeam';
 import L from 'leaflet';
-import { TEAM_COLORS } from '../Dashboard';
+import { TEAM_COLORS } from '../ClientDashboard';
 
 interface MapComponentProps {
   baseLocation: LatLngTuple | null;
