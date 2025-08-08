@@ -1,13 +1,13 @@
+
 'use client';
 
 import * as React from 'react';
-import { Marker, Polygon, Polyline, Tooltip } from 'react-leaflet';
+import { Marker, Polygon, Polyline, Tooltip, useMap } from 'react-leaflet';
 import type { LatLngTuple, RescueRoute, Team, PlacingMode, HeatmapDataPoint } from '@/types';
 import { baseIcon, victimIcon } from './CustomIcons';
 import AnimatedTeam from './AnimatedTeam';
 import L from 'leaflet';
 import { TEAM_COLORS } from '../ClientDashboard';
-import { heatmapLayer } from './HeatmapLayer';
 import MapEvents from './MapEvents';
 
 interface MapComponentProps {
@@ -27,17 +27,26 @@ const MapComponent: React.FC<MapComponentProps> = ({
   avalancheZone,
   routes,
   onMapClick,
-  teams,
   placingMode,
   heatmapData,
 }) => {
+  const map = useMap();
+
+  React.useEffect(() => {
+    // Recenter map when data changes
+    if (baseLocation) {
+        map.setView(baseLocation, 14);
+    } else if (avalancheZone.length > 0) {
+        const bounds = L.latLngBounds(avalancheZone);
+        map.fitBounds(bounds, { padding: [50, 50]});
+    }
+  }, [baseLocation, avalancheZone, map]);
+
   return (
     <>
       <MapEvents 
         onMapClick={onMapClick} 
-        placingMode={placingMode} 
-        baseLocation={baseLocation}
-        avalancheZone={avalancheZone}
+        placingMode={placingMode}
         heatmapData={heatmapData}
       />
 
