@@ -10,7 +10,9 @@ import {
   BrainCircuit,
   Loader,
   X,
-  Undo2
+  Undo2,
+  Milestone,
+  Clock,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
@@ -60,6 +62,24 @@ const RescueSidebar: React.FC<RescueSidebarProps> = ({
   isBaseSet,
   isAvalancheZoneSet,
 }) => {
+
+  const calculateRouteDistance = (routeCoordinates: string[]): string => {
+    if (!window.google || !window.google.maps.geometry || routeCoordinates.length < 2) {
+      return 'N/A';
+    }
+
+    const routePoints = routeCoordinates.map(coord => {
+      const [lat, lng] = coord.split(',').map(parseFloat);
+      return new window.google.maps.LatLng(lat, lng);
+    });
+
+    const distanceInMeters = window.google.maps.geometry.spherical.computeLength(routePoints);
+    const distanceInKm = distanceInMeters / 1000;
+    
+    return `${distanceInKm.toFixed(2)} km`;
+  };
+
+
   return (
     <aside className="w-[380px] flex flex-col border-l bg-background/80 backdrop-blur-sm h-full">
       <ScrollArea className="flex-1">
@@ -114,8 +134,20 @@ const RescueSidebar: React.FC<RescueSidebarProps> = ({
                         <Badge variant={route.priority === 'High' ? 'destructive' : 'secondary'}>{route.priority} Priority</Badge>
                       </div>
                     </AccordionTrigger>
-                    <AccordionContent className="space-y-2">
+                    <AccordionContent className="space-y-3">
                       <p className="text-sm">{route.routeDescription}</p>
+                      <div className='flex flex-col gap-2 text-sm'>
+                        <div className='flex items-center gap-2 text-muted-foreground'>
+                            <Milestone className='w-4 h-4' />
+                            <span>Distance:</span>
+                            <span className='font-semibold text-foreground'>{calculateRouteDistance(route.routeCoordinates)}</span>
+                        </div>
+                        <div className='flex items-center gap-2 text-muted-foreground'>
+                            <Clock className='w-4 h-4' />
+                            <span>ETA:</span>
+                            <span className='font-semibold text-foreground'>{route.estimatedTimeArrival}</span>
+                        </div>
+                      </div>
                     </AccordionContent>
                   </AccordionItem>
                 ))}
