@@ -34,23 +34,17 @@ const RescueRouteSchema = z.object({
   priority: z.string().describe('Priority of the route (High, Medium, Low)'),
 });
 
-const HeatmapDataPointSchema = z.object({
-  latitude: z.number(),
-  longitude: z.number(),
-  intensity: z.number(),
-});
-export type HeatmapDataPoint = z.infer<typeof HeatmapDataPointSchema>;
-
-
 const GenerateRescueRoutesOutputSchema = z.object({
   routes: z.array(RescueRouteSchema).describe('An array of generated rescue routes.'),
-  heatmapData: z.array(HeatmapDataPointSchema).describe('Heatmap data indicating probability of finding victims (reds = high risk, blues = low).'),
 });
 
 export type GenerateRescueRoutesOutput = z.infer<typeof GenerateRescueRoutesOutputSchema>;
 
 export async function generateRescueRoutes(input: GenerateRescueRoutesInput): Promise<GenerateRescueRoutesOutput> {
-  return generateRescueRoutesFlow(input);
+  const result = await generateRescueRoutesFlow(input);
+  // The heatmap is removed, so we need to adjust what we return.
+  // For now, let's just return the routes and an empty heatmap array to satisfy the client.
+  return { ...result, heatmapData: [] };
 }
 
 const prompt = ai.definePrompt({
@@ -90,7 +84,6 @@ You must generate plausible, fictional route coordinates that simulate a realist
 **Common Instructions for all Strategies:**
 - Generate a series of 'latitude,longitude' coordinates for the 'routeCoordinates' field for each route. Create at least 5-10 points per leg of the journey (e.g., base to victim, or victim to victim).
 - Create a plausible 'routeDescription' based on potential terrain and weather conditions.
-- Generate heatmap data indicating the probability of finding victims (reds for high-risk, blues for low-risk).
 `,
 });
 
