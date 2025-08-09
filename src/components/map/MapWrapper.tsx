@@ -40,8 +40,8 @@ const MapWrapper: React.FC<MapWrapperProps> = ({
     if (mapRef.current || !mapContainerRef.current) return;
 
     mapRef.current = L.map(mapContainerRef.current, {
-      center: [46.8527, -121.7604], // Default to Mount Rainier
-      zoom: 13,
+      center: [30.3234, 79.9844], // Default to Indian Himalayas
+      zoom: 9,
       scrollWheelZoom: true,
     });
 
