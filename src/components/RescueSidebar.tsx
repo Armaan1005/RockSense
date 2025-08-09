@@ -14,12 +14,9 @@ import {
   Milestone,
   Clock,
   Map,
-  GitMerge,
   Users,
   User as UserIcon,
   Info,
-  Thermometer,
-  Wind,
   Search,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -38,7 +35,7 @@ import { Badge } from './ui/badge';
 import { TEAM_COLORS } from './ClientDashboard';
 import { Popover, PopoverContent, PopoverTrigger } from './ui/popover';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from './ui/tooltip';
-import { Card, CardContent, CardHeader, CardTitle } from './ui/card';
+import { Card, CardContent } from './ui/card';
 
 interface RescueSidebarProps {
   placingMode: PlacingMode;
@@ -290,12 +287,12 @@ const RescueSidebar: React.FC<RescueSidebarProps> = ({
             {isGenerating ? <Loader className="mr-2 animate-spin"/> : <BrainCircuit className="mr-2"/>}
             Generate Routes
             </Button>
-            <Button onClick={onAnalyze} disabled={isAnalyzing || isGenerating || !isAvalancheZoneSet || victimCount === 0} variant="outline" className="w-full">
+        </div>
+        <div className="flex gap-2">
+             <Button onClick={onAnalyze} disabled={isAnalyzing || isGenerating || !isAvalancheZoneSet || victimCount === 0} variant="outline" className="w-full">
                 {isAnalyzing ? <Loader className="mr-2 animate-spin"/> : <Search className="mr-2"/>}
                 Analyze
             </Button>
-        </div>
-        <div className="flex gap-2">
             <Button onClick={onUndo} variant="outline" className="w-full" disabled={!canUndo}>
                 <Undo2 className="mr-2"/> Undo
             </Button>
