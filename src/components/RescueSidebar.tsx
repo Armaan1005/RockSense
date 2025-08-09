@@ -1,3 +1,4 @@
+
 'use client';
 
 import * as React from 'react';
@@ -8,7 +9,8 @@ import {
   CloudSnow,
   BrainCircuit,
   Loader,
-  X
+  X,
+  Undo2
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
@@ -35,6 +37,8 @@ interface RescueSidebarProps {
   routes: RescueRoute[];
   teams: Team[];
   onClear: () => void;
+  onUndo: () => void;
+  canUndo: boolean;
   victimCount: number;
   isBaseSet: boolean;
   isAvalancheZoneSet: boolean;
@@ -50,6 +54,8 @@ const RescueSidebar: React.FC<RescueSidebarProps> = ({
   routes,
   teams,
   onClear,
+  onUndo,
+  canUndo,
   victimCount,
   isBaseSet,
   isAvalancheZoneSet,
@@ -129,9 +135,14 @@ const RescueSidebar: React.FC<RescueSidebarProps> = ({
           {isGenerating ? <Loader className="mr-2 animate-spin"/> : <BrainCircuit className="mr-2"/>}
           Generate Rescue Routes
         </Button>
-        <Button onClick={onClear} variant="outline" className="w-full">
-            <X className="mr-2"/> Clear All
-        </Button>
+        <div className="flex gap-2">
+            <Button onClick={onUndo} variant="outline" className="w-full" disabled={!canUndo}>
+                <Undo2 className="mr-2"/> Undo
+            </Button>
+            <Button onClick={onClear} variant="outline" className="w-full">
+                <X className="mr-2"/> Clear All
+            </Button>
+        </div>
       </div>
     </aside>
   );

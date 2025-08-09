@@ -23,6 +23,8 @@ export const TEAM_COLORS: { [key: string]: string } = {
   'Team Delta': '#e67e22', // Orange
 };
 
+type LastAction = 'base' | 'victim' | 'avalanche' | null;
+
 const ClientDashboard: React.FC = () => {
   const { toast } = useToast();
 
@@ -30,6 +32,7 @@ const ClientDashboard: React.FC = () => {
   const [baseLocation, setBaseLocation] = React.useState<LatLngTuple | null>(null);
   const [victimLocations, setVictimLocations] = React.useState<LatLngTuple[]>([]);
   const [avalancheZone, setAvalancheZone] = React.useState<LatLngTuple[]>([]);
+  const [lastActionStack, setLastActionStack] = React.useState<LastAction[]>([]);
 
   const [weather, setWeather] = React.useState<string>('Light Snow');
 
@@ -43,10 +46,13 @@ const ClientDashboard: React.FC = () => {
     if (placingMode === 'base') {
       setBaseLocation(newPoint);
       setPlacingMode(null);
+      setLastActionStack(prev => [...prev, 'base']);
     } else if (placingMode === 'victim') {
       setVictimLocations(prev => [...prev, newPoint]);
+      setLastActionStack(prev => [...prev, 'victim']);
     } else if (placingMode === 'avalanche') {
       setAvalancheZone(prev => [...prev, newPoint]);
+      setLastActionStack(prev => [...prev, 'avalanche']);
     }
   };
   
@@ -90,6 +96,22 @@ const ClientDashboard: React.FC = () => {
     }
   };
 
+  const handleUndo = () => {
+    if (lastActionStack.length === 0) return;
+
+    const lastAction = lastActionStack[lastActionStack.length - 1];
+
+    if (lastAction === 'base') {
+      setBaseLocation(null);
+    } else if (lastAction === 'victim') {
+      setVictimLocations(prev => prev.slice(0, -1));
+    } else if (lastAction === 'avalanche') {
+      setAvalancheZone(prev => prev.slice(0, -1));
+    }
+
+    setLastActionStack(prev => prev.slice(0, -1));
+  };
+
   const clearAll = () => {
     setBaseLocation(null);
     setVictimLocations([]);
@@ -98,6 +120,7 @@ const ClientDashboard: React.FC = () => {
     setPlacingMode(null);
     setTeams([]);
     setHeatmapData([]);
+    setLastActionStack([]);
   }
 
   return (
@@ -111,7 +134,6 @@ const ClientDashboard: React.FC = () => {
             avalancheZone={avalancheZone}
             routes={routes}
             onMapClick={addMapPoint}
-            teams={teams}
             placingMode={placingMode}
             heatmapData={heatmapData}
           />
@@ -126,6 +148,8 @@ const ClientDashboard: React.FC = () => {
           routes={routes}
           teams={teams}
           onClear={clearAll}
+          onUndo={handleUndo}
+          canUndo={lastActionStack.length > 0}
           victimCount={victimLocations.length}
           isBaseSet={!!baseLocation}
           isAvalancheZoneSet={avalancheZone.length > 2}
