@@ -45,6 +45,8 @@ interface RescueSidebarProps {
   setPlacingMode: (mode: PlacingMode) => void;
   weather: string;
   setWeather: (value: string) => void;
+  timeElapsed: string;
+  setTimeElapsed: (value: string) => void;
   mapTypeId: MapTypeId;
   setMapTypeId: (value: MapTypeId) => void;
   rescueStrategy: RescueStrategy;
@@ -69,6 +71,8 @@ const RescueSidebar: React.FC<RescueSidebarProps> = ({
   setPlacingMode,
   weather,
   setWeather,
+  timeElapsed,
+  setTimeElapsed,
   mapTypeId,
   setMapTypeId,
   rescueStrategy,
@@ -176,6 +180,18 @@ const RescueSidebar: React.FC<RescueSidebarProps> = ({
                   </SelectContent>
                 </Select>
               </div>
+               <div>
+                <label className="text-sm font-medium" htmlFor="time-elapsed">Time Elapsed</label>
+                <Select value={timeElapsed} onValueChange={setTimeElapsed}>
+                  <SelectTrigger id="time-elapsed"><Clock className="mr-2"/>{timeElapsed}</SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="Less than 1 hour">Less than 1 hour</SelectItem>
+                    <SelectItem value="1-3 hours">1-3 hours</SelectItem>
+                    <SelectItem value="3-6 hours">3-6 hours</SelectItem>
+                    <SelectItem value="More than 6 hours">More than 6 hours</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
               <div>
                 <label className="text-sm font-medium" htmlFor="map-type">Map Type</label>
                 <Select value={mapTypeId} onValueChange={(v) => setMapTypeId(v as MapTypeId)}>
@@ -189,7 +205,7 @@ const RescueSidebar: React.FC<RescueSidebarProps> = ({
                 </Select>
               </div>
             </div>
-             <div className="grid grid-cols-1 gap-4">
+             <div className="grid grid-cols-1 gap-4 mt-4">
               <div>
                 <label className="text-sm font-medium" htmlFor="rescue-strategy">Rescue Strategy</label>
                 <Select value={rescueStrategy} onValueChange={(v) => setRescueStrategy(v as RescueStrategy)}>

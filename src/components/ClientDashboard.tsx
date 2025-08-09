@@ -36,6 +36,7 @@ const ClientDashboard: React.FC = () => {
   const [lastActionStack, setLastActionStack] = React.useState<LastAction[]>([]);
 
   const [weather, setWeather] = React.useState<string>('Light Snow');
+  const [timeElapsed, setTimeElapsed] = React.useState<string>('Less than 1 hour');
   const [mapTypeId, setMapTypeId] = React.useState<MapTypeId>('terrain');
   const [rescueStrategy, setRescueStrategy] = React.useState<RescueStrategy>('multi');
 
@@ -116,7 +117,7 @@ const ClientDashboard: React.FC = () => {
     try {
        const result = await getVictimProbabilityAction({
         weatherConditions: weather,
-        timeElapsed: "1 hour", // This is currently static, could be dynamic in the future
+        timeElapsed: timeElapsed,
         avalancheZoneCoordinates: avalancheZone.map(p => `${p.lat},${p.lng}`).join(';'),
         victimCoordinates: victimLocations.map(v => `${v.lat},${v.lng}`).join(';'),
       });
@@ -179,6 +180,8 @@ const ClientDashboard: React.FC = () => {
           setPlacingMode={setPlacingMode}
           weather={weather}
           setWeather={setWeather}
+          timeElapsed={timeElapsed}
+          setTimeElapsed={setTimeElapsed}
           mapTypeId={mapTypeId}
           setMapTypeId={setMapTypeId}
           rescueStrategy={rescueStrategy}
