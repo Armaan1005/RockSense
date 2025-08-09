@@ -3,7 +3,7 @@
 
 import * as React from 'react';
 import type { LatLngTuple, PlacingMode, RescueRoute, Team, HeatmapDataPoint } from '@/types';
-import { getRescueRoutesAction } from '@/lib/actions';
+// import { getRescueRoutesAction } from '@/lib/actions';
 
 import dynamic from 'next/dynamic';
 import Header from '@/components/Header';
@@ -65,29 +65,73 @@ const ClientDashboard: React.FC = () => {
     setTeams([]);
     setHeatmapData([]);
 
-    try {
-      const result = await getRescueRoutesAction({
-        baseLocation: `${baseLocation[0]},${baseLocation[1]}`,
-        victimLocations: victimLocations.map(v => `${v[0]},${v[1]}`),
-        weatherConditions: weather,
-      });
+    // MOCK: Simulate server call with a timeout
+    setTimeout(() => {
+        const mockResult = {
+            routes: [
+                {
+                    teamName: 'Team Alpha',
+                    routeDescription: 'Proceeds along the northern ridge, careful of the cornices. Direct approach to victim 1.',
+                    routeCoordinates: [
+                        `${baseLocation[0]},${baseLocation[1]}`,
+                        `${baseLocation[0] + 0.005},${baseLocation[1] + 0.01}`,
+                        ...victimLocations.map(v => `${v[0]},${v[1]}`)
+                    ],
+                    priority: 'High',
+                },
+                {
+                    teamName: 'Team Bravo',
+                    routeDescription: 'Takes the valley route, which is longer but safer from secondary slides.',
+                    routeCoordinates: [
+                        `${baseLocation[0]},${baseLocation[1]}`,
+                        `${baseLocation[0] - 0.005},${baseLocation[1] + 0.005}`,
+                        ...victimLocations.map(v => `${v[0] + 0.01},${v[1] - 0.01}`)
+                    ],
+                    priority: 'Medium',
+                },
+            ],
+            heatmapData: [
+                ...victimLocations.map(v => ({ latitude: v[0], longitude: v[1], intensity: 1.0 })),
+                { latitude: baseLocation[0] + 0.01, longitude: baseLocation[1] + 0.01, intensity: 0.5},
+            ]
+        };
 
-      setRoutes(result.routes);
-      setHeatmapData(result.heatmapData);
+        setRoutes(mockResult.routes);
+        setHeatmapData(mockResult.heatmapData);
+        
+        const newTeams = mockResult.routes.map(route => ({
+            name: route.teamName,
+            color: TEAM_COLORS[route.teamName] || '#ffffff'
+        }));
+        setTeams(newTeams);
+
+        toast({ title: 'Success', description: 'Mock rescue routes generated successfully.' });
+        setIsGenerating(false);
+    }, 2000);
+
+    // try {
+    //   const result = await getRescueRoutesAction({
+    //     baseLocation: `${baseLocation[0]},${baseLocation[1]}`,
+    //     victimLocations: victimLocations.map(v => `${v[0]},${v[1]}`),
+    //     weatherConditions: weather,
+    //   });
+
+    //   setRoutes(result.routes);
+    //   setHeatmapData(result.heatmapData);
       
-      const newTeams = result.routes.map(route => ({
-        name: route.teamName,
-        color: TEAM_COLORS[route.teamName] || '#ffffff'
-      }));
-      setTeams(newTeams);
+    //   const newTeams = result.routes.map(route => ({
+    //     name: route.teamName,
+    //     color: TEAM_COLORS[route.teamName] || '#ffffff'
+    //   }));
+    //   setTeams(newTeams);
 
-      toast({ title: 'Success', description: 'Rescue routes generated successfully.' });
-    } catch (error) {
-      console.error(error);
-      toast({ title: 'Error', description: (error as Error).message, variant: 'destructive' });
-    } finally {
-      setIsGenerating(false);
-    }
+    //   toast({ title: 'Success', description: 'Rescue routes generated successfully.' });
+    // } catch (error) {
+    //   console.error(error);
+    //   toast({ title: 'Error', description: (error as Error).message, variant: 'destructive' });
+    // } finally {
+    //   setIsGenerating(false);
+    // }
   };
 
   const clearAll = () => {
