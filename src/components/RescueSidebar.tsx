@@ -34,6 +34,7 @@ import { Separator } from './ui/separator';
 import { Badge } from './ui/badge';
 import { TEAM_COLORS } from './ClientDashboard';
 import { Popover, PopoverContent, PopoverTrigger } from './ui/popover';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from './ui/tooltip';
 
 interface RescueSidebarProps {
   placingMode: PlacingMode;
@@ -101,12 +102,21 @@ const RescueSidebar: React.FC<RescueSidebarProps> = ({
           <div className="flex items-center justify-between">
             <h2 className="text-lg font-semibold">Mission Control</h2>
             <Popover>
-              <PopoverTrigger asChild>
-                <Button variant="ghost" size="icon" className="h-6 w-6">
-                  <Info className="h-4 w-4 text-muted-foreground" />
-                  <span className="sr-only">How to use</span>
-                </Button>
-              </PopoverTrigger>
+                <TooltipProvider>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <PopoverTrigger asChild>
+                        <Button variant="ghost" size="icon" className="h-6 w-6">
+                          <Info className="h-4 w-4 text-muted-foreground" />
+                          <span className="sr-only">How to use</span>
+                        </Button>
+                      </PopoverTrigger>
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      <p>Help</p>
+                    </TooltipContent>
+                  </Tooltip>
+                </TooltipProvider>
               <PopoverContent className="text-sm">
                 <h4 className="font-semibold mb-2">How to Generate Routes</h4>
                 <ol className="list-decimal list-inside space-y-2">
