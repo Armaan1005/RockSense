@@ -32,7 +32,6 @@ import { ScrollArea } from './ui/scroll-area';
 import { Separator } from './ui/separator';
 import { Badge } from './ui/badge';
 import { TEAM_COLORS } from './ClientDashboard';
-import GoldenHourTimer from './GoldenHourTimer';
 
 interface RescueSidebarProps {
   placingMode: PlacingMode;
@@ -45,7 +44,6 @@ interface RescueSidebarProps {
   setRescueStrategy: (value: RescueStrategy) => void;
   onGenerate: () => void;
   isGenerating: boolean;
-  isTimerRunning: boolean;
   routes: RescueRoute[];
   teams: Team[];
   onClear: () => void;
@@ -67,7 +65,6 @@ const RescueSidebar: React.FC<RescueSidebarProps> = ({
   setRescueStrategy,
   onGenerate,
   isGenerating,
-  isTimerRunning,
   routes,
   teams,
   onClear,
@@ -160,10 +157,7 @@ const RescueSidebar: React.FC<RescueSidebarProps> = ({
           <Separator />
 
           <div>
-            <div className='flex justify-between items-center mb-2'>
-              <h3 className="text-md font-semibold">Rescue Plan</h3>
-              <GoldenHourTimer isRunning={isTimerRunning} />
-            </div>
+            <h3 className="text-md font-semibold mb-2">Rescue Plan</h3>
 
             {isGenerating && <p className="text-sm text-muted-foreground">Generating plan...</p>}
             
