@@ -10,7 +10,6 @@
 
 import {ai} from '@/ai/genkit';
 import {z} from 'genkit';
-import { getDirectionsTool } from '../tools/google-maps-tool';
 
 const GenerateRescueRoutesInputSchema = z.object({
   baseLocation: z
@@ -56,19 +55,16 @@ const prompt = ai.definePrompt({
   name: 'generateRescueRoutesPrompt',
   input: {schema: GenerateRescueRoutesInputSchema},
   output: {schema: GenerateRescueRoutesOutputSchema},
-  tools: [getDirectionsTool],
-  prompt: `You are an expert in search and rescue route planning. Your task is to generate 2-3 optimal rescue routes from a base location to multiple victim locations.
+  prompt: `You are an expert in search and rescue route planning. Your task is to generate 2-3 optimal, non-overlapping rescue routes from a base location to multiple victim locations, considering the treacherous Himalayan terrain.
 
-You MUST use the provided 'getDirections' tool to calculate the actual route coordinates between the base and the victim. Do not invent or hallucinate route coordinates.
+You must generate plausible, fictional route coordinates that simulate a realistic path. The path should not be a straight line. It should have multiple points to suggest a path that avoids obstacles.
 
 Here's your process:
-1. For each victim, determine the best route from the rescue base to that victim's location.
-2. Call the 'getDirections' tool with the base location as the origin and the victim's location as the destination.
-3. Use the coordinates returned by the tool for the 'routeCoordinates' field.
-4. Create a plausible 'routeDescription' based on the tool's output and weather conditions.
-5. Assign a priority (High, Medium, Low) and an estimated time of arrival.
-6. Ensure the routes are non-overlapping to maximize search efficiency.
-7. Generate heatmap data indicating the probability of finding victims (reds for high-risk, blues for low-risk).
+1. For each victim, create a plausible route from the rescue base.
+2. Generate a series of 'latitude,longitude' coordinates for the 'routeCoordinates' field to represent this path. Create at least 5-10 points for each route.
+3. Create a plausible 'routeDescription' based on potential terrain and weather conditions.
+4. Assign a priority (High, Medium, Low) and an estimated time of arrival.
+5. Generate heatmap data indicating the probability of finding victims (reds for high-risk, blues for low-risk).
 
 Base Location: {{{baseLocation}}}
 Victim Locations: {{#each victimLocations}}{{{this}}}{{#unless @last}}, {{/unless}}{{/each}}
