@@ -282,22 +282,22 @@ const RescueSidebar: React.FC<RescueSidebarProps> = ({
             <span>Victims: <Badge variant={victimCount > 0 ? "default" : "secondary"}>{victimCount}</Badge></span>
             <span>Zone Defined: <Badge variant={isAvalancheZoneSet ? "default" : "secondary"}>{isAvalancheZoneSet ? "Yes" : "No"}</Badge></span>
         </div>
-        <div className="flex gap-2">
+        <div className="grid grid-cols-1 gap-2">
             <Button onClick={onGenerate} disabled={isGenerating || isAnalyzing} className="w-full bg-accent hover:bg-accent/90 text-accent-foreground">
             {isGenerating ? <Loader className="mr-2 animate-spin"/> : <BrainCircuit className="mr-2"/>}
             Generate Routes
             </Button>
         </div>
-        <div className="flex gap-2">
-             <Button onClick={onAnalyze} disabled={isAnalyzing || isGenerating || !isAvalancheZoneSet || victimCount === 0} variant="outline" className="w-full">
+        <div className="grid grid-cols-3 gap-2">
+             <Button onClick={onAnalyze} disabled={isAnalyzing || isGenerating || !isAvalancheZoneSet || victimCount === 0} variant="outline">
                 {isAnalyzing ? <Loader className="mr-2 animate-spin"/> : <Search className="mr-2"/>}
                 Analyze
             </Button>
-            <Button onClick={onUndo} variant="outline" className="w-full" disabled={!canUndo}>
+            <Button onClick={onUndo} variant="outline" disabled={!canUndo}>
                 <Undo2 className="mr-2"/> Undo
             </Button>
-            <Button onClick={onClear} variant="outline" className="w-full">
-                <X className="mr-2"/> Clear All
+            <Button onClick={onClear} variant="outline">
+                <X className="mr-2"/> Clear
             </Button>
         </div>
       </div>
