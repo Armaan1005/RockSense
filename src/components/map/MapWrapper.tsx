@@ -21,7 +21,6 @@ interface MapWrapperProps {
   heatmapData: HeatmapDataPoint[];
 }
 
-// MapComponent is now integrated into MapWrapper to manage state and layers directly
 const MapWrapper: React.FC<MapWrapperProps> = ({
   baseLocation,
   victimLocations,
@@ -34,7 +33,7 @@ const MapWrapper: React.FC<MapWrapperProps> = ({
   const mapRef = React.useRef<L.Map | null>(null);
   const mapContainerRef = React.useRef<HTMLDivElement>(null);
   const layersRef = React.useRef<L.LayerGroup>(new L.LayerGroup());
-  const animatedTeamsRef = React.useRef<JSX.Element[]>([]);
+  const heatmapLayerRef = React.useRef<any>(null);
 
   // Effect to initialize the map ONCE
   React.useEffect(() => {
@@ -52,12 +51,18 @@ const MapWrapper: React.FC<MapWrapperProps> = ({
 
     layersRef.current.addTo(mapRef.current);
     
-    // Add click event listener
     mapRef.current.on('click', (e: L.LeafletMouseEvent) => {
         onMapClick(e.latlng);
     });
 
-  }, [onMapClick]);
+    return () => {
+        if (mapRef.current) {
+            mapRef.current.remove();
+            mapRef.current = null;
+        }
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   // Effect to handle map cursor style
   React.useEffect(() => {
@@ -71,31 +76,25 @@ const MapWrapper: React.FC<MapWrapperProps> = ({
   }, [placingMode]);
 
 
-  // Effect to update all layers when data changes
+  // Effect to update all static layers when data changes
   React.useEffect(() => {
     if (!mapRef.current) return;
     const map = mapRef.current;
     
-    // Clear all previous layers
     layersRef.current.clearLayers();
-    animatedTeamsRef.current = [];
 
-    // Add base location marker
     if (baseLocation) {
       L.marker(baseLocation, { icon: baseIcon }).bindTooltip('Rescue Base').addTo(layersRef.current);
     }
 
-    // Add victim location markers
     victimLocations.forEach((pos, index) => {
       L.marker(pos, { icon: victimIcon }).bindTooltip(`Victim #${index + 1}`).addTo(layersRef.current);
     });
 
-    // Add avalanche zone polygon
     if (avalancheZone.length > 2) {
       L.polygon(avalancheZone, { color: 'hsl(var(--destructive))', fillColor: 'hsl(var(--destructive))', fillOpacity: 0.2 }).addTo(layersRef.current);
     }
     
-    // Add route polylines
     routes.forEach((route) => {
       const routePoints: LatLngTuple[] = route.routeCoordinates.map(coord => {
         const [lat, lng] = coord.split(',').map(parseFloat);
@@ -104,12 +103,6 @@ const MapWrapper: React.FC<MapWrapperProps> = ({
       L.polyline(routePoints, { color: TEAM_COLORS[route.teamName] || '#fff', weight: 4, opacity: 0.8 }).bindTooltip(route.teamName).addTo(layersRef.current);
     });
 
-    // Add heatmap
-    if (heatmapData.length > 0) {
-        heatmapLayer(heatmapData).addTo(layersRef.current)
-    }
-
-    // Recenter map
     if (baseLocation) {
         map.setView(baseLocation, 14);
     } else if (avalancheZone.length > 0) {
@@ -117,23 +110,37 @@ const MapWrapper: React.FC<MapWrapperProps> = ({
         map.fitBounds(bounds, { padding: [50, 50]});
     }
 
-  }, [baseLocation, victimLocations, avalancheZone, routes, heatmapData]);
+  }, [baseLocation, victimLocations, avalancheZone, routes]);
+
+  // Effect for heatmap layer
+   React.useEffect(() => {
+    if (!mapRef.current) return;
+    const map = mapRef.current;
+
+    if (!heatmapLayerRef.current) {
+      heatmapLayerRef.current = heatmapLayer([]).addTo(map);
+    }
+    
+    if (heatmapData.length > 0) {
+        heatmapLayerRef.current.setData(heatmapData, map);
+    } else {
+        heatmapLayerRef.current.setData([], map);
+    }
+
+  }, [heatmapData]);
 
 
   return (
     <div className='h-full w-full p-4 relative'>
         <div ref={mapContainerRef} className="h-full w-full z-0" />
-        {/* We need a map context for animated teams, which react-leaflet provides. 
-            This is a bit of a hack, but it's the cleanest way to integrate the animated component.
-            We render a "dummy" MapContainer that doesn't render a map div but provides context.
-        */}
-        {mapRef.current && (
-             <L.MapContext.Provider value={{map: mapRef.current}}>
-                {routes.map((route, index) => (
-                    <AnimatedTeam key={index} route={route} victimLocations={victimLocations} />
-                ))}
-            </L.MapContext.Provider>
-        )}
+        {mapRef.current && routes.map((route, index) => (
+            <AnimatedTeam 
+                key={`${route.teamName}-${index}`} 
+                map={mapRef.current!}
+                route={route} 
+                victimLocations={victimLocations} 
+            />
+        ))}
     </div>
   );
 };

@@ -3,20 +3,21 @@
 
 import * as React from 'react';
 import L from 'leaflet';
-import { Marker, useMap } from 'react-leaflet';
+import { Marker } from 'react-leaflet';
 import type { LatLngTuple, RescueRoute } from '@/types';
 import { useToast } from '@/hooks/use-toast';
 import { rescueTeamIcon } from './CustomIcons';
 
 interface AnimatedTeamProps {
+  map: L.Map;
   route: RescueRoute;
   victimLocations: LatLngTuple[];
 }
 
-const AnimatedTeam: React.FC<AnimatedTeamProps> = ({ route, victimLocations }) => {
-  const map = useMap();
+const AnimatedTeam: React.FC<AnimatedTeamProps> = ({ map, route, victimLocations }) => {
   const { toast } = useToast();
   const [position, setPosition] = React.useState<LatLngTuple | null>(null);
+  const markerRef = React.useRef<L.Marker | null>(null);
   
   const routePoints = React.useMemo(() => route.routeCoordinates.map(coord => {
     const [lat, lng] = coord.split(',').map(parseFloat);
@@ -30,7 +31,13 @@ const AnimatedTeam: React.FC<AnimatedTeamProps> = ({ route, victimLocations }) =
 
     let pos = routePoints[0];
     setPosition(pos);
-    const polyline = L.polyline(routePoints);
+
+    if (!markerRef.current) {
+        markerRef.current = L.marker(pos, { icon: rescueTeamIcon }).addTo(map);
+    } else {
+        markerRef.current.setLatLng(pos);
+    }
+    
     const totalDistance = routePoints.reduce((acc, point, i) => {
         if (i === 0) return 0;
         return acc + L.latLng(routePoints[i-1]).distanceTo(L.latLng(point));
@@ -59,6 +66,7 @@ const AnimatedTeam: React.FC<AnimatedTeamProps> = ({ route, victimLocations }) =
             const lng = start.lng + (end.lng - start.lng) * ratio;
             pos = [lat, lng];
             setPosition(pos);
+            markerRef.current?.setLatLng(pos);
             break;
         }
         traveledDistance += segmentDistance;
@@ -83,7 +91,9 @@ const AnimatedTeam: React.FC<AnimatedTeamProps> = ({ route, victimLocations }) =
       if (progress < 1) {
         animationFrameId = requestAnimationFrame(animate);
       } else {
-        setPosition(routePoints[routePoints.length - 1]);
+        const finalPosition = routePoints[routePoints.length - 1];
+        setPosition(finalPosition);
+        markerRef.current?.setLatLng(finalPosition);
       }
     };
 
@@ -91,12 +101,14 @@ const AnimatedTeam: React.FC<AnimatedTeamProps> = ({ route, victimLocations }) =
 
     return () => {
       cancelAnimationFrame(animationFrameId);
+      if (markerRef.current) {
+        map.removeLayer(markerRef.current);
+        markerRef.current = null;
+      }
     };
   }, [routePoints, map, toast, route.teamName, victimLocations]);
 
-  if (!position) return null;
-
-  return <Marker position={position} icon={rescueTeamIcon} />;
+  return null; // The marker is managed directly with the map instance
 };
 
 export default AnimatedTeam;
