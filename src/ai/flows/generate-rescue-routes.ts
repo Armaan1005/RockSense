@@ -10,6 +10,7 @@
 
 import {ai} from '@/ai/genkit';
 import {z} from 'genkit';
+import { getDirectionsTool } from '../tools/google-maps-tool';
 
 const GenerateRescueRoutesInputSchema = z.object({
   baseLocation: z
@@ -55,22 +56,23 @@ const prompt = ai.definePrompt({
   name: 'generateRescueRoutesPrompt',
   input: {schema: GenerateRescueRoutesInputSchema},
   output: {schema: GenerateRescueRoutesOutputSchema},
-  prompt: `You are an expert in search and rescue route planning, especially in avalanche scenarios, acting like a sophisticated routing service like Google Maps.
+  tools: [getDirectionsTool],
+  prompt: `You are an expert in search and rescue route planning. Your task is to generate 2-3 optimal rescue routes from a base location to multiple victim locations.
 
-Given the location of a rescue base, victim locations, and weather conditions, generate 2-3 optimal search and rescue routes.
+You MUST use the provided 'getDirections' tool to calculate the actual route coordinates between the base and the victim. Do not invent or hallucinate route coordinates.
 
-Think step-by-step to create the most plausible routes:
-1.  Analyze the terrain between the base and each victim. Imagine ridges, valleys, and forests.
-2.  Factor in the weather conditions provided. Heavy snow or blizzard conditions should result in less direct, more sheltered routes.
-3.  Create a path that logically follows terrain features. The route should not be a straight line but a series of connected points that a real team could follow on the ground.
-4.  Ensure the routes are non-overlapping to maximize search efficiency.
+Here's your process:
+1. For each victim, determine the best route from the rescue base to that victim's location.
+2. Call the 'getDirections' tool with the base location as the origin and the victim's location as the destination.
+3. Use the coordinates returned by the tool for the 'routeCoordinates' field.
+4. Create a plausible 'routeDescription' based on the tool's output and weather conditions.
+5. Assign a priority (High, Medium, Low) and an estimated time of arrival.
+6. Ensure the routes are non-overlapping to maximize search efficiency.
+7. Generate heatmap data indicating the probability of finding victims (reds for high-risk, blues for low-risk).
 
 Base Location: {{{baseLocation}}}
 Victim Locations: {{#each victimLocations}}{{{this}}}{{#unless @last}}, {{/unless}}{{/each}}
 Weather Conditions: {{{weatherConditions}}}
-
-Output an array of routes, a team name, a detailed route description, an array of coordinate strings representing the calculated path, the estimated time of arrival, and a priority (High, Medium, Low) for each route.
-Also, generate heatmap data indicating probability of finding victims, with reds for high-risk zones and blues for low-risk zones. The heatmap data should consist of an array of latitude, longitude, and intensity objects.
 
 Routes should be labeled with team names like Team Alpha, Team Bravo, etc.
 `,
