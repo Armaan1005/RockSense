@@ -13,3 +13,5 @@ export type Team = {
 };
 
 export type PlacingMode = 'base' | 'victim' | 'avalanche' | null;
+
+export type MapTypeId = 'roadmap' | 'satellite' | 'hybrid' | 'terrain';

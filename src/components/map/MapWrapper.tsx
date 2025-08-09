@@ -3,7 +3,7 @@
 
 import * as React from 'react';
 import { GoogleMap, useLoadScript, MarkerF, PolygonF, PolylineF } from '@react-google-maps/api';
-import type { LatLngLiteral, RescueRoute, PlacingMode, HeatmapDataPoint } from '@/types';
+import type { LatLngLiteral, RescueRoute, PlacingMode, HeatmapDataPoint, MapTypeId } from '@/types';
 import { Skeleton } from '../ui/skeleton';
 import { TEAM_COLORS } from '../ClientDashboard';
 import AnimatedTeam from './AnimatedTeam';
@@ -21,15 +21,6 @@ const center = {
   lng: 79.9844
 };
 
-const mapOptions: google.maps.MapOptions = {
-    mapId: MAP_ID,
-    disableDefaultUI: true,
-    zoomControl: true,
-    clickableIcons: false,
-    gestureHandling: 'cooperative',
-    mapTypeId: 'terrain'
-};
-
 const libraries: ('marker' | 'places' | 'visualization' | 'geometry')[] = ['marker', 'places', 'visualization', 'geometry'];
 
 interface MapWrapperProps {
@@ -40,6 +31,7 @@ interface MapWrapperProps {
   onMapClick: (e: google.maps.MapMouseEvent) => void;
   placingMode: PlacingMode;
   heatmapData: HeatmapDataPoint[];
+  mapTypeId: MapTypeId;
 }
 
 const MapWrapper: React.FC<MapWrapperProps> = ({
@@ -50,6 +42,7 @@ const MapWrapper: React.FC<MapWrapperProps> = ({
   onMapClick,
   placingMode,
   heatmapData,
+  mapTypeId,
 }) => {
   const { isLoaded, loadError } = useLoadScript({
     googleMapsApiKey: process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY as string,
@@ -69,6 +62,15 @@ const MapWrapper: React.FC<MapWrapperProps> = ({
 
   if (loadError) return <div>Error loading maps. Please check the API key and ensure billing is enabled on your Google Cloud project.</div>;
   if (!isLoaded || !window.google) return <div className="h-full w-full bg-muted flex items-center justify-center p-4"><Skeleton className="w-full h-full" /></div>;
+  
+  const mapOptions: google.maps.MapOptions = {
+    mapId: MAP_ID,
+    disableDefaultUI: true,
+    zoomControl: true,
+    clickableIcons: false,
+    gestureHandling: 'cooperative',
+    mapTypeId: mapTypeId
+  };
   
   const baseIcon = {
     path: "M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z", // Material Design Home icon

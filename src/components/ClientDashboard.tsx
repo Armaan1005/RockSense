@@ -2,7 +2,7 @@
 "use client";
 
 import * as React from 'react';
-import type { LatLngLiteral, PlacingMode, RescueRoute, Team, HeatmapDataPoint } from '@/types';
+import type { LatLngLiteral, PlacingMode, RescueRoute, Team, HeatmapDataPoint, MapTypeId } from '@/types';
 
 import dynamic from 'next/dynamic';
 import Header from '@/components/Header';
@@ -35,6 +35,7 @@ const ClientDashboard: React.FC = () => {
   const [lastActionStack, setLastActionStack] = React.useState<LastAction[]>([]);
 
   const [weather, setWeather] = React.useState<string>('Light Snow');
+  const [mapTypeId, setMapTypeId] = React.useState<MapTypeId>('terrain');
 
   const [isGenerating, setIsGenerating] = React.useState(false);
   const [routes, setRoutes] = React.useState<RescueRoute[]>([]);
@@ -137,6 +138,7 @@ const ClientDashboard: React.FC = () => {
             onMapClick={addMapPoint}
             placingMode={placingMode}
             heatmapData={heatmapData}
+            mapTypeId={mapTypeId}
           />
         </div>
         <RescueSidebar
@@ -144,6 +146,8 @@ const ClientDashboard: React.FC = () => {
           setPlacingMode={setPlacingMode}
           weather={weather}
           setWeather={setWeather}
+          mapTypeId={mapTypeId}
+          setMapTypeId={setMapTypeId}
           onGenerate={handleGenerateRoutes}
           isGenerating={isGenerating}
           routes={routes}

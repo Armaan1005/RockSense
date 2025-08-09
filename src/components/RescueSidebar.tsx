@@ -13,6 +13,7 @@ import {
   Undo2,
   Milestone,
   Clock,
+  Map,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
@@ -23,7 +24,7 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { Accordion, AccordionItem, AccordionTrigger, AccordionContent } from '@/components/ui/accordion';
-import type { PlacingMode, RescueRoute, Team } from '@/types';
+import type { PlacingMode, RescueRoute, Team, MapTypeId } from '@/types';
 import { ScrollArea } from './ui/scroll-area';
 import { Separator } from './ui/separator';
 import { Badge } from './ui/badge';
@@ -34,6 +35,8 @@ interface RescueSidebarProps {
   setPlacingMode: (mode: PlacingMode) => void;
   weather: string;
   setWeather: (value: string) => void;
+  mapTypeId: MapTypeId;
+  setMapTypeId: (value: MapTypeId) => void;
   onGenerate: () => void;
   isGenerating: boolean;
   routes: RescueRoute[];
@@ -51,6 +54,8 @@ const RescueSidebar: React.FC<RescueSidebarProps> = ({
   setPlacingMode,
   weather,
   setWeather,
+  mapTypeId,
+  setMapTypeId,
   onGenerate,
   isGenerating,
   routes,
@@ -99,7 +104,7 @@ const RescueSidebar: React.FC<RescueSidebarProps> = ({
 
           <div className="space-y-2">
             <h3 className="text-md font-medium">Conditions</h3>
-            <div className="grid grid-cols-1 gap-2">
+            <div className="grid grid-cols-1 gap-4">
               <div>
                 <label className="text-sm font-medium" htmlFor="weather">Weather</label>
                 <Select value={weather} onValueChange={setWeather}>
@@ -109,6 +114,18 @@ const RescueSidebar: React.FC<RescueSidebarProps> = ({
                     <SelectItem value="Light Snow">Light Snow</SelectItem>
                     <SelectItem value="Heavy Snow">Heavy Snow</SelectItem>
                     <SelectItem value="Blizzard">Blizzard</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <div>
+                <label className="text-sm font-medium" htmlFor="map-type">Map Type</label>
+                <Select value={mapTypeId} onValueChange={(v) => setMapTypeId(v as MapTypeId)}>
+                  <SelectTrigger id="map-type"><Map className="mr-2"/>{mapTypeId.charAt(0).toUpperCase() + mapTypeId.slice(1)}</SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="terrain">Terrain</SelectItem>
+                    <SelectItem value="roadmap">Roadmap</SelectItem>
+                    <SelectItem value="satellite">Satellite</SelectItem>
+                    <SelectItem value="hybrid">Hybrid</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
