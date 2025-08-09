@@ -56,8 +56,8 @@ const RescueSidebar: React.FC<RescueSidebarProps> = ({
   isAvalancheZoneSet,
 }) => {
   return (
-    <aside className="w-[380px] flex flex-col border-l bg-background/80 backdrop-blur-sm">
-      <div className="p-4 space-y-4">
+    <aside className="w-[380px] flex flex-col border-l bg-background/80 backdrop-blur-sm h-full">
+      <div className="p-4 space-y-4 shrink-0">
         <h2 className="text-lg font-semibold">Mission Control</h2>
         <div className="grid grid-cols-1 gap-2">
           <Button variant={placingMode === 'base' ? 'secondary' : 'outline'} onClick={() => setPlacingMode('base')}><Flag className="mr-2"/> Set Rescue Base</Button>
@@ -90,7 +90,7 @@ const RescueSidebar: React.FC<RescueSidebarProps> = ({
         </div>
       </div>
       
-      <div className="p-4 mt-auto border-t space-y-2">
+      <div className="p-4 mt-auto border-t space-y-2 shrink-0">
          <div className="flex justify-between items-center text-sm text-muted-foreground">
             <span>Base Set: <Badge variant={isBaseSet ? "default" : "secondary"}>{isBaseSet ? "Yes" : "No"}</Badge></span>
             <span>Victims: <Badge variant={victimCount > 0 ? "default" : "secondary"}>{victimCount}</Badge></span>
@@ -107,12 +107,14 @@ const RescueSidebar: React.FC<RescueSidebarProps> = ({
 
       <Separator />
 
-      <ScrollArea className="flex-1">
+      <ScrollArea className="flex-1 min-h-0">
         <div className="p-4">
           
-          <h3 className="text-md font-semibold mt-4 mb-2">Rescue Plan</h3>
+          <h3 className="text-md font-semibold mb-2">Rescue Plan</h3>
           {isGenerating && <p className="text-sm text-muted-foreground">Generating plan...</p>}
           
+          {routes.length === 0 && !isGenerating && <p className="text-sm text-muted-foreground">No plan generated yet.</p>}
+
           {routes.length > 0 && (
             <Accordion type="single" collapsible defaultValue="item-0">
               {routes.map((route, index) => (
