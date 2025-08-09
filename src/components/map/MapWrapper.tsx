@@ -101,6 +101,10 @@ const MapWrapper: React.FC<MapWrapperProps> = ({
       L.marker(pos, { icon: victimIcon }).bindTooltip(`Victim #${index + 1}`).addTo(layersRef.current);
     });
 
+    avalancheZone.forEach((pos) => {
+      L.circleMarker(pos, { radius: 5, color: 'hsl(var(--destructive))', fillColor: 'hsl(var(--destructive))', fillOpacity: 0.8 }).addTo(layersRef.current);
+    });
+
     if (avalancheZone.length > 2) {
       L.polygon(avalancheZone, { color: 'hsl(var(--destructive))', fillColor: 'hsl(var(--destructive))', fillOpacity: 0.2 }).addTo(layersRef.current);
     }
@@ -151,7 +155,7 @@ const MapWrapper: React.FC<MapWrapperProps> = ({
         {mapRef.current && routes.map((route, index) => (
             <AnimatedTeam 
                 key={`${route.teamName}-${index}`} 
-                map={mapRef.current!}
+                map={mapRef.current}
                 route={route} 
                 victimLocations={victimLocations} 
             />
