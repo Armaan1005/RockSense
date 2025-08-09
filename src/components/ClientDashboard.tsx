@@ -36,7 +36,7 @@ const ClientDashboard: React.FC = () => {
   const [lastActionStack, setLastActionStack] = React.useState<LastAction[]>([]);
 
   const [weather, setWeather] = React.useState<string>('Light Snow');
-  const [timeElapsed, setTimeElapsed] = React.useState<string>('Less than 1 hour');
+  const [timeElapsed, setTimeElapsed] = React.useState<string>('< 1 hour');
   const [mapTypeId, setMapTypeId] = React.useState<MapTypeId>('terrain');
   const [rescueStrategy, setRescueStrategy] = React.useState<RescueStrategy>('multi');
 

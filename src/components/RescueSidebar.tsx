@@ -185,10 +185,10 @@ const RescueSidebar: React.FC<RescueSidebarProps> = ({
                 <Select value={timeElapsed} onValueChange={setTimeElapsed}>
                   <SelectTrigger id="time-elapsed"><Clock className="mr-2"/>{timeElapsed}</SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="Less than 1 hour">Less than 1 hour</SelectItem>
+                    <SelectItem value="< 1 hour">&lt; 1 hour</SelectItem>
                     <SelectItem value="1-3 hours">1-3 hours</SelectItem>
                     <SelectItem value="3-6 hours">3-6 hours</SelectItem>
-                    <SelectItem value="More than 6 hours">More than 6 hours</SelectItem>
+                    <SelectItem value="> 6 hours">&gt; 6 hours</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
@@ -204,8 +204,6 @@ const RescueSidebar: React.FC<RescueSidebarProps> = ({
                   </SelectContent>
                 </Select>
               </div>
-            </div>
-             <div className="grid grid-cols-1 gap-4 mt-4">
               <div>
                 <label className="text-sm font-medium" htmlFor="rescue-strategy">Rescue Strategy</label>
                 <Select value={rescueStrategy} onValueChange={(v) => setRescueStrategy(v as RescueStrategy)}>
