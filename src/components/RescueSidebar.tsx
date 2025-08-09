@@ -112,7 +112,7 @@ const RescueSidebar: React.FC<RescueSidebarProps> = ({
                         </Button>
                       </PopoverTrigger>
                     </TooltipTrigger>
-                    <TooltipContent>
+                    <TooltipContent side="left">
                       <p>Help</p>
                     </TooltipContent>
                   </Tooltip>
