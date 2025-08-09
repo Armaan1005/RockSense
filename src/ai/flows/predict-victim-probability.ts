@@ -1,3 +1,4 @@
+
 'use server';
 
 /**
@@ -10,6 +11,7 @@
 
 import {ai} from '@/ai/genkit';
 import {z} from 'genkit';
+import { GaxiosError } from 'gaxios';
 
 const PredictVictimProbabilityInputSchema = z.object({
   weatherConditions: z.string().describe('The current weather conditions.'),
@@ -22,11 +24,6 @@ export type PredictVictimProbabilityInput = z.infer<
 >;
 
 const PredictVictimProbabilityOutputSchema = z.object({
-  heatmapData: z
-    .string()
-    .describe(
-      'A string containing data for the heatmap overlay, with reds representing high-risk zones and blues representing low-risk zones.'
-    ),
   summary: z.string().describe('A summary of the probability analysis.'),
 });
 export type PredictVictimProbabilityOutput = z.infer<
@@ -43,19 +40,15 @@ const prompt = ai.definePrompt({
   name: 'predictVictimProbabilityPrompt',
   input: {schema: PredictVictimProbabilityInputSchema},
   output: {schema: PredictVictimProbabilityOutputSchema},
-  prompt: `You are an expert in avalanche rescue planning. Based on the provided information, you will generate a heatmap overlay indicating the probability of finding victims.
+  prompt: `You are an expert in avalanche rescue planning. Based on the provided information, you will generate a textual analysis about the probability of finding victims.
 
 Weather Conditions: {{{weatherConditions}}}
 Time Elapsed Since Avalanche: {{{timeElapsed}}}
 Avalanche Zone Coordinates: {{{avalancheZoneCoordinates}}}
 Victim Coordinates: {{{victimCoordinates}}}
 
-Consider factors such as snow drift, terrain, and the "golden hour" to determine high-probability zones. Provide a summary of your analysis and the heatmap data.
-
-Format heatmap data as a simple string.  Example: "(lat1,lon1,prob1),(lat2,lon2,prob2)"
-
-Heatmap Data: 
-Summary: `,
+Consider factors such as snow drift, terrain, and the "golden hour" to determine high-probability zones. Provide a concise, actionable summary of your analysis. Do not mention heatmaps.
+`,
 });
 
 const predictVictimProbabilityFlow = ai.defineFlow(
@@ -65,7 +58,17 @@ const predictVictimProbabilityFlow = ai.defineFlow(
     outputSchema: PredictVictimProbabilityOutputSchema,
   },
   async input => {
-    const {output} = await prompt(input);
-    return output!;
+     try {
+      const {output} = await prompt(input);
+      if (!output) {
+        throw new Error("The AI model failed to return a valid response. Please try again.");
+      }
+      return output;
+    } catch (e) {
+      if (e instanceof GaxiosError) {
+        console.error(JSON.stringify(e.response?.data, null, 2));
+      }
+      throw e;
+    }
   }
 );

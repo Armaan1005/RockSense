@@ -44,9 +44,7 @@ export type GenerateRescueRoutesOutput = z.infer<typeof GenerateRescueRoutesOutp
 
 export async function generateRescueRoutes(input: GenerateRescueRoutesInput): Promise<GenerateRescueRoutesOutput> {
   const result = await generateRescueRoutesFlow(input);
-  // The heatmap is removed, so we need to adjust what we return.
-  // For now, let's just return the routes and an empty heatmap array to satisfy the client.
-  return { ...result, heatmapData: [] };
+  return result;
 }
 
 const prompt = ai.definePrompt({

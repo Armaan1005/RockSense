@@ -18,6 +18,9 @@ import {
   Users,
   User as UserIcon,
   Info,
+  Thermometer,
+  Wind,
+  Search,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
@@ -35,6 +38,7 @@ import { Badge } from './ui/badge';
 import { TEAM_COLORS } from './ClientDashboard';
 import { Popover, PopoverContent, PopoverTrigger } from './ui/popover';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from './ui/tooltip';
+import { Card, CardContent, CardHeader, CardTitle } from './ui/card';
 
 interface RescueSidebarProps {
   placingMode: PlacingMode;
@@ -47,6 +51,8 @@ interface RescueSidebarProps {
   setRescueStrategy: (value: RescueStrategy) => void;
   onGenerate: () => void;
   isGenerating: boolean;
+  onAnalyze: () => void;
+  isAnalyzing: boolean;
   routes: RescueRoute[];
   teams: Team[];
   onClear: () => void;
@@ -55,6 +61,7 @@ interface RescueSidebarProps {
   victimCount: number;
   isBaseSet: boolean;
   isAvalancheZoneSet: boolean;
+  analysisSummary: string | null;
 }
 
 const RescueSidebar: React.FC<RescueSidebarProps> = ({
@@ -68,6 +75,8 @@ const RescueSidebar: React.FC<RescueSidebarProps> = ({
   setRescueStrategy,
   onGenerate,
   isGenerating,
+  onAnalyze,
+  isAnalyzing,
   routes,
   teams,
   onClear,
@@ -76,6 +85,7 @@ const RescueSidebar: React.FC<RescueSidebarProps> = ({
   victimCount,
   isBaseSet,
   isAvalancheZoneSet,
+  analysisSummary,
 }) => {
 
   const calculateRouteDistance = (routeCoordinates: string[]): string => {
@@ -133,7 +143,7 @@ const RescueSidebar: React.FC<RescueSidebarProps> = ({
                     <strong>Configure:</strong> Adjust weather, map type, and strategy.
                   </li>
                    <li>
-                    <strong>Generate:</strong> Click "Generate Rescue Routes" to see the AI plan.
+                    <strong>Generate or Analyze:</strong> Click the desired action to see the AI plan.
                   </li>
                 </ol>
               </PopoverContent>
@@ -201,7 +211,7 @@ const RescueSidebar: React.FC<RescueSidebarProps> = ({
           <div>
             <h3 className="text-md font-semibold mb-2">Rescue Plan</h3>
 
-            {isGenerating && <p className="text-sm text-muted-foreground">Generating plan...</p>}
+            {isGenerating && !isAnalyzing && <p className="text-sm text-muted-foreground">Generating plan...</p>}
             
             {routes.length === 0 && !isGenerating && <p className="text-sm text-muted-foreground">No plan generated yet.</p>}
 
@@ -236,6 +246,22 @@ const RescueSidebar: React.FC<RescueSidebarProps> = ({
               </Accordion>
             )}
           </div>
+          <Separator />
+           <div>
+            <h3 className="text-md font-semibold mb-2">Analysis Summary</h3>
+            {isAnalyzing && <p className="text-sm text-muted-foreground">Analyzing...</p>}
+            {analysisSummary && !isAnalyzing && (
+                 <Card>
+                    <CardContent className="pt-6">
+                        <p className="text-sm text-muted-foreground">{analysisSummary}</p>
+                    </CardContent>
+                </Card>
+            )}
+             {!analysisSummary && !isAnalyzing && (
+                <p className="text-sm text-muted-foreground">No analysis performed yet.</p>
+             )}
+           </div>
+
         </div>
       </ScrollArea>
       
@@ -245,10 +271,16 @@ const RescueSidebar: React.FC<RescueSidebarProps> = ({
             <span>Victims: <Badge variant={victimCount > 0 ? "default" : "secondary"}>{victimCount}</Badge></span>
             <span>Zone Defined: <Badge variant={isAvalancheZoneSet ? "default" : "secondary"}>{isAvalancheZoneSet ? "Yes" : "No"}</Badge></span>
         </div>
-        <Button onClick={onGenerate} disabled={isGenerating} className="w-full bg-accent hover:bg-accent/90 text-accent-foreground">
-          {isGenerating ? <Loader className="mr-2 animate-spin"/> : <BrainCircuit className="mr-2"/>}
-          Generate Rescue Routes
-        </Button>
+        <div className="flex gap-2">
+            <Button onClick={onGenerate} disabled={isGenerating || isAnalyzing} className="w-full bg-accent hover:bg-accent/90 text-accent-foreground">
+            {isGenerating ? <Loader className="mr-2 animate-spin"/> : <BrainCircuit className="mr-2"/>}
+            Generate Routes
+            </Button>
+            <Button onClick={onAnalyze} disabled={isAnalyzing || isGenerating || !isAvalancheZoneSet || victimCount === 0} variant="outline" className="w-full">
+                {isAnalyzing ? <Loader className="mr-2 animate-spin"/> : <Search className="mr-2"/>}
+                Analyze
+            </Button>
+        </div>
         <div className="flex gap-2">
             <Button onClick={onUndo} variant="outline" className="w-full" disabled={!canUndo}>
                 <Undo2 className="mr-2"/> Undo

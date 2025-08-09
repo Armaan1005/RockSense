@@ -2,14 +2,14 @@
 "use client";
 
 import * as React from 'react';
-import type { LatLngLiteral, PlacingMode, RescueRoute, Team, HeatmapDataPoint, MapTypeId, RescueStrategy } from '@/types';
+import type { LatLngLiteral, PlacingMode, RescueRoute, Team, MapTypeId, RescueStrategy } from '@/types';
 
 import dynamic from 'next/dynamic';
 import Header from '@/components/Header';
 import RescueSidebar from '@/components/RescueSidebar';
 import { useToast } from '@/hooks/use-toast';
 import { Skeleton } from './ui/skeleton';
-import { getRescueRoutesAction } from '@/lib/actions';
+import { getRescueRoutesAction, getVictimProbabilityAction } from '@/lib/actions';
 
 const MapWrapper = dynamic(() => import('@/components/map/MapWrapper'), {
   ssr: false,
@@ -40,9 +40,10 @@ const ClientDashboard: React.FC = () => {
   const [rescueStrategy, setRescueStrategy] = React.useState<RescueStrategy>('multi');
 
   const [isGenerating, setIsGenerating] = React.useState(false);
+  const [isAnalyzing, setIsAnalyzing] = React.useState(false);
   const [routes, setRoutes] = React.useState<RescueRoute[]>([]);
   const [teams, setTeams] = React.useState<Team[]>([]);
-  const [heatmapData, setHeatmapData] = React.useState<HeatmapDataPoint[]>([]);
+  const [analysisSummary, setAnalysisSummary] = React.useState<string | null>(null);
 
   const addMapPoint = (e: google.maps.MapMouseEvent) => {
     if (!e.latLng) return;
@@ -73,7 +74,6 @@ const ClientDashboard: React.FC = () => {
     setIsGenerating(true);
     setRoutes([]);
     setTeams([]);
-    setHeatmapData([]);
 
     try {
       const result = await getRescueRoutesAction({
@@ -84,7 +84,6 @@ const ClientDashboard: React.FC = () => {
       });
 
       setRoutes(result.routes);
-      setHeatmapData(result.heatmapData);
       
       const newTeams = result.routes.map(route => ({
         name: route.teamName,
@@ -100,6 +99,38 @@ const ClientDashboard: React.FC = () => {
       setIsGenerating(false);
     }
   };
+
+  const handleAnalyzeProbabilities = async () => {
+    if (avalancheZone.length < 3) {
+      toast({ title: 'Missing Information', description: 'Please define an avalanche zone with at least 3 points.', variant: 'destructive' });
+      return;
+    }
+     if (victimLocations.length === 0) {
+      toast({ title: 'Missing Information', description: 'Please add at least one victim location for analysis.', variant: 'destructive' });
+      return;
+    }
+
+    setIsAnalyzing(true);
+    setAnalysisSummary(null);
+
+    try {
+       const result = await getVictimProbabilityAction({
+        weatherConditions: weather,
+        timeElapsed: "1 hour", // This is currently static, could be dynamic in the future
+        avalancheZoneCoordinates: avalancheZone.map(p => `${p.lat},${p.lng}`).join(';'),
+        victimCoordinates: victimLocations.map(v => `${v.lat},${v.lng}`).join(';'),
+      });
+
+      setAnalysisSummary(result.summary);
+      toast({ title: 'Success', description: 'Victim probability analyzed.' });
+
+    } catch (error) {
+      console.error(error);
+      toast({ title: 'Error', description: (error as Error).message, variant: 'destructive' });
+    } finally {
+      setIsAnalyzing(false);
+    }
+  }
 
   const handleUndo = () => {
     if (lastActionStack.length === 0) return;
@@ -124,8 +155,8 @@ const ClientDashboard: React.FC = () => {
     setRoutes([]);
     setPlacingMode(null);
     setTeams([]);
-    setHeatmapData([]);
     setLastActionStack([]);
+    setAnalysisSummary(null);
   }
 
   return (
@@ -140,7 +171,6 @@ const ClientDashboard: React.FC = () => {
             routes={routes}
             onMapClick={addMapPoint}
             placingMode={placingMode}
-            heatmapData={heatmapData}
             mapTypeId={mapTypeId}
           />
         </div>
@@ -155,6 +185,8 @@ const ClientDashboard: React.FC = () => {
           setRescueStrategy={setRescueStrategy}
           onGenerate={handleGenerateRoutes}
           isGenerating={isGenerating}
+          onAnalyze={handleAnalyzeProbabilities}
+          isAnalyzing={isAnalyzing}
           routes={routes}
           teams={teams}
           onClear={clearAll}
@@ -163,6 +195,7 @@ const ClientDashboard: React.FC = () => {
           victimCount={victimLocations.length}
           isBaseSet={!!baseLocation}
           isAvalancheZoneSet={avalancheZone.length > 2}
+          analysisSummary={analysisSummary}
         />
       </main>
     </div>

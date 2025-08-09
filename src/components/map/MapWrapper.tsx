@@ -3,7 +3,7 @@
 
 import * as React from 'react';
 import { GoogleMap, useLoadScript, MarkerF, PolygonF, PolylineF } from '@react-google-maps/api';
-import type { LatLngLiteral, RescueRoute, PlacingMode, HeatmapDataPoint, MapTypeId } from '@/types';
+import type { LatLngLiteral, RescueRoute, PlacingMode, MapTypeId } from '@/types';
 import { Skeleton } from '../ui/skeleton';
 import { TEAM_COLORS } from '../ClientDashboard';
 import AnimatedTeam from './AnimatedTeam';
@@ -30,7 +30,6 @@ interface MapWrapperProps {
   routes: RescueRoute[];
   onMapClick: (e: google.maps.MapMouseEvent) => void;
   placingMode: PlacingMode;
-  heatmapData: HeatmapDataPoint[];
   mapTypeId: MapTypeId;
 }
 
@@ -41,7 +40,6 @@ const MapWrapper: React.FC<MapWrapperProps> = ({
   routes,
   onMapClick,
   placingMode,
-  heatmapData,
   mapTypeId,
 }) => {
   const { isLoaded, loadError } = useLoadScript({
