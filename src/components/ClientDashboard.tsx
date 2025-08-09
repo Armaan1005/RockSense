@@ -2,7 +2,7 @@
 "use client";
 
 import * as React from 'react';
-import type { LatLngLiteral, PlacingMode, RescueRoute, Team, HeatmapDataPoint, MapTypeId } from '@/types';
+import type { LatLngLiteral, PlacingMode, RescueRoute, Team, HeatmapDataPoint, MapTypeId, RescueStrategy } from '@/types';
 
 import dynamic from 'next/dynamic';
 import Header from '@/components/Header';
@@ -21,6 +21,7 @@ export const TEAM_COLORS: { [key: string]: string } = {
   'Team Bravo': '#2ecc71', // Green
   'Team Charlie': '#f1c40f', // Yellow
   'Team Delta': '#e67e22', // Orange
+  'Team Omega': '#9b59b6', // Purple for single team
 };
 
 type LastAction = 'base' | 'victim' | 'avalanche' | null;
@@ -36,6 +37,7 @@ const ClientDashboard: React.FC = () => {
 
   const [weather, setWeather] = React.useState<string>('Light Snow');
   const [mapTypeId, setMapTypeId] = React.useState<MapTypeId>('terrain');
+  const [rescueStrategy, setRescueStrategy] = React.useState<RescueStrategy>('multi');
 
   const [isGenerating, setIsGenerating] = React.useState(false);
   const [routes, setRoutes] = React.useState<RescueRoute[]>([]);
@@ -78,6 +80,7 @@ const ClientDashboard: React.FC = () => {
         baseLocation: `${baseLocation.lat},${baseLocation.lng}`,
         victimLocations: victimLocations.map(v => `${v.lat},${v.lng}`),
         weatherConditions: weather,
+        rescueStrategy: rescueStrategy,
       });
 
       setRoutes(result.routes);
@@ -148,6 +151,8 @@ const ClientDashboard: React.FC = () => {
           setWeather={setWeather}
           mapTypeId={mapTypeId}
           setMapTypeId={setMapTypeId}
+          rescueStrategy={rescueStrategy}
+          setRescueStrategy={setRescueStrategy}
           onGenerate={handleGenerateRoutes}
           isGenerating={isGenerating}
           routes={routes}

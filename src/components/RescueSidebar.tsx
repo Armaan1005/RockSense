@@ -15,6 +15,8 @@ import {
   Clock,
   Map,
   GitMerge,
+  Users,
+  User as UserIcon,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
@@ -25,7 +27,7 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { Accordion, AccordionItem, AccordionTrigger, AccordionContent } from '@/components/ui/accordion';
-import type { PlacingMode, RescueRoute, Team, MapTypeId } from '@/types';
+import type { PlacingMode, RescueRoute, Team, MapTypeId, RescueStrategy } from '@/types';
 import { ScrollArea } from './ui/scroll-area';
 import { Separator } from './ui/separator';
 import { Badge } from './ui/badge';
@@ -38,6 +40,8 @@ interface RescueSidebarProps {
   setWeather: (value: string) => void;
   mapTypeId: MapTypeId;
   setMapTypeId: (value: MapTypeId) => void;
+  rescueStrategy: RescueStrategy;
+  setRescueStrategy: (value: RescueStrategy) => void;
   onGenerate: () => void;
   isGenerating: boolean;
   routes: RescueRoute[];
@@ -57,6 +61,8 @@ const RescueSidebar: React.FC<RescueSidebarProps> = ({
   setWeather,
   mapTypeId,
   setMapTypeId,
+  rescueStrategy,
+  setRescueStrategy,
   onGenerate,
   isGenerating,
   routes,
@@ -105,7 +111,7 @@ const RescueSidebar: React.FC<RescueSidebarProps> = ({
 
           <div className="space-y-2">
             <h3 className="text-md font-medium">Conditions & Strategy</h3>
-            <div className="grid grid-cols-1 gap-4">
+            <div className="grid grid-cols-2 gap-4">
               <div>
                 <label className="text-sm font-medium" htmlFor="weather">Weather</label>
                 <Select value={weather} onValueChange={setWeather}>
@@ -127,6 +133,21 @@ const RescueSidebar: React.FC<RescueSidebarProps> = ({
                     <SelectItem value="roadmap">Roadmap</SelectItem>
                     <SelectItem value="satellite">Satellite</SelectItem>
                     <SelectItem value="hybrid">Hybrid</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+             <div className="grid grid-cols-1 gap-4">
+              <div>
+                <label className="text-sm font-medium" htmlFor="rescue-strategy">Rescue Strategy</label>
+                <Select value={rescueStrategy} onValueChange={(v) => setRescueStrategy(v as RescueStrategy)}>
+                  <SelectTrigger id="rescue-strategy">
+                    {rescueStrategy === 'multi' ? <Users className="mr-2" /> : <UserIcon className="mr-2" />}
+                    {rescueStrategy === 'multi' ? 'Multi Team' : 'Single Team'}
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="multi">Multi Team</SelectItem>
+                    <SelectItem value="single">Single Team (TSP)</SelectItem>
                   </SelectContent>
                 </Select>
               </div>

@@ -22,6 +22,9 @@ const GenerateRescueRoutesInputSchema = z.object({
   weatherConditions: z
     .string()
     .describe('A description of the current weather conditions.'),
+  rescueStrategy: z
+    .enum(['multi', 'single'])
+    .describe('The strategy for rescue. "multi" for multiple teams, "single" for one team visiting all victims.'),
 });
 export type GenerateRescueRoutesInput = z.infer<typeof GenerateRescueRoutesInputSchema>;
 
@@ -60,14 +63,15 @@ You must generate plausible, fictional route coordinates that simulate a realist
 - Base Location: {{{baseLocation}}}
 - Victim Locations: {{#each victimLocations}}{{{this}}}{{#unless @last}}, {{/unless}}{{/each}}
 - Weather Conditions: {{{weatherConditions}}}
+- Rescue Strategy: {{{rescueStrategy}}}
 
 **Instructions:**
-- Your task is to generate 2-3 optimal, non-overlapping rescue routes from the base location to the victim locations.
-- For each victim, create a plausible route from the rescue base.
-- Assign a priority (High, Medium, Low) and an estimated travelling duration for each route.
-- Routes should be labeled with team names like Team Alpha, Team Bravo, etc.
-- Generate a series of 'latitude,longitude' coordinates for the 'routeCoordinates' field for each route. Create at least 5-10 points per leg of the journey (e.g., base to victim, or victim to victim).
-- Create a plausible 'routeDescription' based on potential terrain and weather conditions.
+- Based on the 'Rescue Strategy':
+  - If 'multi', generate 2-3 optimal, non-overlapping rescue routes from the base location to the victim locations. Assign different teams (Team Alpha, Team Bravo, etc.) to different victims or groups of victims.
+  - If 'single', generate a single, optimized route that starts at the base, visits all victim locations in the most efficient order (Traveling Salesperson Problem), and returns to base. Assign this route to a single team (e.g., Team Omega).
+- For each route, create a plausible 'routeDescription' based on potential terrain and weather.
+- Assign a priority (High, Medium, Low) and an estimated 'travellingDuration' for each route.
+- Generate a series of 'latitude,longitude' coordinates for the 'routeCoordinates' field. Create at least 5-10 points per leg of the journey (e.g., base to victim, or victim to victim).
 `,
 });
 
