@@ -126,7 +126,6 @@ const RescueSidebar: React.FC<RescueSidebarProps> = ({
                   </AccordionTrigger>
                   <AccordionContent className="space-y-2">
                     <p className="text-sm">{route.routeDescription}</p>
-                    <p className="text-sm font-medium">ETA: <span className="font-mono">{route.estimatedTimeArrival}</span></p>
                   </AccordionContent>
                 </AccordionItem>
               ))}
