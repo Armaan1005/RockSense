@@ -6,7 +6,6 @@ import {
   User,
   Triangle,
   CloudSnow,
-  Clock,
   BrainCircuit,
   Loader,
   X
@@ -26,15 +25,12 @@ import { ScrollArea } from './ui/scroll-area';
 import { Separator } from './ui/separator';
 import { Badge } from './ui/badge';
 import { TEAM_COLORS } from './ClientDashboard';
-import GoldenHourTimer from './GoldenHourTimer';
 
 interface RescueSidebarProps {
   placingMode: PlacingMode;
   setPlacingMode: (mode: PlacingMode) => void;
   weather: string;
   setWeather: (value: string) => void;
-  timeOfDay: string;
-  setTimeOfDay: (value: string) => void;
   onGenerate: () => void;
   isGenerating: boolean;
   routes: RescueRoute[];
@@ -50,8 +46,6 @@ const RescueSidebar: React.FC<RescueSidebarProps> = ({
   setPlacingMode,
   weather,
   setWeather,
-  timeOfDay,
-  setTimeOfDay,
   onGenerate,
   isGenerating,
   routes,
@@ -79,7 +73,7 @@ const RescueSidebar: React.FC<RescueSidebarProps> = ({
 
         <div className="space-y-2">
           <h3 className="text-md font-medium">Conditions</h3>
-          <div className="grid grid-cols-2 gap-2">
+          <div className="grid grid-cols-1 gap-2">
             <div>
               <label className="text-sm font-medium" htmlFor="weather">Weather</label>
               <Select value={weather} onValueChange={setWeather}>
@@ -89,18 +83,6 @@ const RescueSidebar: React.FC<RescueSidebarProps> = ({
                   <SelectItem value="Light Snow">Light Snow</SelectItem>
                   <SelectItem value="Heavy Snow">Heavy Snow</SelectItem>
                   <SelectItem value="Blizzard">Blizzard</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-            <div>
-              <label className="text-sm font-medium" htmlFor="time">Time of Day</label>
-              <Select value={timeOfDay} onValueChange={setTimeOfDay}>
-                <SelectTrigger id="time"><Clock className="mr-2"/>{timeOfDay}</SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="Morning">Morning</SelectItem>
-                  <SelectItem value="Afternoon">Afternoon</SelectItem>
-                  <SelectItem value="Dusk">Dusk</SelectItem>
-                  <SelectItem value="Night">Night</SelectItem>
                 </SelectContent>
               </Select>
             </div>
@@ -127,15 +109,6 @@ const RescueSidebar: React.FC<RescueSidebarProps> = ({
 
       <ScrollArea className="flex-1">
         <div className="p-4">
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Golden Hour</CardTitle>
-              <GoldenHourTimer isRunning={isGenerating || routes.length > 0} />
-            </CardHeader>
-            <CardContent>
-              <p className="text-xs text-muted-foreground">Critical window for victim survival.</p>
-            </CardContent>
-          </Card>
           
           <h3 className="text-md font-semibold mt-4 mb-2">Rescue Plan</h3>
           {isGenerating && <p className="text-sm text-muted-foreground">Generating plan...</p>}

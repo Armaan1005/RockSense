@@ -32,7 +32,6 @@ const ClientDashboard: React.FC = () => {
   const [avalancheZone, setAvalancheZone] = React.useState<LatLngTuple[]>([]);
 
   const [weather, setWeather] = React.useState<string>('Light Snow');
-  const [timeOfDay, setTimeOfDay] = React.useState<string>('Afternoon');
 
   const [isGenerating, setIsGenerating] = React.useState(false);
   const [routes, setRoutes] = React.useState<RescueRoute[]>([]);
@@ -71,7 +70,6 @@ const ClientDashboard: React.FC = () => {
         baseLocation: `${baseLocation[0]},${baseLocation[1]}`,
         victimLocations: victimLocations.map(v => `${v[0]},${v[1]}`),
         weatherConditions: weather,
-        timeOfDay: timeOfDay,
       });
 
       setRoutes(result.routes);
@@ -123,8 +121,6 @@ const ClientDashboard: React.FC = () => {
           setPlacingMode={setPlacingMode}
           weather={weather}
           setWeather={setWeather}
-          timeOfDay={timeOfDay}
-          setTimeOfDay={setTimeOfDay}
           onGenerate={handleGenerateRoutes}
           isGenerating={isGenerating}
           routes={routes}

@@ -21,9 +21,6 @@ const GenerateRescueRoutesInputSchema = z.object({
   weatherConditions: z
     .string()
     .describe('A description of the current weather conditions.'),
-  timeOfDay: z
-    .string()
-    .describe('The current time of day.'),
 });
 export type GenerateRescueRoutesInput = z.infer<typeof GenerateRescueRoutesInputSchema>;
 
@@ -60,14 +57,13 @@ const prompt = ai.definePrompt({
   output: {schema: GenerateRescueRoutesOutputSchema},
   prompt: `You are an expert in search and rescue route planning, especially in avalanche scenarios.
 
-Given the location of a rescue base, victim locations, weather conditions, and time of day, generate 2-3 optimal search and rescue routes.
+Given the location of a rescue base, victim locations, and weather conditions, generate 2-3 optimal search and rescue routes.
 
-Consider weather conditions and time of day when determining the routes. Ensure the routes are non-overlapping to maximize efficiency.
+Consider weather conditions when determining the routes. Ensure the routes are non-overlapping to maximize efficiency.
 
 Base Location: {{{baseLocation}}}
 Victim Locations: {{#each victimLocations}}{{{this}}}{{#unless @last}}, {{/unless}}{{/each}}
 Weather Conditions: {{{weatherConditions}}}
-Time of Day: {{{timeOfDay}}}
 
 Output an array of routes, a team name, route description, an array of coordinate strings representing the path of the route, the estimated time of arrival, and the priority for each route.
 Also, generate heatmap data indicating probability of finding victims, reds for high-risk zones and blues for low-risk zones. The heatmap data should consist of an array of latitude, longitude, and intensity objects.
