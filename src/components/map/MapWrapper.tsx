@@ -25,7 +25,8 @@ const mapOptions: google.maps.MapOptions = {
     disableDefaultUI: true,
     zoomControl: true,
     clickableIcons: false,
-    gestureHandling: 'cooperative'
+    gestureHandling: 'cooperative',
+    mapTypeId: 'terrain'
 };
 
 const libraries: ('marker' | 'places' | 'visualization')[] = ['marker', 'places', 'visualization'];
@@ -90,7 +91,7 @@ const MapWrapper: React.FC<MapWrapperProps> = ({
     strokeColor: 'white'
   };
 
-  if (loadError) return <div>Error loading maps</div>;
+  if (loadError) return <div>Error loading maps. Please check the API key.</div>;
   if (!isLoaded) return <div className="h-full w-full bg-muted flex items-center justify-center p-4"><Skeleton className="w-full h-full" /></div>;
 
   return (
