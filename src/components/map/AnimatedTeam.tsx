@@ -16,12 +16,7 @@ const AnimatedTeam: React.FC<AnimatedTeamProps> = ({ route, victimLocations }) =
   const map = useMap();
   const { toast } = useToast();
   const [position, setPosition] = React.useState<LatLngTuple | null>(null);
-  const [isClient, setIsClient] = React.useState(false);
   
-  React.useEffect(() => {
-    setIsClient(true);
-  }, []);
-
   const routePoints = React.useMemo(() => route.routeCoordinates.map(coord => {
     const [lat, lng] = coord.split(',').map(parseFloat);
     return [lat, lng] as LatLngTuple;
@@ -30,7 +25,7 @@ const AnimatedTeam: React.FC<AnimatedTeamProps> = ({ route, victimLocations }) =
   const totalDuration = 15000; // 15 seconds for the entire route animation
 
   React.useEffect(() => {
-    if (routePoints.length < 2 || !isClient) return;
+    if (routePoints.length < 2) return;
 
     let pos = routePoints[0];
     setPosition(pos);
@@ -96,9 +91,9 @@ const AnimatedTeam: React.FC<AnimatedTeamProps> = ({ route, victimLocations }) =
     return () => {
       cancelAnimationFrame(animationFrameId);
     };
-  }, [routePoints, map, toast, route.teamName, victimLocations, isClient]);
+  }, [routePoints, map, toast, route.teamName, victimLocations]);
 
-  if (!position || !isClient) return null;
+  if (!position) return null;
 
   return <Marker position={position} icon={rescueTeamIcon} />;
 };

@@ -4,14 +4,9 @@ import * as React from 'react';
 
 const GoldenHourTimer: React.FC<{ isRunning: boolean }> = ({ isRunning }) => {
   const [timeLeft, setTimeLeft] = React.useState(3600);
-  const [isClient, setIsClient] = React.useState(false);
 
   React.useEffect(() => {
-    setIsClient(true);
-  }, []);
-
-  React.useEffect(() => {
-    if (!isRunning || !isClient) {
+    if (!isRunning) {
       // Reset timer when not running
       setTimeLeft(3600);
       return;
@@ -22,12 +17,7 @@ const GoldenHourTimer: React.FC<{ isRunning: boolean }> = ({ isRunning }) => {
     }, 1000);
 
     return () => clearInterval(timer);
-  }, [isRunning, isClient]);
-
-  if (!isClient) {
-    // Render a placeholder or nothing on the server
-    return <div className="text-2xl font-bold font-mono">60:00</div>;
-  }
+  }, [isRunning]);
 
   const minutes = Math.floor(timeLeft / 60);
   const seconds = timeLeft % 60;
