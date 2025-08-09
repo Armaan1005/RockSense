@@ -118,7 +118,7 @@ const RescueSidebar: React.FC<RescueSidebarProps> = ({
                     <TooltipTrigger asChild>
                       <PopoverTrigger asChild>
                         <Button variant="ghost" size="icon" className="h-6 w-6">
-                          <Info className="h-4 w-4 text-muted-foreground" />
+                          <Info className="h-4 w-4 text-[#000000] dark:text-foreground" />
                           <span className="sr-only">How to use</span>
                         </Button>
                       </PopoverTrigger>
