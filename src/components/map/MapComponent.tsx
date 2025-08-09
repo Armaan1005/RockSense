@@ -2,7 +2,7 @@
 'use client';
 
 import * as React from 'react';
-import { Marker, Polygon, Polyline, Tooltip, useMap } from 'react-leaflet';
+import { useMap } from 'react-leaflet';
 import type { LatLngTuple, RescueRoute, Team, PlacingMode, HeatmapDataPoint } from '@/types';
 import { baseIcon, victimIcon } from './CustomIcons';
 import AnimatedTeam from './AnimatedTeam';
@@ -50,16 +50,16 @@ const MapComponent: React.FC<MapComponentProps> = ({
         heatmapData={heatmapData}
       />
 
-      {baseLocation && <Marker position={baseLocation} icon={baseIcon}><Tooltip>Rescue Base</Tooltip></Marker>}
+      {baseLocation && <L.Marker position={baseLocation} icon={baseIcon}><L.Tooltip>Rescue Base</L.Tooltip></L.Marker>}
 
       {victimLocations.map((pos, index) => (
-        <Marker key={index} position={pos} icon={victimIcon}>
-          <Tooltip>Victim #{index + 1}</Tooltip>
-        </Marker>
+        <L.Marker key={index} position={pos} icon={victimIcon}>
+          <L.Tooltip>Victim #{index + 1}</L.Tooltip>
+        </L.Marker>
       ))}
 
       {avalancheZone.length > 2 && (
-        <Polygon pathOptions={{ color: 'hsl(var(--destructive))', fillColor: 'hsl(var(--destructive))', fillOpacity: 0.2 }} positions={avalancheZone} />
+        <L.Polygon pathOptions={{ color: 'hsl(var(--destructive))', fillColor: 'hsl(var(--destructive))', fillOpacity: 0.2 }} positions={avalancheZone} />
       )}
 
       {routes.map((route, index) => {
@@ -69,13 +69,13 @@ const MapComponent: React.FC<MapComponentProps> = ({
         });
 
         return (
-          <Polyline
+          <L.Polyline
             key={index}
             positions={routePoints}
             pathOptions={{ color: TEAM_COLORS[route.teamName] || '#fff', weight: 4, opacity: 0.8 }}
           >
-            <Tooltip>{route.teamName}</Tooltip>
-          </Polyline>
+            <L.Tooltip>{route.teamName}</L.Tooltip>
+          </L.Polyline>
         );
       })}
 

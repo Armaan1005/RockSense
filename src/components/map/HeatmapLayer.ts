@@ -1,3 +1,4 @@
+
 'use client';
 import L from 'leaflet';
 import 'leaflet.heat';
@@ -8,7 +9,7 @@ interface HeatmapDataPoint {
   intensity: number;
 }
 
-export const HeatmapLayer = L.Layer.extend({
+export const HeatmapLayer = (L.Layer as any).extend({
   initialize: function (this: any, data: HeatmapDataPoint[]) {
     this._data = data;
     this._heatLayer = null;

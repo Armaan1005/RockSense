@@ -3,13 +3,13 @@
 
 import * as React from 'react';
 import type { LatLngTuple, PlacingMode, RescueRoute, Team, HeatmapDataPoint } from '@/types';
-// import { getRescueRoutesAction } from '@/lib/actions';
 
 import dynamic from 'next/dynamic';
 import Header from '@/components/Header';
 import RescueSidebar from '@/components/RescueSidebar';
 import { useToast } from '@/hooks/use-toast';
 import { Skeleton } from './ui/skeleton';
+import { getRescueRoutesAction } from '@/lib/actions';
 
 const MapWrapper = dynamic(() => import('@/components/map/MapWrapper'), {
   ssr: false,
@@ -78,6 +78,7 @@ const ClientDashboard: React.FC = () => {
                         ...victimLocations.map(v => `${v[0]},${v[1]}`)
                     ],
                     priority: 'High',
+                    estimatedTimeArrival: '25 minutes',
                 },
                 {
                     teamName: 'Team Bravo',
@@ -88,6 +89,7 @@ const ClientDashboard: React.FC = () => {
                         ...victimLocations.map(v => `${v[0] + 0.01},${v[1] - 0.01}`)
                     ],
                     priority: 'Medium',
+                    estimatedTimeArrival: '45 minutes',
                 },
             ],
             heatmapData: [
