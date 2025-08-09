@@ -56,8 +56,10 @@ const AnimatedTeam: React.FC<AnimatedTeamProps> = ({ route, victimLocations }) =
         if (traveledDistance + segmentDistance >= currentDistance) {
             const ratio = (currentDistance - traveledDistance) / segmentDistance;
             const newPos = google.maps.geometry.spherical.interpolate(start, end, ratio);
-            pos = { lat: newPos.lat(), lng: newPos.lng() };
-            setPosition(pos);
+            if (newPos) {
+              pos = { lat: newPos.lat(), lng: newPos.lng() };
+              setPosition(pos);
+            }
             break;
         }
         traveledDistance += segmentDistance;
