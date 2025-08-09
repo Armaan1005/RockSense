@@ -2,7 +2,7 @@
 "use client";
 
 import * as React from 'react';
-import { GoogleMap, useLoadScript, MarkerF, PolygonF, PolylineF, HeatmapLayerF } from '@react-google-maps/api';
+import { GoogleMap, useLoadScript, MarkerF, PolygonF, PolylineF } from '@react-google-maps/api';
 import type { LatLngLiteral, RescueRoute, PlacingMode, HeatmapDataPoint } from '@/types';
 import { Skeleton } from '../ui/skeleton';
 import { TEAM_COLORS } from '../ClientDashboard';
@@ -67,39 +67,30 @@ const MapWrapper: React.FC<MapWrapperProps> = ({
     mapRef.current = null;
   }, []);
 
-  const heatmapDataGoogle = React.useMemo(() => {
-    if (!isLoaded || !window.google) return [];
-    return heatmapData.map(p => ({
-        location: new window.google.maps.LatLng(p.latitude, p.longitude),
-        weight: p.intensity
-    }))
-  }, [heatmapData, isLoaded]);
-
   if (loadError) return <div>Error loading maps. Please check the API key and ensure billing is enabled on your Google Cloud project.</div>;
   if (!isLoaded || !window.google) return <div className="h-full w-full bg-muted flex items-center justify-center p-4"><Skeleton className="w-full h-full" /></div>;
-
+  
   const baseIcon = {
-    // Home Icon
-    path: "m12 5.69 5 4.5V18h-2v-6H9v6H7v-7.81l5-4.5M12 3 2 12h3v8h6v-6h2v6h6v-8h3L12 3z",
-    scale: 1.2,
+    path: "M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z", // Material Design Home icon
     fillColor: 'hsl(142.1 76.2% 36.3%)',
     fillOpacity: 1,
     strokeWeight: 1,
     strokeColor: 'white',
+    scale: 1.2,
     anchor: new window.google.maps.Point(12, 12)
   };
 
   const victimIcon = {
-    path: window.google.maps.SymbolPath.CIRCLE,
-    scale: 8,
+    path: "M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 15H9v-2h2v2zm2-4h-4V7h4v6z", // Material Design Priority High
     fillColor: 'hsl(var(--destructive))',
     fillOpacity: 1,
     strokeWeight: 1.5,
-    strokeColor: 'white'
+    strokeColor: 'white',
+    scale: 1,
+    anchor: new window.google.maps.Point(12, 12)
   };
 
   const avalanchePointIcon = {
-    // Warning Triangle
     path: "M1 21h22L12 2 1 21zm12-3h-2v-2h2v2zm0-4h-2v-4h2v4z",
     scale: 0.8,
     fillColor: 'hsl(var(--destructive))',
@@ -108,6 +99,7 @@ const MapWrapper: React.FC<MapWrapperProps> = ({
     strokeColor: 'white',
     anchor: new window.google.maps.Point(12, 12)
   }
+
 
   return (
     <div className='h-full w-full p-4 relative'>
@@ -165,32 +157,7 @@ const MapWrapper: React.FC<MapWrapperProps> = ({
                     />
                   )
             })}
-             {heatmapDataGoogle.length > 0 && (
-                <HeatmapLayerF
-                    data={heatmapDataGoogle}
-                    options={{
-                        radius: 35,
-                        opacity: 0.7,
-                        gradient: [
-                            "rgba(0, 255, 255, 0)",
-                            "rgba(0, 255, 255, 1)",
-                            "rgba(0, 191, 255, 1)",
-                            "rgba(0, 127, 255, 1)",
-                            "rgba(0, 63, 255, 1)",
-                            "rgba(0, 0, 255, 1)",
-                            "rgba(0, 0, 223, 1)",
-                            "rgba(0, 0, 191, 1)",
-                            "rgba(0, 0, 159, 1)",
-                            "rgba(0, 0, 127, 1)",
-                            "rgba(63, 0, 91, 1)",
-                            "rgba(127, 0, 63, 1)",
-                            "rgba(191, 0, 31, 1)",
-                            "rgba(255, 0, 0, 1)"
-                          ]
-                    }}
-                />
-            )}
-
+           
             {routes.map((route, index) => (
                 <AnimatedTeam key={index} route={route} victimLocations={victimLocations} />
             ))}

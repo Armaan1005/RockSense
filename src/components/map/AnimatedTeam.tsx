@@ -99,8 +99,7 @@ const AnimatedTeam: React.FC<AnimatedTeamProps> = ({ route, victimLocations }) =
   if (!position || !window.google) return null;
 
   const teamIcon = {
-    // Person Standing Icon
-    path: "M12 2.5a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0Zm-2.5 3.75a.75.75 0 0 0-1.5 0V11h-2v11h2v-6h3v6h2V11h-2V6.25Z",
+    path: "M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z", // Material Design User icon
     fillColor: 'hsl(var(--primary))',
     fillOpacity: 1,
     strokeColor: 'white',
