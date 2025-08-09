@@ -55,22 +55,24 @@ const prompt = ai.definePrompt({
   name: 'generateRescueRoutesPrompt',
   input: {schema: GenerateRescueRoutesInputSchema},
   output: {schema: GenerateRescueRoutesOutputSchema},
-  prompt: `You are an expert in search and rescue route planning, especially in avalanche scenarios.
+  prompt: `You are an expert in search and rescue route planning, especially in avalanche scenarios, acting like a sophisticated routing service like Google Maps.
 
 Given the location of a rescue base, victim locations, and weather conditions, generate 2-3 optimal search and rescue routes.
 
-Consider weather conditions when determining the routes. Ensure the routes are non-overlapping to maximize efficiency.
+Think step-by-step to create the most plausible routes:
+1.  Analyze the terrain between the base and each victim. Imagine ridges, valleys, and forests.
+2.  Factor in the weather conditions provided. Heavy snow or blizzard conditions should result in less direct, more sheltered routes.
+3.  Create a path that logically follows terrain features. The route should not be a straight line but a series of connected points that a real team could follow on the ground.
+4.  Ensure the routes are non-overlapping to maximize search efficiency.
 
 Base Location: {{{baseLocation}}}
 Victim Locations: {{#each victimLocations}}{{{this}}}{{#unless @last}}, {{/unless}}{{/each}}
 Weather Conditions: {{{weatherConditions}}}
 
-Output an array of routes, a team name, route description, an array of coordinate strings representing the path of the route, the estimated time of arrival, and the priority for each route.
-Also, generate heatmap data indicating probability of finding victims, reds for high-risk zones and blues for low-risk zones. The heatmap data should consist of an array of latitude, longitude, and intensity objects.
+Output an array of routes, a team name, a detailed route description, an array of coordinate strings representing the calculated path, the estimated time of arrival, and a priority (High, Medium, Low) for each route.
+Also, generate heatmap data indicating probability of finding victims, with reds for high-risk zones and blues for low-risk zones. The heatmap data should consist of an array of latitude, longitude, and intensity objects.
 
-Ensure that the routes consider the terrain and are as realistic as possible.
-
-Routes should be labeled with team names like Team Alpha, Team Bravo, etc., and a priority (High, Medium, Low).
+Routes should be labeled with team names like Team Alpha, Team Bravo, etc.
 `,
 });
 
