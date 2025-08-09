@@ -25,7 +25,7 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { Accordion, AccordionItem, AccordionTrigger, AccordionContent } from '@/components/ui/accordion';
-import type { PlacingMode, RescueRoute, Team, MapTypeId, RescueStrategy } from '@/types';
+import type { PlacingMode, RescueRoute, Team, MapTypeId } from '@/types';
 import { ScrollArea } from './ui/scroll-area';
 import { Separator } from './ui/separator';
 import { Badge } from './ui/badge';
@@ -38,8 +38,6 @@ interface RescueSidebarProps {
   setWeather: (value: string) => void;
   mapTypeId: MapTypeId;
   setMapTypeId: (value: MapTypeId) => void;
-  strategy: RescueStrategy;
-  setStrategy: (value: RescueStrategy) => void;
   onGenerate: () => void;
   isGenerating: boolean;
   routes: RescueRoute[];
@@ -59,8 +57,6 @@ const RescueSidebar: React.FC<RescueSidebarProps> = ({
   setWeather,
   mapTypeId,
   setMapTypeId,
-  strategy,
-  setStrategy,
   onGenerate,
   isGenerating,
   routes,
@@ -131,16 +127,6 @@ const RescueSidebar: React.FC<RescueSidebarProps> = ({
                     <SelectItem value="roadmap">Roadmap</SelectItem>
                     <SelectItem value="satellite">Satellite</SelectItem>
                     <SelectItem value="hybrid">Hybrid</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-              <div>
-                <label className="text-sm font-medium" htmlFor="strategy">Rescue Strategy</label>
-                <Select value={strategy} onValueChange={(v) => setStrategy(v as RescueStrategy)}>
-                  <SelectTrigger id="strategy"><GitMerge className="mr-2"/>{strategy === 'multi-team' ? 'Multi Team' : 'Single Team (TSP)'}</SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="multi-team">Multi Team</SelectItem>
-                    <SelectItem value="single-team">Single Team (TSP)</SelectItem>
                   </SelectContent>
                 </Select>
               </div>

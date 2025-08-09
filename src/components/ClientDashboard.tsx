@@ -2,7 +2,7 @@
 "use client";
 
 import * as React from 'react';
-import type { LatLngLiteral, PlacingMode, RescueRoute, Team, HeatmapDataPoint, MapTypeId, RescueStrategy } from '@/types';
+import type { LatLngLiteral, PlacingMode, RescueRoute, Team, HeatmapDataPoint, MapTypeId } from '@/types';
 
 import dynamic from 'next/dynamic';
 import Header from '@/components/Header';
@@ -36,7 +36,6 @@ const ClientDashboard: React.FC = () => {
 
   const [weather, setWeather] = React.useState<string>('Light Snow');
   const [mapTypeId, setMapTypeId] = React.useState<MapTypeId>('terrain');
-  const [strategy, setStrategy] = React.useState<RescueStrategy>('multi-team');
 
   const [isGenerating, setIsGenerating] = React.useState(false);
   const [routes, setRoutes] = React.useState<RescueRoute[]>([]);
@@ -79,7 +78,6 @@ const ClientDashboard: React.FC = () => {
         baseLocation: `${baseLocation.lat},${baseLocation.lng}`,
         victimLocations: victimLocations.map(v => `${v.lat},${v.lng}`),
         weatherConditions: weather,
-        strategy: strategy,
       });
 
       setRoutes(result.routes);
@@ -150,8 +148,6 @@ const ClientDashboard: React.FC = () => {
           setWeather={setWeather}
           mapTypeId={mapTypeId}
           setMapTypeId={setMapTypeId}
-          strategy={strategy}
-          setStrategy={setStrategy}
           onGenerate={handleGenerateRoutes}
           isGenerating={isGenerating}
           routes={routes}

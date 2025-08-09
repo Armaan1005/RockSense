@@ -22,7 +22,6 @@ const GenerateRescueRoutesInputSchema = z.object({
   weatherConditions: z
     .string()
     .describe('A description of the current weather conditions.'),
-  strategy: z.enum(['multi-team', 'single-team']).describe("The rescue strategy to use. 'multi-team' for multiple routes, 'single-team' for one optimized TSP route."),
 });
 export type GenerateRescueRoutesInput = z.infer<typeof GenerateRescueRoutesInputSchema>;
 
@@ -61,27 +60,12 @@ You must generate plausible, fictional route coordinates that simulate a realist
 - Base Location: {{{baseLocation}}}
 - Victim Locations: {{#each victimLocations}}{{{this}}}{{#unless @last}}, {{/unless}}{{/each}}
 - Weather Conditions: {{{weatherConditions}}}
-- Strategy: {{{strategy}}}
 
-**Instructions by Strategy:**
-
-{{#if (eq strategy "multi-team")}}
-**Strategy: Multi Team**
+**Instructions:**
 - Your task is to generate 2-3 optimal, non-overlapping rescue routes from the base location to the victim locations.
 - For each victim, create a plausible route from the rescue base.
 - Assign a priority (High, Medium, Low) and an estimated travelling duration for each route.
 - Routes should be labeled with team names like Team Alpha, Team Bravo, etc.
-{{/if}}
-
-{{#if (eq strategy "single-team")}}
-**Strategy: Single Team (Traveling Salesperson Problem)**
-- Your task is to generate a *single*, optimized route for one team (Team Alpha).
-- The route must start at the base location and visit *all* victim locations in the most efficient order possible to minimize travel time.
-- The route should be continuous, going from one victim to the next in the optimized sequence.
-- Generate a single, comprehensive 'routeDescription', 'travellingDuration', and set 'priority' to High.
-{{/if}}
-
-**Common Instructions for all Strategies:**
 - Generate a series of 'latitude,longitude' coordinates for the 'routeCoordinates' field for each route. Create at least 5-10 points per leg of the journey (e.g., base to victim, or victim to victim).
 - Create a plausible 'routeDescription' based on potential terrain and weather conditions.
 `,
