@@ -161,8 +161,8 @@ const RescueSidebar: React.FC<RescueSidebarProps> = ({
                         </div>
                         <div className='flex items-center gap-2 text-muted-foreground'>
                             <Clock className='w-4 h-4' />
-                            <span>ETA:</span>
-                            <span className='font-semibold text-foreground'>{route.estimatedTimeArrival}</span>
+                            <span>Travelling Duration:</span>
+                            <span className='font-semibold text-foreground'>{route.travellingDuration}</span>
                         </div>
                       </div>
                     </AccordionContent>

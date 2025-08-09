@@ -28,7 +28,7 @@ const RescueRouteSchema = z.object({
   teamName: z.string().describe('The name of the rescue team assigned to this route.'),
   routeDescription: z.string().describe('A description of the route, including key landmarks and challenges.'),
   routeCoordinates: z.array(z.string()).describe('An array of coordinate strings (latitude, longitude) representing the path of the route.'),
-  estimatedTimeArrival: z.string().describe('Estimated time of arrival at the victim location'),
+  travellingDuration: z.string().describe('Estimated travel duration to the victim location (e.g., "2 hours 30 minutes").'),
   priority: z.string().describe('Priority of the route (High, Medium, Low)'),
 });
 
@@ -63,7 +63,7 @@ Here's your process:
 1. For each victim, create a plausible route from the rescue base.
 2. Generate a series of 'latitude,longitude' coordinates for the 'routeCoordinates' field to represent this path. Create at least 5-10 points for each route.
 3. Create a plausible 'routeDescription' based on potential terrain and weather conditions.
-4. Assign a priority (High, Medium, Low) and an estimated time of arrival.
+4. Assign a priority (High, Medium, Low) and an estimated travelling duration.
 5. Generate heatmap data indicating the probability of finding victims (reds for high-risk, blues for low-risk).
 
 Base Location: {{{baseLocation}}}
