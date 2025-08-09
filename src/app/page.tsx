@@ -27,7 +27,7 @@ export default function LandingPage() {
         </nav>
       </header>
       <main className="flex-1">
-        <section className="w-full py-12 md:py-24 lg:py-32 xl:py-48 bg-gradient-to-br from-background to-muted/50">
+        <section className="w-full py-12 md:py-24 lg:py-32 xl:py-48">
           <div className="container px-4 md:px-6">
             <div className="flex flex-col items-center space-y-4 text-center">
               <div className="space-y-2">
@@ -63,27 +63,21 @@ export default function LandingPage() {
             </div>
             <div className="mx-auto grid max-w-5xl items-start gap-6 py-12 lg:grid-cols-3 lg:gap-12">
               <div className="grid gap-1 text-center">
-                 <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-primary/10 mb-4">
-                    <BrainCircuit className="h-8 w-8 text-primary" />
-                 </div>
+                <BrainCircuit className="mx-auto h-12 w-12 text-primary" />
                 <h3 className="text-xl font-bold">AI Route Generation</h3>
                 <p className="text-sm text-muted-foreground">
                   Generate multiple, optimized rescue routes in seconds based on victim locations, weather, and rescue strategy.
                 </p>
               </div>
               <div className="grid gap-1 text-center">
-                <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-primary/10 mb-4">
-                    <Map className="h-8 w-8 text-primary" />
-                 </div>
+                <Map className="mx-auto h-12 w-12 text-primary" />
                 <h3 className="text-xl font-bold">Interactive Mission Map</h3>
                 <p className="text-sm text-muted-foreground">
                   Visualize the entire operation. Place the rescue base, victim locations, and avalanche zones on a dynamic map.
                 </p>
               </div>
               <div className="grid gap-1 text-center">
-                 <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-primary/10 mb-4">
-                    <Crosshair className="h-8 w-8 text-primary" />
-                 </div>
+                <Crosshair className="mx-auto h-12 w-12 text-primary" />
                 <h3 className="text-xl font-bold">Probability Analysis</h3>
                 <p className="text-sm text-muted-foreground">
                  Leverage AI to analyze victim probability based on time, weather, and location to prioritize search areas.
