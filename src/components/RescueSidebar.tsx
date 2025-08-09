@@ -102,7 +102,7 @@ const RescueSidebar: React.FC<RescueSidebarProps> = ({
           <div className="flex items-center justify-between">
             <h2 className="text-lg font-semibold">Mission Control</h2>
             <Popover>
-                <TooltipProvider>
+                <TooltipProvider delayDuration={0}>
                   <Tooltip>
                     <TooltipTrigger asChild>
                       <PopoverTrigger asChild>
