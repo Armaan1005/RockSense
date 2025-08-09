@@ -29,7 +29,7 @@ const mapOptions: google.maps.MapOptions = {
     mapTypeId: 'terrain'
 };
 
-const libraries: ('marker' | 'places' | 'visualization')[] = ['marker', 'places', 'visualization'];
+const libraries: ('marker' | 'places' | 'visualization' | 'geometry')[] = ['marker', 'places', 'visualization', 'geometry'];
 
 interface MapWrapperProps {
   baseLocation: LatLngLiteral | null;
@@ -67,11 +67,12 @@ const MapWrapper: React.FC<MapWrapperProps> = ({
   }, []);
 
   const heatmapDataGoogle = React.useMemo(() => {
+    if (!isLoaded) return [];
     return heatmapData.map(p => ({
-        location: new google.maps.LatLng(p.latitude, p.longitude),
+        location: new window.google.maps.LatLng(p.latitude, p.longitude),
         weight: p.intensity
     }))
-  }, [heatmapData]);
+  }, [heatmapData, isLoaded]);
 
   const baseIcon = {
     path: window.google?.maps.SymbolPath.CIRCLE,
@@ -91,7 +92,7 @@ const MapWrapper: React.FC<MapWrapperProps> = ({
     strokeColor: 'white'
   };
 
-  if (loadError) return <div>Error loading maps. Please check the API key.</div>;
+  if (loadError) return <div>Error loading maps. Please check the API key and ensure billing is enabled on your Google Cloud project.</div>;
   if (!isLoaded) return <div className="h-full w-full bg-muted flex items-center justify-center p-4"><Skeleton className="w-full h-full" /></div>;
 
   return (

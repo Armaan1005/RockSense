@@ -1,7 +1,7 @@
 "use client";
 
 import * as React from 'react';
-import { MarkerF } from '@react-google-maps/api';
+import { MarkerF, useGoogleMap } from '@react-google-maps/api';
 import type { LatLngLiteral, RescueRoute } from '@/types';
 import { useToast } from '@/hooks/use-toast';
 
@@ -13,6 +13,7 @@ interface AnimatedTeamProps {
 const AnimatedTeam: React.FC<AnimatedTeamProps> = ({ route, victimLocations }) => {
   const { toast } = useToast();
   const [position, setPosition] = React.useState<LatLngLiteral | null>(null);
+  const map = useGoogleMap();
 
   const routePoints = React.useMemo(() => route.routeCoordinates.map(coord => {
     const [lat, lng] = coord.split(',').map(parseFloat);
@@ -22,8 +23,8 @@ const AnimatedTeam: React.FC<AnimatedTeamProps> = ({ route, victimLocations }) =
   const totalDuration = 15000; // 15 seconds for the entire route animation
 
   React.useEffect(() => {
-    if (routePoints.length < 2) return;
-
+    if (routePoints.length < 2 || !map || !window.google || !window.google.maps.geometry) return;
+    
     let pos = routePoints[0];
     setPosition(pos);
 
@@ -90,7 +91,7 @@ const AnimatedTeam: React.FC<AnimatedTeamProps> = ({ route, victimLocations }) =
     return () => {
       cancelAnimationFrame(animationFrameId);
     };
-  }, [routePoints, toast, route.teamName, victimLocations]);
+  }, [routePoints, toast, route.teamName, victimLocations, map]);
 
   if (!position) return null;
 
@@ -101,7 +102,7 @@ const AnimatedTeam: React.FC<AnimatedTeamProps> = ({ route, victimLocations }) =
     strokeColor: 'white',
     strokeWeight: 1.5,
     scale: 1.5,
-    anchor: new google.maps.Point(12, 12)
+    anchor: new window.google.maps.Point(12, 12)
   };
 
   return <MarkerF position={position} icon={teamIcon} zIndex={100} />;
