@@ -64,7 +64,7 @@ const MapWrapper: React.FC<MapWrapperProps> = ({
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  // Effect to handle map cursor style
+  // Effect to handle map cursor style and click events based on placingMode
   React.useEffect(() => {
     if(mapContainerRef.current) {
         if (placingMode) {
@@ -73,7 +73,17 @@ const MapWrapper: React.FC<MapWrapperProps> = ({
             mapContainerRef.current.style.cursor = '';
         }
     }
-  }, [placingMode]);
+    if (mapRef.current) {
+        const map = mapRef.current;
+        // Remove previous listener to avoid duplicates
+        map.off('click'); 
+        map.on('click', (e: L.LeafletMouseEvent) => {
+            if (placingMode) {
+                onMapClick(e.latlng);
+            }
+        });
+    }
+  }, [placingMode, onMapClick]);
 
 
   // Effect to update all static layers when data changes
@@ -103,11 +113,16 @@ const MapWrapper: React.FC<MapWrapperProps> = ({
       L.polyline(routePoints, { color: TEAM_COLORS[route.teamName] || '#fff', weight: 4, opacity: 0.8 }).bindTooltip(route.teamName).addTo(layersRef.current);
     });
 
-    if (baseLocation) {
-        map.setView(baseLocation, 14);
-    } else if (avalancheZone.length > 0) {
-        const bounds = L.latLngBounds(avalancheZone);
-        map.fitBounds(bounds, { padding: [50, 50]});
+    if (routes.length === 0) { // Only fit bounds if no routes are present to avoid overriding route animation zoom
+      if (baseLocation) {
+          map.setView(baseLocation, 14);
+      } else if (victimLocations.length > 0) {
+          const bounds = L.latLngBounds(victimLocations);
+          map.fitBounds(bounds, { padding: [50, 50]});
+      } else if (avalancheZone.length > 0) {
+          const bounds = L.latLngBounds(avalancheZone);
+          map.fitBounds(bounds, { padding: [50, 50]});
+      }
     }
 
   }, [baseLocation, victimLocations, avalancheZone, routes]);
