@@ -68,12 +68,15 @@ const MapWrapper: React.FC<MapWrapperProps> = ({
   }, []);
 
   const heatmapDataGoogle = React.useMemo(() => {
-    if (!isLoaded) return [];
+    if (!isLoaded || !window.google) return [];
     return heatmapData.map(p => ({
         location: new window.google.maps.LatLng(p.latitude, p.longitude),
         weight: p.intensity
     }))
   }, [heatmapData, isLoaded]);
+
+  if (loadError) return <div>Error loading maps. Please check the API key and ensure billing is enabled on your Google Cloud project.</div>;
+  if (!isLoaded || !window.google) return <div className="h-full w-full bg-muted flex items-center justify-center p-4"><Skeleton className="w-full h-full" /></div>;
 
   const baseIcon = {
     // Home Icon
@@ -105,9 +108,6 @@ const MapWrapper: React.FC<MapWrapperProps> = ({
     strokeColor: 'white',
     anchor: new window.google.maps.Point(12, 12)
   }
-
-  if (loadError) return <div>Error loading maps. Please check the API key and ensure billing is enabled on your Google Cloud project.</div>;
-  if (!isLoaded) return <div className="h-full w-full bg-muted flex items-center justify-center p-4"><Skeleton className="w-full h-full" /></div>;
 
   return (
     <div className='h-full w-full p-4 relative'>

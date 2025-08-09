@@ -94,7 +94,7 @@ const AnimatedTeam: React.FC<AnimatedTeamProps> = ({ route, victimLocations }) =
     };
   }, [routePoints, toast, route.teamName, victimLocations, map]);
 
-  if (!position) return null;
+  if (!position || !window.google) return null;
 
   const teamIcon = {
     // Person Standing Icon
