@@ -57,14 +57,15 @@ const prompt = ai.definePrompt({
   name: 'generateRescueRoutesPrompt',
   input: {schema: GenerateRescueRoutesInputSchema},
   output: {schema: GenerateRescueRoutesOutputSchema},
-  prompt: `You are an expert in search and rescue route planning in treacherous Himalayan terrain. You will generate rescue routes based on the chosen strategy.
+  prompt: `You are an expert in search and rescue route planning in treacherous Himalayan terrain. You will generate rescue routes based on the provided information and the chosen strategy.
 
 You must generate plausible, fictional route coordinates that simulate a realistic path. The path should not be a straight line. It should have multiple points to suggest a path that avoids obstacles.
 
-Base Location: {{{baseLocation}}}
-Victim Locations: {{#each victimLocations}}{{{this}}}{{#unless @last}}, {{/unless}}{{/each}}
-Weather Conditions: {{{weatherConditions}}}
-Strategy: {{{strategy}}}
+**Input:**
+- Base Location: {{{baseLocation}}}
+- Victim Locations: {{#each victimLocations}}{{{this}}}{{#unless @last}}, {{/unless}}{{/each}}
+- Weather Conditions: {{{weatherConditions}}}
+- Strategy: {{{strategy}}}
 
 **Instructions by Strategy:**
 
@@ -88,6 +89,27 @@ Strategy: {{{strategy}}}
 - Generate a series of 'latitude,longitude' coordinates for the 'routeCoordinates' field for each route. Create at least 5-10 points per leg of the journey (e.g., base to victim, or victim to victim).
 - Create a plausible 'routeDescription' based on potential terrain and weather conditions.
 - Generate heatmap data indicating the probability of finding victims (reds for high-risk, blues for low-risk).
+
+**Output Format:**
+You must provide your response in the following JSON format. Do not include any other text or explanations.
+
+\`\`\`json
+{
+  "routes": [
+    {
+      "teamName": "Team Alpha",
+      "routeDescription": "A detailed description of the route for Team Alpha...",
+      "routeCoordinates": ["lat,lng", "lat,lng", "..."],
+      "travellingDuration": "X hours Y minutes",
+      "priority": "High"
+    }
+  ],
+  "heatmapData": [
+    { "latitude": 30.3, "longitude": 79.9, "intensity": 0.8 },
+    { "latitude": 30.4, "longitude": 79.8, "intensity": 0.5 }
+  ]
+}
+\`\`\`
 `,
 });
 
@@ -99,6 +121,9 @@ const generateRescueRoutesFlow = ai.defineFlow(
   },
   async input => {
     const {output} = await prompt(input);
-    return output!;
+    if (!output) {
+      throw new Error("The AI model failed to return a valid response. Please try again.");
+    }
+    return output;
   }
 );
