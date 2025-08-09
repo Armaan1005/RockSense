@@ -1,3 +1,4 @@
+
 "use client";
 
 import * as React from 'react';
@@ -96,12 +97,13 @@ const AnimatedTeam: React.FC<AnimatedTeamProps> = ({ route, victimLocations }) =
   if (!position) return null;
 
   const teamIcon = {
-    path: `M12 2L4.5 20.29l.71.71L12 18l6.79 3 .71-.71z`,
+    // Person Standing Icon
+    path: "M12 2.5a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0Zm-2.5 3.75a.75.75 0 0 0-1.5 0V11h-2v11h2v-6h3v6h2V11h-2V6.25Z",
     fillColor: 'hsl(var(--primary))',
     fillOpacity: 1,
     strokeColor: 'white',
     strokeWeight: 1.5,
-    scale: 1.5,
+    scale: 1,
     anchor: new window.google.maps.Point(12, 12)
   };
 

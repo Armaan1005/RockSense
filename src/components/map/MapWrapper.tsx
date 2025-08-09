@@ -1,3 +1,4 @@
+
 "use client";
 
 import * as React from 'react';
@@ -75,22 +76,35 @@ const MapWrapper: React.FC<MapWrapperProps> = ({
   }, [heatmapData, isLoaded]);
 
   const baseIcon = {
-    path: window.google?.maps.SymbolPath.CIRCLE,
-    scale: 10,
+    // Home Icon
+    path: "m12 5.69 5 4.5V18h-2v-6H9v6H7v-7.81l5-4.5M12 3 2 12h3v8h6v-6h2v6h6v-8h3L12 3z",
+    scale: 1.2,
     fillColor: 'hsl(142.1 76.2% 36.3%)',
     fillOpacity: 1,
-    strokeWeight: 1.5,
-    strokeColor: 'white'
+    strokeWeight: 1,
+    strokeColor: 'white',
+    anchor: new window.google.maps.Point(12, 12)
   };
 
   const victimIcon = {
-    path: window.google?.maps.SymbolPath.CIRCLE,
+    path: window.google.maps.SymbolPath.CIRCLE,
     scale: 8,
     fillColor: 'hsl(var(--destructive))',
     fillOpacity: 1,
     strokeWeight: 1.5,
     strokeColor: 'white'
   };
+
+  const avalanchePointIcon = {
+    // Warning Triangle
+    path: "M1 21h22L12 2 1 21zm12-3h-2v-2h2v2zm0-4h-2v-4h2v4z",
+    scale: 0.8,
+    fillColor: 'hsl(var(--destructive))',
+    fillOpacity: 0.8,
+    strokeWeight: 1,
+    strokeColor: 'white',
+    anchor: new window.google.maps.Point(12, 12)
+  }
 
   if (loadError) return <div>Error loading maps. Please check the API key and ensure billing is enabled on your Google Cloud project.</div>;
   if (!isLoaded) return <div className="h-full w-full bg-muted flex items-center justify-center p-4"><Skeleton className="w-full h-full" /></div>;
@@ -117,13 +131,7 @@ const MapWrapper: React.FC<MapWrapperProps> = ({
             ))}
 
             {avalancheZone.map((pos, index) => (
-              <MarkerF key={`av-point-${index}`} position={pos} icon={{
-                path: google.maps.SymbolPath.CIRCLE,
-                scale: 4,
-                fillColor: 'hsl(var(--destructive))',
-                fillOpacity: 0.8,
-                strokeWeight: 0
-              }} />
+              <MarkerF key={`av-point-${index}`} position={pos} icon={avalanchePointIcon} />
             ))}
 
             {avalancheZone.length > 2 && (
