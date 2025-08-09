@@ -81,7 +81,7 @@ const MapWrapper: React.FC<MapWrapperProps> = ({
   };
 
   const victimIcon = {
-    path: "M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 15H9v-2h2v2zm2-4h-4V7h4v6z", // Material Design Priority High
+    path: "M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z", // Material Design User icon
     fillColor: 'hsl(var(--destructive))',
     fillOpacity: 1,
     strokeWeight: 1.5,
