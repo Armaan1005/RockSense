@@ -117,15 +117,16 @@ const MapWrapper: React.FC<MapWrapperProps> = ({
       L.polyline(routePoints, { color: TEAM_COLORS[route.teamName] || '#fff', weight: 4, opacity: 0.8 }).bindTooltip(route.teamName).addTo(layersRef.current);
     });
 
-    if (routes.length === 0) { // Only fit bounds if no routes are present to avoid overriding route animation zoom
-      if (baseLocation) {
-          map.setView(baseLocation, 14);
-      } else if (victimLocations.length > 0) {
-          const bounds = L.latLngBounds(victimLocations);
-          map.fitBounds(bounds, { padding: [50, 50]});
-      } else if (avalancheZone.length > 0) {
-          const bounds = L.latLngBounds(avalancheZone);
-          map.fitBounds(bounds, { padding: [50, 50]});
+    if (routes.length > 0) { // Only fit bounds when routes are generated
+      const allPoints = [
+          ...(baseLocation ? [baseLocation] : []),
+          ...victimLocations,
+          ...routes.flatMap(r => r.routeCoordinates.map(c => c.split(',').map(parseFloat) as LatLngTuple))
+      ];
+
+      if(allPoints.length > 0) {
+        const bounds = L.latLngBounds(allPoints);
+        map.fitBounds(bounds, { padding: [50, 50]});
       }
     }
 
