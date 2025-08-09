@@ -127,7 +127,7 @@ const MapWrapper: React.FC<MapWrapperProps> = ({
             )}
 
             {victimLocations.map((pos, index) => (
-                <MarkerF key={index} position={pos} title={`Victim #${index + 1}`} icon={victimIcon} />
+                <MarkerF key={index} position={pos} title={`Victim #${index + 1}`} icon={victimIcon} label={{ text: `${index + 1}`, color: 'white', fontSize: '10px', fontWeight: 'bold' }} />
             ))}
 
             {avalancheZone.map((pos, index) => (
