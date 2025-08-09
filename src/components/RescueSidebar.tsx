@@ -18,8 +18,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
+import { Accordion, AccordionItem, AccordionTrigger, AccordionContent } from '@/components/ui/accordion';
 import type { PlacingMode, RescueRoute, Team } from '@/types';
 import { ScrollArea } from './ui/scroll-area';
 import { Separator } from './ui/separator';
@@ -57,38 +56,68 @@ const RescueSidebar: React.FC<RescueSidebarProps> = ({
 }) => {
   return (
     <aside className="w-[380px] flex flex-col border-l bg-background/80 backdrop-blur-sm h-full">
-      <div className="p-4 space-y-4 shrink-0">
-        <h2 className="text-lg font-semibold">Mission Control</h2>
-        <div className="grid grid-cols-1 gap-2">
-          <Button variant={placingMode === 'base' ? 'secondary' : 'outline'} onClick={() => setPlacingMode('base')}><Flag className="mr-2"/> Set Rescue Base</Button>
-          <Button variant={placingMode === 'victim' ? 'secondary' : 'outline'} onClick={() => setPlacingMode('victim')}><User className="mr-2"/> Add Victim Location</Button>
-          <Button variant={placingMode === 'avalanche' ? 'secondary' : 'outline'} onClick={() => setPlacingMode('avalanche')}><Triangle className="mr-2"/> Define Avalanche Zone</Button>
-        </div>
-        
-        <p className="text-xs text-muted-foreground p-2 bg-muted rounded-md">
-            {placingMode ? `Click on the map to place the ${placingMode}. For victims, click multiple times. For the avalanche zone, click to add points and form a polygon.` : "Select an action above to start marking the map."}
-        </p>
-
-        <Separator/>
-
-        <div className="space-y-2">
-          <h3 className="text-md font-medium">Conditions</h3>
+      <ScrollArea className="flex-1">
+        <div className="p-4 space-y-4">
+          <h2 className="text-lg font-semibold">Mission Control</h2>
           <div className="grid grid-cols-1 gap-2">
-            <div>
-              <label className="text-sm font-medium" htmlFor="weather">Weather</label>
-              <Select value={weather} onValueChange={setWeather}>
-                <SelectTrigger id="weather"><CloudSnow className="mr-2"/>{weather}</SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="Clear">Clear</SelectItem>
-                  <SelectItem value="Light Snow">Light Snow</SelectItem>
-                  <SelectItem value="Heavy Snow">Heavy Snow</SelectItem>
-                  <SelectItem value="Blizzard">Blizzard</SelectItem>
-                </SelectContent>
-              </Select>
+            <Button variant={placingMode === 'base' ? 'secondary' : 'outline'} onClick={() => setPlacingMode('base')}><Flag className="mr-2"/> Set Rescue Base</Button>
+            <Button variant={placingMode === 'victim' ? 'secondary' : 'outline'} onClick={() => setPlacingMode('victim')}><User className="mr-2"/> Add Victim Location</Button>
+            <Button variant={placingMode === 'avalanche' ? 'secondary' : 'outline'} onClick={() => setPlacingMode('avalanche')}><Triangle className="mr-2"/> Define Avalanche Zone</Button>
+          </div>
+          
+          <p className="text-xs text-muted-foreground p-2 bg-muted rounded-md">
+              {placingMode ? `Click on the map to place the ${placingMode}. For victims, click multiple times. For the avalanche zone, click to add points and form a polygon.` : "Select an action above to start marking the map."}
+          </p>
+
+          <Separator/>
+
+          <div className="space-y-2">
+            <h3 className="text-md font-medium">Conditions</h3>
+            <div className="grid grid-cols-1 gap-2">
+              <div>
+                <label className="text-sm font-medium" htmlFor="weather">Weather</label>
+                <Select value={weather} onValueChange={setWeather}>
+                  <SelectTrigger id="weather"><CloudSnow className="mr-2"/>{weather}</SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="Clear">Clear</SelectItem>
+                    <SelectItem value="Light Snow">Light Snow</SelectItem>
+                    <SelectItem value="Heavy Snow">Heavy Snow</SelectItem>
+                    <SelectItem value="Blizzard">Blizzard</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
             </div>
           </div>
+          
+          <Separator />
+
+          <div>
+            <h3 className="text-md font-semibold mb-2">Rescue Plan</h3>
+            {isGenerating && <p className="text-sm text-muted-foreground">Generating plan...</p>}
+            
+            {routes.length === 0 && !isGenerating && <p className="text-sm text-muted-foreground">No plan generated yet.</p>}
+
+            {routes.length > 0 && (
+              <Accordion type="single" collapsible defaultValue="item-0">
+                {routes.map((route, index) => (
+                  <AccordionItem value={`item-${index}`} key={index}>
+                    <AccordionTrigger>
+                      <div className="flex items-center gap-2">
+                        <span className="w-3 h-3 rounded-full" style={{backgroundColor: TEAM_COLORS[route.teamName] || '#fff'}}></span>
+                        <span className="font-semibold">{route.teamName}</span>
+                        <Badge variant={route.priority === 'High' ? 'destructive' : 'secondary'}>{route.priority} Priority</Badge>
+                      </div>
+                    </AccordionTrigger>
+                    <AccordionContent className="space-y-2">
+                      <p className="text-sm">{route.routeDescription}</p>
+                    </AccordionContent>
+                  </AccordionItem>
+                ))}
+              </Accordion>
+            )}
+          </div>
         </div>
-      </div>
+      </ScrollArea>
       
       <div className="p-4 mt-auto border-t space-y-2 shrink-0">
          <div className="flex justify-between items-center text-sm text-muted-foreground">
@@ -104,37 +133,6 @@ const RescueSidebar: React.FC<RescueSidebarProps> = ({
             <X className="mr-2"/> Clear All
         </Button>
       </div>
-
-      <Separator />
-
-      <ScrollArea className="flex-1 min-h-0">
-        <div className="p-4">
-          
-          <h3 className="text-md font-semibold mb-2">Rescue Plan</h3>
-          {isGenerating && <p className="text-sm text-muted-foreground">Generating plan...</p>}
-          
-          {routes.length === 0 && !isGenerating && <p className="text-sm text-muted-foreground">No plan generated yet.</p>}
-
-          {routes.length > 0 && (
-            <Accordion type="single" collapsible defaultValue="item-0">
-              {routes.map((route, index) => (
-                <AccordionItem value={`item-${index}`} key={index}>
-                  <AccordionTrigger>
-                    <div className="flex items-center gap-2">
-                      <span className="w-3 h-3 rounded-full" style={{backgroundColor: TEAM_COLORS[route.teamName] || '#fff'}}></span>
-                      <span className="font-semibold">{route.teamName}</span>
-                      <Badge variant={route.priority === 'High' ? 'destructive' : 'secondary'}>{route.priority} Priority</Badge>
-                    </div>
-                  </AccordionTrigger>
-                  <AccordionContent className="space-y-2">
-                    <p className="text-sm">{route.routeDescription}</p>
-                  </AccordionContent>
-                </AccordionItem>
-              ))}
-            </Accordion>
-          )}
-        </div>
-      </ScrollArea>
     </aside>
   );
 };
