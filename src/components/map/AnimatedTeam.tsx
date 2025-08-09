@@ -1,27 +1,22 @@
-
-'use client';
+"use client";
 
 import * as React from 'react';
-import L from 'leaflet';
-import { Marker } from 'react-leaflet';
-import type { LatLngTuple, RescueRoute } from '@/types';
+import { MarkerF } from '@react-google-maps/api';
+import type { LatLngLiteral, RescueRoute } from '@/types';
 import { useToast } from '@/hooks/use-toast';
-import { rescueTeamIcon } from './CustomIcons';
 
 interface AnimatedTeamProps {
-  map: L.Map;
   route: RescueRoute;
-  victimLocations: LatLngTuple[];
+  victimLocations: LatLngLiteral[];
 }
 
-const AnimatedTeam: React.FC<AnimatedTeamProps> = ({ map, route, victimLocations }) => {
+const AnimatedTeam: React.FC<AnimatedTeamProps> = ({ route, victimLocations }) => {
   const { toast } = useToast();
-  const [position, setPosition] = React.useState<LatLngTuple | null>(null);
-  const markerRef = React.useRef<L.Marker | null>(null);
-  
+  const [position, setPosition] = React.useState<LatLngLiteral | null>(null);
+
   const routePoints = React.useMemo(() => route.routeCoordinates.map(coord => {
     const [lat, lng] = coord.split(',').map(parseFloat);
-    return [lat, lng] as LatLngTuple;
+    return { lat, lng };
   }), [route.routeCoordinates]);
 
   const totalDuration = 15000; // 15 seconds for the entire route animation
@@ -32,15 +27,11 @@ const AnimatedTeam: React.FC<AnimatedTeamProps> = ({ map, route, victimLocations
     let pos = routePoints[0];
     setPosition(pos);
 
-    if (!markerRef.current) {
-        markerRef.current = L.marker(pos, { icon: rescueTeamIcon }).addTo(map);
-    } else {
-        markerRef.current.setLatLng(pos);
-    }
-    
     const totalDistance = routePoints.reduce((acc, point, i) => {
         if (i === 0) return 0;
-        return acc + L.latLng(routePoints[i-1]).distanceTo(L.latLng(point));
+        const prevPoint = new google.maps.LatLng(routePoints[i-1].lat, routePoints[i-1].lng);
+        const currentPoint = new google.maps.LatLng(point.lat, point.lng);
+        return acc + google.maps.geometry.spherical.computeDistanceBetween(prevPoint, currentPoint);
     }, 0);
     
     let startTime: number | null = null;
@@ -56,17 +47,15 @@ const AnimatedTeam: React.FC<AnimatedTeamProps> = ({ map, route, victimLocations
       
       let traveledDistance = 0;
       for (let i = 0; i < routePoints.length - 1; i++) {
-        const start = L.latLng(routePoints[i]);
-        const end = L.latLng(routePoints[i+1]);
-        const segmentDistance = start.distanceTo(end);
+        const start = new google.maps.LatLng(routePoints[i]);
+        const end = new google.maps.LatLng(routePoints[i+1]);
+        const segmentDistance = google.maps.geometry.spherical.computeDistanceBetween(start, end);
 
         if (traveledDistance + segmentDistance >= currentDistance) {
             const ratio = (currentDistance - traveledDistance) / segmentDistance;
-            const lat = start.lat + (end.lat - start.lat) * ratio;
-            const lng = start.lng + (end.lng - start.lng) * ratio;
-            pos = [lat, lng];
+            const newPos = google.maps.geometry.spherical.interpolate(start, end, ratio);
+            pos = { lat: newPos.lat(), lng: newPos.lng() };
             setPosition(pos);
-            markerRef.current?.setLatLng(pos);
             break;
         }
         traveledDistance += segmentDistance;
@@ -74,11 +63,11 @@ const AnimatedTeam: React.FC<AnimatedTeamProps> = ({ map, route, victimLocations
       
       const currentPos = pos;
       if (currentPos) {
-        const currentLatLng = L.latLng(currentPos);
+        const currentLatLng = new google.maps.LatLng(currentPos);
         victimLocations.forEach((victim, index) => {
             if (reachedVictims.has(index)) return;
-            const victimLatLng = L.latLng(victim);
-            if (currentLatLng.distanceTo(victimLatLng) < 100) { // 100 meters threshold
+            const victimLatLng = new google.maps.LatLng(victim);
+            if (google.maps.geometry.spherical.computeDistanceBetween(currentLatLng, victimLatLng) < 100) { // 100 meters threshold
                 reachedVictims.add(index);
                 toast({
                     title: "Victim Reached",
@@ -93,7 +82,6 @@ const AnimatedTeam: React.FC<AnimatedTeamProps> = ({ map, route, victimLocations
       } else {
         const finalPosition = routePoints[routePoints.length - 1];
         setPosition(finalPosition);
-        markerRef.current?.setLatLng(finalPosition);
       }
     };
 
@@ -101,14 +89,22 @@ const AnimatedTeam: React.FC<AnimatedTeamProps> = ({ map, route, victimLocations
 
     return () => {
       cancelAnimationFrame(animationFrameId);
-      if (markerRef.current) {
-        map.removeLayer(markerRef.current);
-        markerRef.current = null;
-      }
     };
-  }, [routePoints, map, toast, route.teamName, victimLocations]);
+  }, [routePoints, toast, route.teamName, victimLocations]);
 
-  return null; // The marker is managed directly with the map instance
+  if (!position) return null;
+
+  const teamIcon = {
+    path: `M12 2L4.5 20.29l.71.71L12 18l6.79 3 .71-.71z`,
+    fillColor: 'hsl(var(--primary))',
+    fillOpacity: 1,
+    strokeColor: 'white',
+    strokeWeight: 1.5,
+    scale: 1.5,
+    anchor: new google.maps.Point(12, 12)
+  };
+
+  return <MarkerF position={position} icon={teamIcon} zIndex={100} />;
 };
 
 export default AnimatedTeam;

@@ -1,22 +1,41 @@
-
 "use client";
 
 import * as React from 'react';
-import type { LatLngTuple, RescueRoute, Team, PlacingMode, HeatmapDataPoint } from '@/types';
-import L from 'leaflet';
-import 'leaflet/dist/leaflet.css';
-import { baseIcon, victimIcon } from './CustomIcons';
+import { GoogleMap, useLoadScript, MarkerF, PolygonF, PolylineF, HeatmapLayerF } from '@react-google-maps/api';
+import type { LatLngLiteral, RescueRoute, PlacingMode, HeatmapDataPoint } from '@/types';
+import { Skeleton } from '../ui/skeleton';
 import { TEAM_COLORS } from '../ClientDashboard';
-import { heatmapLayer } from './HeatmapLayer';
 import AnimatedTeam from './AnimatedTeam';
 
+const MAP_ID = "snowtrace_map_id";
+
+const containerStyle = {
+  width: '100%',
+  height: '100%',
+};
+
+// Indian Himalayas
+const center = {
+  lat: 30.3234,
+  lng: 79.9844
+};
+
+const mapOptions: google.maps.MapOptions = {
+    mapId: MAP_ID,
+    disableDefaultUI: true,
+    zoomControl: true,
+    clickableIcons: false,
+    gestureHandling: 'cooperative'
+};
+
+const libraries: ('marker' | 'places' | 'visualization')[] = ['marker', 'places', 'visualization'];
+
 interface MapWrapperProps {
-  baseLocation: LatLngTuple | null;
-  victimLocations: LatLngTuple[];
-  avalancheZone: LatLngTuple[];
+  baseLocation: LatLngLiteral | null;
+  victimLocations: LatLngLiteral[];
+  avalancheZone: LatLngLiteral[];
   routes: RescueRoute[];
-  onMapClick: (latlng: { lat: number, lng: number }) => void;
-  teams: Team[];
+  onMapClick: (e: google.maps.MapMouseEvent) => void;
   placingMode: PlacingMode;
   heatmapData: HeatmapDataPoint[];
 }
@@ -30,137 +49,142 @@ const MapWrapper: React.FC<MapWrapperProps> = ({
   placingMode,
   heatmapData,
 }) => {
-  const mapRef = React.useRef<L.Map | null>(null);
-  const mapContainerRef = React.useRef<HTMLDivElement>(null);
-  const layersRef = React.useRef<L.LayerGroup>(new L.LayerGroup());
-  const heatmapLayerRef = React.useRef<any>(null);
+  const { isLoaded, loadError } = useLoadScript({
+    googleMapsApiKey: process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY as string,
+    libraries,
+    mapIds: [MAP_ID]
+  });
 
-  // Effect to initialize the map ONCE
-  React.useEffect(() => {
-    if (mapRef.current || !mapContainerRef.current) return;
+  const mapRef = React.useRef<google.maps.Map | null>(null);
 
-    mapRef.current = L.map(mapContainerRef.current, {
-      center: [30.3234, 79.9844], // Default to Indian Himalayas
-      zoom: 9,
-      scrollWheelZoom: true,
-    });
-
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-      attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
-    }).addTo(mapRef.current);
-
-    layersRef.current.addTo(mapRef.current);
-    
-    mapRef.current.on('click', (e: L.LeafletMouseEvent) => {
-        onMapClick(e.latlng);
-    });
-
-    return () => {
-        if (mapRef.current) {
-            mapRef.current.remove();
-            mapRef.current = null;
-        }
-    }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+  const onLoad = React.useCallback(function callback(map: google.maps.Map) {
+    mapRef.current = map;
   }, []);
 
-  // Effect to handle map cursor style and click events based on placingMode
-  React.useEffect(() => {
-    if(mapContainerRef.current) {
-        if (placingMode) {
-            mapContainerRef.current.style.cursor = 'crosshair';
-        } else {
-            mapContainerRef.current.style.cursor = '';
-        }
-    }
-    if (mapRef.current) {
-        const map = mapRef.current;
-        // Remove previous listener to avoid duplicates
-        map.off('click'); 
-        map.on('click', (e: L.LeafletMouseEvent) => {
-            if (placingMode) {
-                onMapClick(e.latlng);
-            }
-        });
-    }
-  }, [placingMode, onMapClick]);
+  const onUnmount = React.useCallback(function callback() {
+    mapRef.current = null;
+  }, []);
 
-
-  // Effect to update all static layers when data changes
-  React.useEffect(() => {
-    if (!mapRef.current) return;
-    const map = mapRef.current;
-    
-    layersRef.current.clearLayers();
-
-    if (baseLocation) {
-      L.marker(baseLocation, { icon: baseIcon }).bindTooltip('Rescue Base').addTo(layersRef.current);
-    }
-
-    victimLocations.forEach((pos, index) => {
-      L.marker(pos, { icon: victimIcon }).bindTooltip(`Victim #${index + 1}`).addTo(layersRef.current);
-    });
-
-    avalancheZone.forEach((pos) => {
-      L.circleMarker(pos, { radius: 5, color: 'hsl(var(--destructive))', fillColor: 'hsl(var(--destructive))', fillOpacity: 0.8 }).addTo(layersRef.current);
-    });
-
-    if (avalancheZone.length > 2) {
-      L.polygon(avalancheZone, { color: 'hsl(var(--destructive))', fillColor: 'hsl(var(--destructive))', fillOpacity: 0.2 }).addTo(layersRef.current);
-    }
-    
-    routes.forEach((route) => {
-      const routePoints: LatLngTuple[] = route.routeCoordinates.map(coord => {
-        const [lat, lng] = coord.split(',').map(parseFloat);
-        return [lat, lng];
-      });
-      L.polyline(routePoints, { color: TEAM_COLORS[route.teamName] || '#fff', weight: 4, opacity: 0.8 }).bindTooltip(route.teamName).addTo(layersRef.current);
-    });
-
-    if (routes.length > 0) { // Only fit bounds when routes are generated
-      const allPoints = [
-          ...(baseLocation ? [baseLocation] : []),
-          ...victimLocations,
-          ...routes.flatMap(r => r.routeCoordinates.map(c => c.split(',').map(parseFloat) as LatLngTuple))
-      ];
-
-      if(allPoints.length > 0) {
-        const bounds = L.latLngBounds(allPoints);
-        map.fitBounds(bounds, { padding: [50, 50]});
-      }
-    }
-
-  }, [baseLocation, victimLocations, avalancheZone, routes]);
-
-  // Effect for heatmap layer
-   React.useEffect(() => {
-    if (!mapRef.current) return;
-    const map = mapRef.current;
-
-    if (!heatmapLayerRef.current) {
-      heatmapLayerRef.current = heatmapLayer([]).addTo(map);
-    }
-    
-    if (heatmapData.length > 0) {
-        heatmapLayerRef.current.setData(heatmapData, map);
-    } else {
-        heatmapLayerRef.current.setData([], map);
-    }
-
+  const heatmapDataGoogle = React.useMemo(() => {
+    return heatmapData.map(p => ({
+        location: new google.maps.LatLng(p.latitude, p.longitude),
+        weight: p.intensity
+    }))
   }, [heatmapData]);
 
+  const baseIcon = {
+    path: window.google?.maps.SymbolPath.CIRCLE,
+    scale: 10,
+    fillColor: 'hsl(142.1 76.2% 36.3%)',
+    fillOpacity: 1,
+    strokeWeight: 1.5,
+    strokeColor: 'white'
+  };
+
+  const victimIcon = {
+    path: window.google?.maps.SymbolPath.CIRCLE,
+    scale: 8,
+    fillColor: 'hsl(var(--destructive))',
+    fillOpacity: 1,
+    strokeWeight: 1.5,
+    strokeColor: 'white'
+  };
+
+  if (loadError) return <div>Error loading maps</div>;
+  if (!isLoaded) return <div className="h-full w-full bg-muted flex items-center justify-center p-4"><Skeleton className="w-full h-full" /></div>;
 
   return (
     <div className='h-full w-full p-4 relative'>
-        <div ref={mapContainerRef} className="h-full w-full z-0" />
-        {mapRef.current && routes.map((route, index) => (
-            <AnimatedTeam 
-                key={`${route.teamName}-${index}`} 
-                map={mapRef.current}
-                route={route} 
-                victimLocations={victimLocations} 
-            />
-        ))}
+        <GoogleMap
+            mapContainerStyle={containerStyle}
+            center={center}
+            zoom={9}
+            onLoad={onLoad}
+            onUnmount={onUnmount}
+            options={mapOptions}
+            onClick={onMapClick}
+            mapContainerClassName='rounded-md'
+        >
+            {/* Markers, Polygons, etc. */}
+            {baseLocation && (
+                <MarkerF position={baseLocation} title="Rescue Base" icon={baseIcon} />
+            )}
+
+            {victimLocations.map((pos, index) => (
+                <MarkerF key={index} position={pos} title={`Victim #${index + 1}`} icon={victimIcon} />
+            ))}
+
+            {avalancheZone.map((pos, index) => (
+              <MarkerF key={`av-point-${index}`} position={pos} icon={{
+                path: google.maps.SymbolPath.CIRCLE,
+                scale: 4,
+                fillColor: 'hsl(var(--destructive))',
+                fillOpacity: 0.8,
+                strokeWeight: 0
+              }} />
+            ))}
+
+            {avalancheZone.length > 2 && (
+                <PolygonF
+                    paths={avalancheZone}
+                    options={{
+                        strokeColor: 'hsl(var(--destructive))',
+                        strokeOpacity: 0.8,
+                        strokeWeight: 2,
+                        fillColor: 'hsl(var(--destructive))',
+                        fillOpacity: 0.2
+                    }}
+                />
+            )}
+
+            {routes.map((route, index) => {
+                 const routePoints: LatLngLiteral[] = route.routeCoordinates.map(coord => {
+                    const [lat, lng] = coord.split(',').map(parseFloat);
+                    return { lat, lng };
+                  });
+
+                  return (
+                    <PolylineF
+                        key={index}
+                        path={routePoints}
+                        options={{
+                            strokeColor: TEAM_COLORS[route.teamName] || '#fff',
+                            strokeOpacity: 0.8,
+                            strokeWeight: 5,
+                        }}
+                    />
+                  )
+            })}
+             {heatmapDataGoogle.length > 0 && (
+                <HeatmapLayerF
+                    data={heatmapDataGoogle}
+                    options={{
+                        radius: 35,
+                        opacity: 0.7,
+                        gradient: [
+                            "rgba(0, 255, 255, 0)",
+                            "rgba(0, 255, 255, 1)",
+                            "rgba(0, 191, 255, 1)",
+                            "rgba(0, 127, 255, 1)",
+                            "rgba(0, 63, 255, 1)",
+                            "rgba(0, 0, 255, 1)",
+                            "rgba(0, 0, 223, 1)",
+                            "rgba(0, 0, 191, 1)",
+                            "rgba(0, 0, 159, 1)",
+                            "rgba(0, 0, 127, 1)",
+                            "rgba(63, 0, 91, 1)",
+                            "rgba(127, 0, 63, 1)",
+                            "rgba(191, 0, 31, 1)",
+                            "rgba(255, 0, 0, 1)"
+                          ]
+                    }}
+                />
+            )}
+
+            {routes.map((route, index) => (
+                <AnimatedTeam key={index} route={route} victimLocations={victimLocations} />
+            ))}
+        </GoogleMap>
     </div>
   );
 };

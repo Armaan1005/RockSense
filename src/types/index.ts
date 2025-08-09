@@ -1,7 +1,7 @@
 
 import type { GenerateRescueRoutesOutput, HeatmapDataPoint as GenkitHeatmapDataPoint } from "@/ai/flows/generate-rescue-routes";
-import type { Map } from 'leaflet';
 
+export type LatLngLiteral = google.maps.LatLngLiteral;
 export type LatLngTuple = [number, number];
 
 export type RescueRoute = GenerateRescueRoutesOutput['routes'][0];
@@ -13,7 +13,3 @@ export type Team = {
 };
 
 export type PlacingMode = 'base' | 'victim' | 'avalanche' | null;
-
-export interface MapContextType {
-    map: Map | null;
-}

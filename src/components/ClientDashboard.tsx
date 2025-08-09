@@ -2,7 +2,7 @@
 "use client";
 
 import * as React from 'react';
-import type { LatLngTuple, PlacingMode, RescueRoute, Team, HeatmapDataPoint } from '@/types';
+import type { LatLngLiteral, PlacingMode, RescueRoute, Team, HeatmapDataPoint } from '@/types';
 
 import dynamic from 'next/dynamic';
 import Header from '@/components/Header';
@@ -29,9 +29,9 @@ const ClientDashboard: React.FC = () => {
   const { toast } = useToast();
 
   const [placingMode, setPlacingMode] = React.useState<PlacingMode>(null);
-  const [baseLocation, setBaseLocation] = React.useState<LatLngTuple | null>(null);
-  const [victimLocations, setVictimLocations] = React.useState<LatLngTuple[]>([]);
-  const [avalancheZone, setAvalancheZone] = React.useState<LatLngTuple[]>([]);
+  const [baseLocation, setBaseLocation] = React.useState<LatLngLiteral | null>(null);
+  const [victimLocations, setVictimLocations] = React.useState<LatLngLiteral[]>([]);
+  const [avalancheZone, setAvalancheZone] = React.useState<LatLngLiteral[]>([]);
   const [lastActionStack, setLastActionStack] = React.useState<LastAction[]>([]);
 
   const [weather, setWeather] = React.useState<string>('Light Snow');
@@ -41,8 +41,9 @@ const ClientDashboard: React.FC = () => {
   const [teams, setTeams] = React.useState<Team[]>([]);
   const [heatmapData, setHeatmapData] = React.useState<HeatmapDataPoint[]>([]);
 
-  const addMapPoint = (latlng: { lat: number; lng: number }) => {
-    const newPoint: LatLngTuple = [latlng.lat, latlng.lng];
+  const addMapPoint = (e: google.maps.MapMouseEvent) => {
+    if (!e.latLng) return;
+    const newPoint = e.latLng.toJSON();
     if (placingMode === 'base') {
       setBaseLocation(newPoint);
       setPlacingMode(null);
@@ -73,8 +74,8 @@ const ClientDashboard: React.FC = () => {
 
     try {
       const result = await getRescueRoutesAction({
-        baseLocation: `${baseLocation[0]},${baseLocation[1]}`,
-        victimLocations: victimLocations.map(v => `${v[0]},${v[1]}`),
+        baseLocation: `${baseLocation.lat},${baseLocation.lng}`,
+        victimLocations: victimLocations.map(v => `${v.lat},${v.lng}`),
         weatherConditions: weather,
       });
 
