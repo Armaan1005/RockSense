@@ -40,6 +40,7 @@ const ClientDashboard: React.FC = () => {
   const [rescueStrategy, setRescueStrategy] = React.useState<RescueStrategy>('multi');
 
   const [isGenerating, setIsGenerating] = React.useState(false);
+  const [isTimerRunning, setIsTimerRunning] = React.useState(false);
   const [routes, setRoutes] = React.useState<RescueRoute[]>([]);
   const [teams, setTeams] = React.useState<Team[]>([]);
   const [heatmapData, setHeatmapData] = React.useState<HeatmapDataPoint[]>([]);
@@ -71,6 +72,7 @@ const ClientDashboard: React.FC = () => {
     }
 
     setIsGenerating(true);
+    setIsTimerRunning(false);
     setRoutes([]);
     setTeams([]);
     setHeatmapData([]);
@@ -91,6 +93,7 @@ const ClientDashboard: React.FC = () => {
         color: TEAM_COLORS[route.teamName] || '#ffffff'
       }));
       setTeams(newTeams);
+      setIsTimerRunning(true);
 
       toast({ title: 'Success', description: 'Rescue routes generated successfully.' });
     } catch (error) {
@@ -126,6 +129,7 @@ const ClientDashboard: React.FC = () => {
     setTeams([]);
     setHeatmapData([]);
     setLastActionStack([]);
+    setIsTimerRunning(false);
   }
 
   return (
@@ -155,6 +159,7 @@ const ClientDashboard: React.FC = () => {
           setRescueStrategy={setRescueStrategy}
           onGenerate={handleGenerateRoutes}
           isGenerating={isGenerating}
+          isTimerRunning={isTimerRunning}
           routes={routes}
           teams={teams}
           onClear={clearAll}
