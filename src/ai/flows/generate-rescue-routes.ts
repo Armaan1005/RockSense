@@ -1,3 +1,4 @@
+
 'use server';
 
 /**
@@ -21,6 +22,7 @@ const GenerateRescueRoutesInputSchema = z.object({
   weatherConditions: z
     .string()
     .describe('A description of the current weather conditions.'),
+  strategy: z.enum(['multi-team', 'single-team']).describe("The rescue strategy to use. 'multi-team' for multiple routes, 'single-team' for one optimized TSP route."),
 });
 export type GenerateRescueRoutesInput = z.infer<typeof GenerateRescueRoutesInputSchema>;
 
@@ -28,7 +30,7 @@ const RescueRouteSchema = z.object({
   teamName: z.string().describe('The name of the rescue team assigned to this route.'),
   routeDescription: z.string().describe('A description of the route, including key landmarks and challenges.'),
   routeCoordinates: z.array(z.string()).describe('An array of coordinate strings (latitude, longitude) representing the path of the route.'),
-  travellingDuration: z.string().describe('Estimated travel duration to the victim location (e.g., "2 hours 30 minutes").'),
+  travellingDuration: z.string().describe('Estimated travel duration for the route (e.g., "2 hours 30 minutes").'),
   priority: z.string().describe('Priority of the route (High, Medium, Low)'),
 });
 
@@ -55,22 +57,37 @@ const prompt = ai.definePrompt({
   name: 'generateRescueRoutesPrompt',
   input: {schema: GenerateRescueRoutesInputSchema},
   output: {schema: GenerateRescueRoutesOutputSchema},
-  prompt: `You are an expert in search and rescue route planning. Your task is to generate 2-3 optimal, non-overlapping rescue routes from a base location to multiple victim locations, considering the treacherous Himalayan terrain.
+  prompt: `You are an expert in search and rescue route planning in treacherous Himalayan terrain. You will generate rescue routes based on the chosen strategy.
 
 You must generate plausible, fictional route coordinates that simulate a realistic path. The path should not be a straight line. It should have multiple points to suggest a path that avoids obstacles.
-
-Here's your process:
-1. For each victim, create a plausible route from the rescue base.
-2. Generate a series of 'latitude,longitude' coordinates for the 'routeCoordinates' field to represent this path. Create at least 5-10 points for each route.
-3. Create a plausible 'routeDescription' based on potential terrain and weather conditions.
-4. Assign a priority (High, Medium, Low) and an estimated travelling duration.
-5. Generate heatmap data indicating the probability of finding victims (reds for high-risk, blues for low-risk).
 
 Base Location: {{{baseLocation}}}
 Victim Locations: {{#each victimLocations}}{{{this}}}{{#unless @last}}, {{/unless}}{{/each}}
 Weather Conditions: {{{weatherConditions}}}
+Strategy: {{{strategy}}}
 
-Routes should be labeled with team names like Team Alpha, Team Bravo, etc.
+**Instructions by Strategy:**
+
+{{#if (eq strategy "multi-team")}}
+**Strategy: Multi Team**
+- Your task is to generate 2-3 optimal, non-overlapping rescue routes from the base location to the victim locations.
+- For each victim, create a plausible route from the rescue base.
+- Assign a priority (High, Medium, Low) and an estimated travelling duration for each route.
+- Routes should be labeled with team names like Team Alpha, Team Bravo, etc.
+{{/if}}
+
+{{#if (eq strategy "single-team")}}
+**Strategy: Single Team (Traveling Salesperson Problem)**
+- Your task is to generate a *single*, optimized route for one team (Team Alpha).
+- The route must start at the base location and visit *all* victim locations in the most efficient order possible to minimize travel time.
+- The route should be continuous, going from one victim to the next in the optimized sequence.
+- Generate a single, comprehensive 'routeDescription', 'travellingDuration', and set 'priority' to High.
+{{/if}}
+
+**Common Instructions for all Strategies:**
+- Generate a series of 'latitude,longitude' coordinates for the 'routeCoordinates' field for each route. Create at least 5-10 points per leg of the journey (e.g., base to victim, or victim to victim).
+- Create a plausible 'routeDescription' based on potential terrain and weather conditions.
+- Generate heatmap data indicating the probability of finding victims (reds for high-risk, blues for low-risk).
 `,
 });
 
