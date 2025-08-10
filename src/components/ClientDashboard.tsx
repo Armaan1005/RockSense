@@ -11,9 +11,7 @@ import { useToast } from '@/hooks/use-toast';
 import { Skeleton } from './ui/skeleton';
 import { getRescueRoutesAction, getVictimProbabilityAction } from '@/lib/actions';
 import { useIsMobile } from '@/hooks/use-mobile';
-import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from './ui/sheet';
-import { Button } from './ui/button';
-import { PanelLeftOpen } from 'lucide-react';
+import { Sheet, SheetContent } from './ui/sheet';
 
 const MapWrapper = dynamic(() => import('@/components/map/MapWrapper'), {
   ssr: false,
@@ -198,7 +196,7 @@ const ClientDashboard: React.FC = () => {
 
   return (
     <div className="flex h-dvh w-full flex-col bg-background text-foreground font-body">
-      <Header />
+      <Header isMobile={isMobile} onMenuClick={() => setMobileSheetOpen(true)} />
       <main className="flex flex-1 flex-col md:flex-row overflow-hidden">
         <div className="flex-1 relative h-full">
           <MapWrapper
@@ -210,21 +208,15 @@ const ClientDashboard: React.FC = () => {
             placingMode={placingMode}
             mapTypeId={mapTypeId}
           />
-           {isMobile && (
+        </div>
+
+        {isMobile ? (
              <Sheet open={mobileSheetOpen} onOpenChange={setMobileSheetOpen}>
-                <SheetTrigger asChild>
-                    <Button className="absolute bottom-4 right-4 z-10 shadow-lg rounded-full h-12 w-12 p-0">
-                        <PanelLeftOpen className="h-6 w-6" />
-                        <span className="sr-only">Open Mission Control</span>
-                    </Button>
-                </SheetTrigger>
                 <SheetContent side="right" className="w-full max-w-sm p-0 flex flex-col">
                    <RescueSidebar {...sidebarProps} />
                 </SheetContent>
             </Sheet>
-           )}
-        </div>
-        {!isMobile && (
+        ) : (
            <div className="md:w-[380px] shrink-0 h-full flex flex-col">
              <RescueSidebar {...sidebarProps} />
            </div>
