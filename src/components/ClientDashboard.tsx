@@ -10,6 +10,10 @@ import RescueSidebar from '@/components/RescueSidebar';
 import { useToast } from '@/hooks/use-toast';
 import { Skeleton } from './ui/skeleton';
 import { getRescueRoutesAction, getVictimProbabilityAction } from '@/lib/actions';
+import { useIsMobile } from '@/hooks/use-mobile';
+import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from './ui/sheet';
+import { Button } from './ui/button';
+import { PanelLeftOpen } from 'lucide-react';
 
 const MapWrapper = dynamic(() => import('@/components/map/MapWrapper'), {
   ssr: false,
@@ -28,6 +32,8 @@ type LastAction = 'base' | 'victim' | 'avalanche' | null;
 
 const ClientDashboard: React.FC = () => {
   const { toast } = useToast();
+  const isMobile = useIsMobile();
+  const [mobileSheetOpen, setMobileSheetOpen] = React.useState(false);
 
   const [placingMode, setPlacingMode] = React.useState<PlacingMode>(null);
   const [baseLocation, setBaseLocation] = React.useState<LatLngLiteral | null>(null);
@@ -75,6 +81,7 @@ const ClientDashboard: React.FC = () => {
     setIsGenerating(true);
     setRoutes([]);
     setTeams([]);
+    if(isMobile) setMobileSheetOpen(false);
 
     try {
       const result = await getRescueRoutesAction({
@@ -113,6 +120,8 @@ const ClientDashboard: React.FC = () => {
 
     setIsAnalyzing(true);
     setAnalysisSummary(null);
+    if(isMobile) setMobileSheetOpen(false);
+
 
     try {
        const result = await getVictimProbabilityAction({
@@ -159,11 +168,38 @@ const ClientDashboard: React.FC = () => {
     setLastActionStack([]);
     setAnalysisSummary(null);
   }
+  
+  const sidebarProps = {
+      placingMode,
+      setPlacingMode,
+      weather,
+      setWeather,
+      timeElapsed,
+      setTimeElapsed,
+      mapTypeId,
+      setMapTypeId,
+      rescueStrategy,
+      setRescueStrategy,
+      onGenerate: handleGenerateRoutes,
+      isGenerating,
+      onAnalyze: handleAnalyzeProbabilities,
+      isAnalyzing,
+      routes,
+      teams,
+      onClear: clearAll,
+      onUndo,
+      canUndo: lastActionStack.length > 0,
+      victimCount: victimLocations.length,
+      isBaseSet: !!baseLocation,
+      isAvalancheZoneSet: avalancheZone.length > 2,
+      analysisSummary,
+  };
+
 
   return (
     <div className="flex h-dvh w-full flex-col bg-background text-foreground font-body">
       <Header />
-      <main className="flex flex-1 overflow-hidden">
+      <main className="flex flex-1 flex-col md:flex-row overflow-hidden">
         <div className="flex-1 relative h-full">
           <MapWrapper
             baseLocation={baseLocation}
@@ -174,32 +210,25 @@ const ClientDashboard: React.FC = () => {
             placingMode={placingMode}
             mapTypeId={mapTypeId}
           />
+           {isMobile && (
+             <Sheet open={mobileSheetOpen} onOpenChange={setMobileSheetOpen}>
+                <SheetTrigger asChild>
+                    <Button className="absolute bottom-4 right-4 z-10 shadow-lg rounded-full h-12 w-12 p-0">
+                        <PanelLeftOpen className="h-6 w-6" />
+                        <span className="sr-only">Open Mission Control</span>
+                    </Button>
+                </SheetTrigger>
+                <SheetContent side="right" className="w-full max-w-sm p-0 flex flex-col">
+                   <RescueSidebar {...sidebarProps} />
+                </SheetContent>
+            </Sheet>
+           )}
         </div>
-        <RescueSidebar
-          placingMode={placingMode}
-          setPlacingMode={setPlacingMode}
-          weather={weather}
-          setWeather={setWeather}
-          timeElapsed={timeElapsed}
-          setTimeElapsed={setTimeElapsed}
-          mapTypeId={mapTypeId}
-          setMapTypeId={setMapTypeId}
-          rescueStrategy={rescueStrategy}
-          setRescueStrategy={setRescueStrategy}
-          onGenerate={handleGenerateRoutes}
-          isGenerating={isGenerating}
-          onAnalyze={handleAnalyzeProbabilities}
-          isAnalyzing={isAnalyzing}
-          routes={routes}
-          teams={teams}
-          onClear={clearAll}
-          onUndo={handleUndo}
-          canUndo={lastActionStack.length > 0}
-          victimCount={victimLocations.length}
-          isBaseSet={!!baseLocation}
-          isAvalancheZoneSet={avalancheZone.length > 2}
-          analysisSummary={analysisSummary}
-        />
+        {!isMobile && (
+           <div className="md:w-[380px] shrink-0 h-full flex flex-col">
+             <RescueSidebar {...sidebarProps} />
+           </div>
+        )}
       </main>
     </div>
   );
