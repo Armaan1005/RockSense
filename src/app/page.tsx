@@ -61,7 +61,7 @@ export default function LandingPage() {
                 </p>
               </div>
             </div>
-            <div className="mx-auto grid max-w-5xl items-start gap-6 py-12 lg:grid-cols-3 lg:gap-12">
+            <div className="mx-auto grid max-w-5xl items-start gap-6 py-12 sm:grid-cols-1 md:grid-cols-3 lg:gap-12">
               <div className="grid gap-1 text-center">
                 <BrainCircuit className="mx-auto h-12 w-12 text-primary" />
                 <h3 className="text-xl font-bold">AI Route Generation</h3>
