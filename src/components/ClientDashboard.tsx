@@ -79,7 +79,6 @@ const ClientDashboard: React.FC = () => {
     setIsGenerating(true);
     setRoutes([]);
     setTeams([]);
-    if(isMobile) setMobileSheetOpen(false);
 
     try {
       const result = await getRescueRoutesAction({
@@ -118,7 +117,6 @@ const ClientDashboard: React.FC = () => {
 
     setIsAnalyzing(true);
     setAnalysisSummary(null);
-    if(isMobile) setMobileSheetOpen(false);
 
 
     try {
