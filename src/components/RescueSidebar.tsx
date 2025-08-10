@@ -107,48 +107,51 @@ const RescueSidebar: React.FC<RescueSidebarProps> = ({
 
 
   return (
-    <aside className="w-[380px] flex flex-col border-l bg-background/80 backdrop-blur-sm h-full">
+    <aside className="w-full md:w-[380px] flex flex-col border-l bg-background/80 backdrop-blur-sm h-full">
       <ScrollArea className="flex-1">
         <div className="p-4 space-y-4">
-          <div className="flex items-center justify-between">
-            <h2 className="text-lg font-semibold">Mission Control</h2>
-            <Popover>
-                <TooltipProvider delayDuration={0}>
-                  <Tooltip>
-                    <TooltipTrigger asChild>
-                      <PopoverTrigger asChild>
-                        <Button variant="ghost" size="icon" className="h-6 w-6">
-                          <Info className="h-4 w-4 text-[#000000] dark:text-foreground" />
-                          <span className="sr-only">How to use</span>
-                        </Button>
-                      </PopoverTrigger>
-                    </TooltipTrigger>
-                    <TooltipContent side="left">
-                      <p>Help</p>
-                    </TooltipContent>
-                  </Tooltip>
-                </TooltipProvider>
-              <PopoverContent className="text-sm">
-                <h4 className="font-semibold mb-2">How to Generate Routes</h4>
-                <ol className="list-decimal list-inside space-y-2">
-                  <li>
-                    <strong>Set Base:</strong> Click "Set Rescue Base" and then click on the map to place your headquarters.
-                  </li>
-                  <li>
-                    <strong>Add Victims:</strong> Click "Add Victim Location" and click on the map for each victim.
-                  </li>
-                  <li>
-                    <strong>Define Zone (Optional):</strong> Click "Define Avalanche Zone" and click at least three points on the map to create a polygon.
-                  </li>
-                  <li>
-                    <strong>Configure:</strong> Adjust weather, map type, and strategy.
-                  </li>
-                   <li>
-                    <strong>Generate or Analyze:</strong> Click the desired action to see the AI plan.
-                  </li>
-                </ol>
-              </PopoverContent>
-            </Popover>
+          <div>
+            <div className="flex items-center justify-between">
+              <h2 className="text-lg font-semibold">Mission Control</h2>
+              <Popover>
+                  <TooltipProvider delayDuration={0}>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <PopoverTrigger asChild>
+                          <Button variant="ghost" size="icon" className="h-6 w-6">
+                            <Info className="h-4 w-4 text-foreground" />
+                            <span className="sr-only">How to use</span>
+                          </Button>
+                        </PopoverTrigger>
+                      </TooltipTrigger>
+                      <TooltipContent side="left">
+                        <p>Help</p>
+                      </TooltipContent>
+                    </Tooltip>
+                  </TooltipProvider>
+                <PopoverContent className="text-sm w-[320px] md:w-auto">
+                  <h4 className="font-semibold mb-2">How to Generate Routes</h4>
+                  <ol className="list-decimal list-inside space-y-2">
+                    <li>
+                      <strong>Set Base:</strong> Click "Set Rescue Base" and then click on the map to place your headquarters.
+                    </li>
+                    <li>
+                      <strong>Add Victims:</strong> Click "Add Victim Location" and click on the map for each victim.
+                    </li>
+                    <li>
+                      <strong>Define Zone (Optional):</strong> Click "Define Avalanche Zone" and click at least three points on the map to create a polygon.
+                    </li>
+                    <li>
+                      <strong>Configure:</strong> Adjust weather, map type, and strategy.
+                    </li>
+                    <li>
+                      <strong>Generate or Analyze:</strong> Click the desired action to see the AI plan.
+                    </li>
+                  </ol>
+                </PopoverContent>
+              </Popover>
+            </div>
+             <p className="text-sm text-muted-foreground">Configure and manage your rescue operation.</p>
           </div>
           <div className="grid grid-cols-1 gap-2">
             <Button variant={placingMode === 'base' ? 'secondary' : 'outline'} onClick={() => setPlacingMode('base')}><Flag className="mr-2"/> Set Rescue Base</Button>
