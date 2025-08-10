@@ -187,7 +187,7 @@ const ClientDashboard: React.FC = () => {
       routes,
       teams,
       onClear: clearAll,
-      onUndo,
+      onUndo: handleUndo,
       canUndo: lastActionStack.length > 0,
       victimCount: victimLocations.length,
       isBaseSet: !!baseLocation,
