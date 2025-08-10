@@ -257,7 +257,11 @@ const RescueSidebar: React.FC<RescueSidebarProps> = ({
            <div>
             <h3 className="text-md font-semibold mb-2">Analysis Summary</h3>
             {isAnalyzing && (
-              <p className="text-sm text-muted-foreground p-2 text-center">Analyzing probabilities...</p>
+              <Card>
+                <CardContent className="pt-6 text-center text-sm text-muted-foreground">
+                  <p>Analyzing probabilities...</p>
+                </CardContent>
+              </Card>
             )}
             {analysisSummary && !isAnalyzing && (
                  <Card>
