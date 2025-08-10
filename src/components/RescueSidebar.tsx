@@ -35,6 +35,7 @@ import { Badge } from './ui/badge';
 import { TEAM_COLORS } from './ClientDashboard';
 import { Popover, PopoverContent, PopoverTrigger } from './ui/popover';
 import { Card, CardContent } from './ui/card';
+import { cn } from '@/lib/utils';
 
 interface RescueSidebarProps {
   placingMode: PlacingMode;
@@ -60,6 +61,7 @@ interface RescueSidebarProps {
   isBaseSet: boolean;
   isAvalancheZoneSet: boolean;
   analysisSummary: string | null;
+  isMobile?: boolean;
 }
 
 const RescueSidebar: React.FC<RescueSidebarProps> = ({
@@ -86,6 +88,7 @@ const RescueSidebar: React.FC<RescueSidebarProps> = ({
   isBaseSet,
   isAvalancheZoneSet,
   analysisSummary,
+  isMobile,
 }) => {
 
   const calculateRouteDistance = (routeCoordinates: string[]): string => {
@@ -108,7 +111,7 @@ const RescueSidebar: React.FC<RescueSidebarProps> = ({
   return (
     <aside className="w-full md:w-[380px] flex flex-col border-l bg-background/80 backdrop-blur-sm h-full">
       <ScrollArea className="flex-1">
-        <div className="p-4 space-y-4">
+        <div className={cn("p-4 space-y-4", isMobile && "pt-12")}>
           <div>
             <div className="flex items-center justify-between">
               <h2 className="text-lg font-semibold">Mission Control</h2>

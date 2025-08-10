@@ -191,6 +191,7 @@ const ClientDashboard: React.FC = () => {
       isBaseSet: !!baseLocation,
       isAvalancheZoneSet: avalancheZone.length > 2,
       analysisSummary,
+      isMobile,
   };
 
 
