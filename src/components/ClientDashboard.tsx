@@ -11,7 +11,7 @@ import { useToast } from '@/hooks/use-toast';
 import { Skeleton } from './ui/skeleton';
 import { getRescueRoutesAction, getVictimProbabilityAction } from '@/lib/actions';
 import { useIsMobile } from '@/hooks/use-mobile';
-import { Sheet, SheetContent } from './ui/sheet';
+import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle } from './ui/sheet';
 
 const MapWrapper = dynamic(() => import('@/components/map/MapWrapper'), {
   ssr: false,
@@ -213,6 +213,12 @@ const ClientDashboard: React.FC = () => {
         {isMobile ? (
              <Sheet open={mobileSheetOpen} onOpenChange={setMobileSheetOpen}>
                 <SheetContent side="right" className="w-full max-w-sm p-0 flex flex-col">
+                    <SheetHeader className="p-4 border-b">
+                        <SheetTitle>Mission Control</SheetTitle>
+                        <SheetDescription>
+                            Configure mission parameters and generate rescue plans.
+                        </SheetDescription>
+                    </SheetHeader>
                    <RescueSidebar {...sidebarProps} />
                 </SheetContent>
             </Sheet>
@@ -227,3 +233,5 @@ const ClientDashboard: React.FC = () => {
 };
 
 export default ClientDashboard;
+
+    
