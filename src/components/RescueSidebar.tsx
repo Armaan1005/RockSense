@@ -281,13 +281,13 @@ const RescueSidebar: React.FC<RescueSidebarProps> = ({
         <div className="grid grid-cols-1 gap-2">
             <Button onClick={onGenerate} disabled={isGenerating || isAnalyzing} className="w-full bg-accent hover:bg-accent/90 text-accent-foreground">
             {isGenerating ? <Loader className="mr-2 animate-spin"/> : <BrainCircuit className="mr-2"/>}
-            Generate Routes
+            {isGenerating ? "Generating..." : "Generate Routes"}
             </Button>
         </div>
         <div className="grid grid-cols-3 gap-2">
              <Button onClick={onAnalyze} disabled={isAnalyzing || isGenerating || !isAvalancheZoneSet || victimCount === 0} variant="outline">
                 {isAnalyzing ? <Loader className="mr-2 animate-spin"/> : <Search className="mr-2"/>}
-                Analyze
+                {isAnalyzing ? "Analyzing..." : "Analyze"}
             </Button>
             <Button onClick={onUndo} variant="outline" disabled={!canUndo}>
                 <Undo2 className="mr-2"/> Undo
