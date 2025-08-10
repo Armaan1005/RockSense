@@ -17,6 +17,7 @@ import {
   User as UserIcon,
   Info,
   Search,
+  Loader2,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
@@ -286,13 +287,21 @@ const RescueSidebar: React.FC<RescueSidebarProps> = ({
         </div>
         <div className="grid grid-cols-1 gap-2">
             <Button onClick={onGenerate} disabled={isGenerating || isAnalyzing} className="w-full bg-accent hover:bg-accent/90 text-accent-foreground">
-              <BrainCircuit className="mr-2"/>
+              {isGenerating ? (
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+              ) : (
+                <BrainCircuit className="mr-2"/>
+              )}
               {isGenerating ? "Generating..." : "Generate Routes"}
             </Button>
         </div>
         <div className="grid grid-cols-3 gap-2">
              <Button onClick={onAnalyze} disabled={isAnalyzing || isGenerating || !isAvalancheZoneSet || victimCount === 0} variant="outline">
-                <Search className="mr-2"/>
+                {isAnalyzing ? (
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                ) : (
+                  <Search className="mr-2"/>
+                )}
                 {isAnalyzing ? "Analyzing..." : "Analyze"}
             </Button>
             <Button onClick={onUndo} variant="outline" disabled={!canUndo}>
