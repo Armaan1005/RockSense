@@ -8,7 +8,6 @@ import {
   Triangle,
   CloudSnow,
   BrainCircuit,
-  Loader,
   X,
   Undo2,
   Milestone,
@@ -217,11 +216,12 @@ const RescueSidebar: React.FC<RescueSidebarProps> = ({
 
           <div>
             <h3 className="text-md font-semibold mb-2">Rescue Plan</h3>
-
-            {isGenerating && !isAnalyzing && <p className="text-sm text-muted-foreground">Generating plan...</p>}
-            
-            {routes.length === 0 && !isGenerating && <p className="text-sm text-muted-foreground">No plan generated yet.</p>}
-
+            {isGenerating && (
+              <p className="text-sm text-muted-foreground p-2 text-center">Generating plan...</p>
+            )}
+            {routes.length === 0 && !isGenerating && (
+              <p className="text-sm text-muted-foreground">No plan generated yet.</p>
+            )}
             {routes.length > 0 && (
               <Accordion type="single" collapsible defaultValue="item-0">
                 {routes.map((route, index) => (
@@ -256,7 +256,9 @@ const RescueSidebar: React.FC<RescueSidebarProps> = ({
           <Separator />
            <div>
             <h3 className="text-md font-semibold mb-2">Analysis Summary</h3>
-            {isAnalyzing && <p className="text-sm text-muted-foreground">Analyzing...</p>}
+            {isAnalyzing && (
+              <p className="text-sm text-muted-foreground p-2 text-center">Analyzing probabilities...</p>
+            )}
             {analysisSummary && !isAnalyzing && (
                  <Card>
                     <CardContent className="pt-6">
@@ -280,13 +282,13 @@ const RescueSidebar: React.FC<RescueSidebarProps> = ({
         </div>
         <div className="grid grid-cols-1 gap-2">
             <Button onClick={onGenerate} disabled={isGenerating || isAnalyzing} className="w-full bg-accent hover:bg-accent/90 text-accent-foreground">
-            {isGenerating ? <Loader className="mr-2 animate-spin"/> : <BrainCircuit className="mr-2"/>}
-            {isGenerating ? "Generating..." : "Generate Routes"}
+              <BrainCircuit className="mr-2"/>
+              {isGenerating ? "Generating..." : "Generate Routes"}
             </Button>
         </div>
         <div className="grid grid-cols-3 gap-2">
              <Button onClick={onAnalyze} disabled={isAnalyzing || isGenerating || !isAvalancheZoneSet || victimCount === 0} variant="outline">
-                {isAnalyzing ? <Loader className="mr-2 animate-spin"/> : <Search className="mr-2"/>}
+                <Search className="mr-2"/>
                 {isAnalyzing ? "Analyzing..." : "Analyze"}
             </Button>
             <Button onClick={onUndo} variant="outline" disabled={!canUndo}>
