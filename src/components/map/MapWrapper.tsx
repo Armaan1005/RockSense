@@ -14,10 +14,10 @@ const containerStyle = {
   height: '100%',
 };
 
-// A sample open-pit mine location
+// An open-pit mine location in India
 const center = {
-  lat: 40.4015,
-  lng: -112.1486
+  lat: 20.95,
+  lng: 85.22
 };
 
 const libraries: ('marker' | 'places' | 'visualization' | 'geometry')[] = ['marker', 'places', 'visualization', 'geometry'];
@@ -110,7 +110,7 @@ const MapWrapper: React.FC<MapWrapperProps> = ({
         <GoogleMap
             mapContainerStyle={containerStyle}
             center={center}
-            zoom={15}
+            zoom={13}
             onLoad={onLoad}
             onUnmount={onUnmount}
             options={mapOptions}
