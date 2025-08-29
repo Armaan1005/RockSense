@@ -10,12 +10,13 @@ import {
   BrainCircuit,
   X,
   Undo2,
-  TrendingUp,
   Mountain,
   Map,
   Info,
   Loader2,
   HardHat,
+  Camera,
+  FileImage
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
@@ -26,13 +27,13 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { Accordion, AccordionItem, AccordionTrigger, AccordionContent } from '@/components/ui/accordion';
-import type { PlacingMode, RiskZone, MapTypeId, SlopeMaterial } from '@/types';
+import type { PlacingMode, RiskZone, MapTypeId, SlopeMaterial, AnalyzeRockFaceOutput } from '@/types';
 import { ScrollArea } from './ui/scroll-area';
 import { Separator } from './ui/separator';
 import { Badge } from './ui/badge';
 import { RISK_COLORS } from './ClientDashboard';
 import { Popover, PopoverContent, PopoverTrigger } from './ui/popover';
-import { Card, CardContent } from './ui/card';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from './ui/card';
 import { cn } from '@/lib/utils';
 import { Input } from './ui/input';
 
@@ -58,6 +59,11 @@ interface RescueSidebarProps {
   isUnstableZoneSet: boolean;
   analysisSummary: string | null;
   isMobile?: boolean;
+  rockFaceImage: File | null;
+  setRockFaceImage: (file: File | null) => void;
+  onInspect: () => void;
+  isInspecting: boolean;
+  inspectionResult: AnalyzeRockFaceOutput | null;
 }
 
 const RescueSidebar: React.FC<RescueSidebarProps> = ({
@@ -82,7 +88,21 @@ const RescueSidebar: React.FC<RescueSidebarProps> = ({
   isUnstableZoneSet,
   analysisSummary,
   isMobile,
+  rockFaceImage,
+  setRockFaceImage,
+  onInspect,
+  isInspecting,
+  inspectionResult
 }) => {
+  
+  const fileInputRef = React.useRef<HTMLInputElement>(null);
+
+  const handleFileSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (file) {
+      setRockFaceImage(file);
+    }
+  };
 
   return (
     <aside className="w-full md:w-[380px] flex flex-col border-l bg-background/80 backdrop-blur-sm h-full">
@@ -115,6 +135,9 @@ const RescueSidebar: React.FC<RescueSidebarProps> = ({
                     </li>
                     <li>
                       <strong>Analyze:</strong> Click "Analyze Risk" to see the AI prediction.
+                    </li>
+                     <li>
+                      <strong>Visual Inspection:</strong> Upload an image of a rock face for AI-powered crack detection.
                     </li>
                   </ol>
                 </PopoverContent>
@@ -181,6 +204,47 @@ const RescueSidebar: React.FC<RescueSidebarProps> = ({
           </div>
           
           <Separator />
+           <div>
+            <h3 className="text-md font-semibold mb-2">Visual Inspection</h3>
+            <Card>
+                <CardContent className="pt-6 space-y-4">
+                    <Input type="file" accept="image/*" className="hidden" ref={fileInputRef} onChange={handleFileSelect} />
+                    <Button variant="outline" className="w-full" onClick={() => fileInputRef.current?.click()}>
+                        <FileImage className="mr-2" />
+                        {rockFaceImage ? rockFaceImage.name : "Select Image"}
+                    </Button>
+                    <Button onClick={onInspect} disabled={isInspecting || !rockFaceImage} className="w-full">
+                        {isInspecting ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Camera className="mr-2" />}
+                        {isInspecting ? "Analyzing..." : "Analyze Rock Face"}
+                    </Button>
+                </CardContent>
+            </Card>
+
+            {isInspecting && (
+              <Card className="mt-4">
+                  <CardContent className="pt-6 text-center text-sm text-muted-foreground">
+                      <p>Running visual analysis on the image...</p>
+                  </CardContent>
+              </Card>
+            )}
+
+            {inspectionResult && !isInspecting && (
+                 <Card className="mt-4">
+                    <CardHeader>
+                        <CardTitle>Inspection Result</CardTitle>
+                        <CardDescription>Stability Rating: <Badge variant={inspectionResult.stabilityRating === 'Unstable' || inspectionResult.stabilityRating === 'Potentially Unstable' ? 'destructive' : 'default'}>{inspectionResult.stabilityRating}</Badge></CardDescription>
+                    </CardHeader>
+                    <CardContent className="space-y-2 text-sm">
+                        <p><strong>Crack Detection:</strong> {inspectionResult.crackAnalysis.detected ? `Found ${inspectionResult.crackAnalysis.count} cracks.` : 'No significant cracks detected.'}</p>
+                        <p><strong>Severity:</strong> <Badge variant={inspectionResult.crackAnalysis.severity === 'High' ? 'destructive' : (inspectionResult.crackAnalysis.severity === 'Medium' ? 'secondary' : 'default')}>{inspectionResult.crackAnalysis.severity}</Badge></p>
+                        <p><strong>Description:</strong> {inspectionResult.crackAnalysis.description}</p>
+                        <p><strong>Additional Notes:</strong> {inspectionResult.additionalObservations}</p>
+                    </CardContent>
+                </Card>
+            )}
+           </div>
+
+          <Separator />
 
           <div>
             <h3 className="text-md font-semibold mb-2">Risk Prediction</h3>
@@ -216,7 +280,7 @@ const RescueSidebar: React.FC<RescueSidebarProps> = ({
           <Separator />
            <div>
             <h3 className="text-md font-semibold mb-2">Analysis Summary</h3>
-            {isAnalyzing && (
+             {isAnalyzing && (
               <Card>
                 <CardContent className="pt-6 text-center text-sm text-muted-foreground">
                   <p>Analyzing risk factors...</p>

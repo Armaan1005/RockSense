@@ -2,14 +2,14 @@
 "use client";
 
 import * as React from 'react';
-import type { LatLngLiteral, PlacingMode, RiskZone, MapTypeId, SlopeMaterial } from '@/types';
+import type { LatLngLiteral, PlacingMode, RiskZone, MapTypeId, SlopeMaterial, AnalyzeRockFaceOutput } from '@/types';
 
 import dynamic from 'next/dynamic';
 import Header from '@/components/Header';
 import RescueSidebar from '@/components/RescueSidebar';
 import { useToast } from '@/hooks/use-toast';
 import { Skeleton } from './ui/skeleton';
-import { predictRiskZonesAction } from '@/lib/actions';
+import { predictRiskZonesAction, analyzeRockFaceAction } from '@/lib/actions';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { Sheet, SheetContent } from './ui/sheet';
 
@@ -45,6 +45,11 @@ const ClientDashboard: React.FC = () => {
   const [isAnalyzing, setIsAnalyzing] = React.useState(false);
   const [riskZones, setRiskZones] = React.useState<RiskZone[]>([]);
   const [analysisSummary, setAnalysisSummary] = React.useState<string | null>(null);
+
+  const [isInspecting, setIsInspecting] = React.useState(false);
+  const [rockFaceImage, setRockFaceImage] = React.useState<File | null>(null);
+  const [inspectionResult, setInspectionResult] = React.useState<AnalyzeRockFaceOutput | null>(null);
+
 
   const addMapPoint = (e: google.maps.MapMouseEvent) => {
     if (!e.latLng) return;
@@ -97,6 +102,36 @@ const ClientDashboard: React.FC = () => {
     }
   }
 
+  const handleInspectRockFace = async () => {
+    if (!rockFaceImage) {
+      toast({ title: 'Missing Image', description: 'Please select an image file to analyze.', variant: 'destructive' });
+      return;
+    }
+
+    setIsInspecting(true);
+    setInspectionResult(null);
+
+    try {
+        const reader = new FileReader();
+        reader.readAsDataURL(rockFaceImage);
+        reader.onload = async () => {
+            const photoDataUri = reader.result as string;
+            const result = await analyzeRockFaceAction({ photoDataUri });
+            setInspectionResult(result);
+            toast({ title: 'Success', description: 'Rock face inspection complete.' });
+            setIsInspecting(false);
+        };
+        reader.onerror = (error) => {
+            throw new Error("Failed to read the image file.");
+        }
+
+    } catch (error) {
+      console.error(error);
+      toast({ title: 'Error', description: (error as Error).message, variant: 'destructive' });
+      setIsInspecting(false);
+    } 
+  }
+
   const handleUndo = () => {
     if (lastActionStack.length === 0) return;
 
@@ -121,6 +156,8 @@ const ClientDashboard: React.FC = () => {
     setPlacingMode(null);
     setLastActionStack([]);
     setAnalysisSummary(null);
+    setRockFaceImage(null);
+    setInspectionResult(null);
   }
   
   const sidebarProps = {
@@ -145,6 +182,11 @@ const ClientDashboard: React.FC = () => {
       isUnstableZoneSet: unstableZone.length > 2,
       analysisSummary,
       isMobile,
+      rockFaceImage,
+      setRockFaceImage,
+      onInspect: handleInspectRockFace,
+      isInspecting,
+      inspectionResult,
   };
 
 
