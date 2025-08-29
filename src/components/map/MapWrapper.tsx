@@ -14,10 +14,10 @@ const containerStyle = {
   height: '100%',
 };
 
-// An open-pit mine location in India
+// Bingham Canyon Mine, Utah, USA
 const center = {
-  lat: 20.95,
-  lng: 85.22
+  lat: 40.523,
+  lng: -112.151
 };
 
 const libraries: ('marker' | 'places' | 'visualization' | 'geometry')[] = ['marker', 'places', 'visualization', 'geometry'];
@@ -110,7 +110,7 @@ const MapWrapper: React.FC<MapWrapperProps> = ({
         <GoogleMap
             mapContainerStyle={containerStyle}
             center={center}
-            zoom={13}
+            zoom={14}
             onLoad={onLoad}
             onUnmount={onUnmount}
             options={mapOptions}
