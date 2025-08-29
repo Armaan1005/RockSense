@@ -40,7 +40,7 @@ const ClientDashboard: React.FC = () => {
   const [slopeAngle, setSlopeAngle] = React.useState<string>('45');
   const [slopeMaterial, setSlopeMaterial] = React.useState<SlopeMaterial>('limestone');
   const [environmentalFactors, setEnvironmentalFactors] = React.useState<string>('Heavy Rainfall');
-  const [mapTypeId, setMapTypeId] = React.useState<MapTypeId>('satellite');
+  const [mapTypeId, setMapTypeId] = React.useState<MapTypeId>('terrain');
 
   const [isAnalyzing, setIsAnalyzing] = React.useState(false);
   const [riskZones, setRiskZones] = React.useState<RiskZone[]>([]);
