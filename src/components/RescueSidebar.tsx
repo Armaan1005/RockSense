@@ -3,21 +3,19 @@
 
 import * as React from 'react';
 import {
-  Flag,
-  User,
-  Triangle,
-  CloudSnow,
+  TowerControl,
+  Crosshair,
+  AlertTriangle,
+  Cloud,
   BrainCircuit,
   X,
   Undo2,
-  Milestone,
-  Clock,
+  TrendingUp,
+  Mountain,
   Map,
-  Users,
-  User as UserIcon,
   Info,
-  Search,
   Loader2,
+  HardHat,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
@@ -28,38 +26,36 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { Accordion, AccordionItem, AccordionTrigger, AccordionContent } from '@/components/ui/accordion';
-import type { PlacingMode, RescueRoute, Team, MapTypeId, RescueStrategy } from '@/types';
+import type { PlacingMode, RiskZone, MapTypeId, SlopeMaterial } from '@/types';
 import { ScrollArea } from './ui/scroll-area';
 import { Separator } from './ui/separator';
 import { Badge } from './ui/badge';
-import { TEAM_COLORS } from './ClientDashboard';
+import { RISK_COLORS } from './ClientDashboard';
 import { Popover, PopoverContent, PopoverTrigger } from './ui/popover';
 import { Card, CardContent } from './ui/card';
 import { cn } from '@/lib/utils';
+import { Input } from './ui/input';
 
 interface RescueSidebarProps {
   placingMode: PlacingMode;
   setPlacingMode: (mode: PlacingMode) => void;
-  weather: string;
-  setWeather: (value: string) => void;
-  timeElapsed: string;
-  setTimeElapsed: (value: string) => void;
+  slopeAngle: string;
+  setSlopeAngle: (value: string) => void;
+  slopeMaterial: SlopeMaterial;
+  setSlopeMaterial: (value: SlopeMaterial) => void;
+  environmentalFactors: string;
+  setEnvironmentalFactors: (value: string) => void;
   mapTypeId: MapTypeId;
   setMapTypeId: (value: MapTypeId) => void;
-  rescueStrategy: RescueStrategy;
-  setRescueStrategy: (value: RescueStrategy) => void;
-  onGenerate: () => void;
-  isGenerating: boolean;
   onAnalyze: () => void;
   isAnalyzing: boolean;
-  routes: RescueRoute[];
-  teams: Team[];
+  riskZones: RiskZone[];
   onClear: () => void;
   onUndo: () => void;
   canUndo: boolean;
-  victimCount: number;
+  riskPointCount: number;
   isBaseSet: boolean;
-  isAvalancheZoneSet: boolean;
+  isUnstableZoneSet: boolean;
   analysisSummary: string | null;
   isMobile?: boolean;
 }
@@ -67,46 +63,26 @@ interface RescueSidebarProps {
 const RescueSidebar: React.FC<RescueSidebarProps> = ({
   placingMode,
   setPlacingMode,
-  weather,
-  setWeather,
-  timeElapsed,
-  setTimeElapsed,
+  slopeAngle,
+  setSlopeAngle,
+  slopeMaterial,
+  setSlopeMaterial,
+  environmentalFactors,
+  setEnvironmentalFactors,
   mapTypeId,
   setMapTypeId,
-  rescueStrategy,
-  setRescueStrategy,
-  onGenerate,
-  isGenerating,
   onAnalyze,
   isAnalyzing,
-  routes,
-  teams,
+  riskZones,
   onClear,
   onUndo,
   canUndo,
-  victimCount,
+  riskPointCount,
   isBaseSet,
-  isAvalancheZoneSet,
+  isUnstableZoneSet,
   analysisSummary,
   isMobile,
 }) => {
-
-  const calculateRouteDistance = (routeCoordinates: string[]): string => {
-    if (!window.google || !window.google.maps.geometry || routeCoordinates.length < 2) {
-      return 'N/A';
-    }
-
-    const routePoints = routeCoordinates.map(coord => {
-      const [lat, lng] = coord.split(',').map(parseFloat);
-      return new window.google.maps.LatLng(lat, lng);
-    });
-
-    const distanceInMeters = window.google.maps.geometry.spherical.computeLength(routePoints);
-    const distanceInKm = distanceInMeters / 1000;
-    
-    return `${distanceInKm.toFixed(2)} km`;
-  };
-
 
   return (
     <aside className="w-full md:w-[380px] flex flex-col border-l bg-background/80 backdrop-blur-sm h-full">
@@ -114,7 +90,7 @@ const RescueSidebar: React.FC<RescueSidebarProps> = ({
         <div className={cn("p-4 space-y-4", isMobile && "pt-12")}>
           <div>
             <div className="flex items-center justify-between">
-              <h2 className="text-lg font-semibold">Mission Control</h2>
+              <h2 className="text-lg font-semibold">Site Analysis Control</h2>
                <Popover>
                 <PopoverTrigger asChild>
                   <Button variant="ghost" size="icon" className="h-6 w-6">
@@ -123,65 +99,69 @@ const RescueSidebar: React.FC<RescueSidebarProps> = ({
                   </Button>
                 </PopoverTrigger>
                 <PopoverContent className="text-sm w-[320px] md:w-auto">
-                  <h4 className="font-semibold mb-2">How to Generate Routes</h4>
+                  <h4 className="font-semibold mb-2">How to Predict Risk</h4>
                   <ol className="list-decimal list-inside space-y-2">
                     <li>
-                      <strong>Set Base:</strong> Click "Set Rescue Base" and then click on the map to place your headquarters.
+                      <strong>Set Base:</strong> Click "Set Monitoring Base" and then click on the map to place your headquarters.
                     </li>
                     <li>
-                      <strong>Add Victims:</strong> Click "Add Victim Location" and click on the map for each victim.
+                      <strong>Add High-Risk Points:</strong> Click "Add High-Risk Point" and click on the map for each point of concern.
                     </li>
                     <li>
-                      <strong>Define Zone (Optional):</strong> Click "Define Avalanche Zone" and click at least three points on the map to create a polygon.
+                      <strong>Define Unstable Zone:</strong> Click "Define Unstable Zone" and click at least three points on the map to create a polygon.
                     </li>
                     <li>
-                      <strong>Configure:</strong> Adjust weather, map type, and strategy.
+                      <strong>Configure:</strong> Adjust slope geometry, material, environmental factors and map type.
                     </li>
                     <li>
-                      <strong>Generate or Analyze:</strong> Click the desired action to see the AI plan.
+                      <strong>Analyze:</strong> Click "Analyze Risk" to see the AI prediction.
                     </li>
                   </ol>
                 </PopoverContent>
               </Popover>
             </div>
-             <p className="text-sm text-muted-foreground">Configure and manage your rescue operation.</p>
+             <p className="text-sm text-muted-foreground">Configure and manage your geotechnical analysis.</p>
           </div>
           <div className="grid grid-cols-1 gap-2">
-            <Button variant={placingMode === 'base' ? 'secondary' : 'outline'} onClick={() => setPlacingMode('base')}><Flag className="mr-2"/> Set Rescue Base</Button>
-            <Button variant={placingMode === 'victim' ? 'secondary' : 'outline'} onClick={() => setPlacingMode('victim')}><User className="mr-2"/> Add Victim Location</Button>
-            <Button variant={placingMode === 'avalanche' ? 'secondary' : 'outline'} onClick={() => setPlacingMode('avalanche')}><Triangle className="mr-2"/> Define Avalanche Zone</Button>
+            <Button variant={placingMode === 'base' ? 'secondary' : 'outline'} onClick={() => setPlacingMode('base')}><TowerControl className="mr-2"/> Set Monitoring Base</Button>
+            <Button variant={placingMode === 'risk-point' ? 'secondary' : 'outline'} onClick={() => setPlacingMode('risk-point')}><Crosshair className="mr-2"/> Add High-Risk Point</Button>
+            <Button variant={placingMode === 'unstable-zone' ? 'secondary' : 'outline'} onClick={() => setPlacingMode('unstable-zone')}><AlertTriangle className="mr-2"/> Define Unstable Zone</Button>
           </div>
           
           <p className="text-xs text-muted-foreground p-2 bg-muted rounded-md">
-              {placingMode ? `Click on the map to place the ${placingMode}. For victims, click multiple times. For the avalanche zone, click to add points and form a polygon.` : "Select an action above to start marking the map."}
+              {placingMode ? `Click on the map to place the ${placingMode}. For risk points, click multiple times. For the unstable zone, click to form a polygon.` : "Select an action above to start marking the map."}
           </p>
 
           <Separator/>
 
           <div className="space-y-2">
-            <h3 className="text-md font-medium">Conditions & Strategy</h3>
+            <h3 className="text-md font-medium">Geotechnical Parameters</h3>
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <label className="text-sm font-medium" htmlFor="weather">Weather</label>
-                <Select value={weather} onValueChange={setWeather}>
-                  <SelectTrigger id="weather"><CloudSnow className="mr-2"/>{weather}</SelectTrigger>
+                <label className="text-sm font-medium" htmlFor="slope-angle">Slope Angle (°)</label>
+                <Input id="slope-angle" value={slopeAngle} onChange={(e) => setSlopeAngle(e.target.value)} placeholder="e.g., 45" />
+              </div>
+              <div>
+                <label className="text-sm font-medium" htmlFor="slope-material">Slope Material</label>
+                 <Select value={slopeMaterial} onValueChange={(v) => setSlopeMaterial(v as SlopeMaterial)}>
+                  <SelectTrigger id="slope-material"><Mountain className="mr-2"/>{slopeMaterial.charAt(0).toUpperCase() + slopeMaterial.slice(1)}</SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="Clear">Clear</SelectItem>
-                    <SelectItem value="Light Snow">Light Snow</SelectItem>
-                    <SelectItem value="Heavy Snow">Heavy Snow</SelectItem>
-                    <SelectItem value="Blizzard">Blizzard</SelectItem>
+                    <SelectItem value="granite">Granite</SelectItem>
+                    <SelectItem value="limestone">Limestone</SelectItem>
+                    <SelectItem value="sandstone">Sandstone</SelectItem>
+                    <SelectItem value="shale">Shale</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
                <div>
-                <label className="text-sm font-medium" htmlFor="time-elapsed">Time Elapsed</label>
-                <Select value={timeElapsed} onValueChange={setTimeElapsed}>
-                  <SelectTrigger id="time-elapsed"><Clock className="mr-2"/>{timeElapsed}</SelectTrigger>
+                <label className="text-sm font-medium" htmlFor="env-factors">Environment</label>
+                <Select value={environmentalFactors} onValueChange={setEnvironmentalFactors}>
+                  <SelectTrigger id="env-factors"><Cloud className="mr-2"/>{environmentalFactors}</SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="< 1 hour">&lt; 1 hour</SelectItem>
-                    <SelectItem value="1-3 hours">1-3 hours</SelectItem>
-                    <SelectItem value="3-6 hours">3-6 hours</SelectItem>
-                    <SelectItem value="> 6 hours">&gt; 6 hours</SelectItem>
+                    <SelectItem value="Clear">Clear</SelectItem>
+                    <SelectItem value="Light Rainfall">Light Rainfall</SelectItem>
+                    <SelectItem value="Heavy Rainfall">Heavy Rainfall</SelectItem>
+                    <SelectItem value="Seismic Activity">Seismic Activity</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
@@ -197,55 +177,31 @@ const RescueSidebar: React.FC<RescueSidebarProps> = ({
                   </SelectContent>
                 </Select>
               </div>
-              <div>
-                <label className="text-sm font-medium" htmlFor="rescue-strategy">Rescue Strategy</label>
-                <Select value={rescueStrategy} onValueChange={(v) => setRescueStrategy(v as RescueStrategy)}>
-                  <SelectTrigger id="rescue-strategy">
-                    {rescueStrategy === 'multi' ? <Users className="mr-2" /> : <UserIcon className="mr-2" />}
-                    {rescueStrategy === 'multi' ? 'Multi Team' : 'Single Team'}
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="multi">Multi Team</SelectItem>
-                    <SelectItem value="single">Single Team (TSP)</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
             </div>
           </div>
           
           <Separator />
 
           <div>
-            <h3 className="text-md font-semibold mb-2">Rescue Plan</h3>
-            {isGenerating && (
-              <p className="text-sm text-muted-foreground p-2 text-center">Generating plan...</p>
-            )}
-            {routes.length === 0 && !isGenerating && (
-              <p className="text-sm text-muted-foreground">No plan generated yet.</p>
-            )}
-            {routes.length > 0 && (
+            <h3 className="text-md font-semibold mb-2">Risk Prediction</h3>
+            {riskZones.length > 0 && (
               <Accordion type="single" collapsible defaultValue="item-0">
-                {routes.map((route, index) => (
+                {riskZones.map((zone, index) => (
                   <AccordionItem value={`item-${index}`} key={index}>
                     <AccordionTrigger>
                       <div className="flex items-center gap-2">
-                        <span className="w-3 h-3 rounded-full" style={{backgroundColor: TEAM_COLORS[route.teamName] || '#fff'}}></span>
-                        <span className="font-semibold">{route.teamName}</span>
-                        <Badge variant={route.priority === 'High' ? 'destructive' : 'secondary'}>{route.priority} Priority</Badge>
+                        <span className="w-3 h-3 rounded-full" style={{backgroundColor: RISK_COLORS[zone.riskLevel] || '#fff'}}></span>
+                        <span className="font-semibold">{zone.zoneName}</span>
+                        <Badge variant={zone.riskLevel === 'High' ? 'destructive' : (zone.riskLevel === 'Medium' ? 'secondary' : 'default')}>{zone.riskLevel} Risk</Badge>
                       </div>
                     </AccordionTrigger>
                     <AccordionContent className="space-y-3">
-                      <p className="text-sm">{route.routeDescription}</p>
+                      <p className="text-sm">{zone.analysis}</p>
                       <div className='flex flex-col gap-2 text-sm'>
                         <div className='flex items-center gap-2 text-muted-foreground'>
-                            <Milestone className='w-4 h-4' />
-                            <span>Distance:</span>
-                            <span className='font-semibold text-foreground'>{calculateRouteDistance(route.routeCoordinates)}</span>
-                        </div>
-                        <div className='flex items-center gap-2 text-muted-foreground'>
-                            <Clock className='w-4 h-4' />
-                            <span>Travelling Duration:</span>
-                            <span className='font-semibold text-foreground'>{route.travellingDuration}</span>
+                            <HardHat className='w-4 h-4' />
+                            <span>Recommendation:</span>
+                            <span className='font-semibold text-foreground'>{zone.recommendation}</span>
                         </div>
                       </div>
                     </AccordionContent>
@@ -253,6 +209,9 @@ const RescueSidebar: React.FC<RescueSidebarProps> = ({
                 ))}
               </Accordion>
             )}
+             {!isAnalyzing && riskZones.length === 0 && (
+                <p className="text-sm text-muted-foreground">No prediction generated yet.</p>
+             )}
           </div>
           <Separator />
            <div>
@@ -260,7 +219,7 @@ const RescueSidebar: React.FC<RescueSidebarProps> = ({
             {isAnalyzing && (
               <Card>
                 <CardContent className="pt-6 text-center text-sm text-muted-foreground">
-                  <p>Analyzing probabilities...</p>
+                  <p>Analyzing risk factors...</p>
                 </CardContent>
               </Card>
             )}
@@ -282,28 +241,20 @@ const RescueSidebar: React.FC<RescueSidebarProps> = ({
       <div className="p-4 mt-auto border-t space-y-2 shrink-0">
          <div className="flex justify-between items-center text-sm text-muted-foreground">
             <span>Base Set: <Badge variant={isBaseSet ? "default" : "secondary"}>{isBaseSet ? "Yes" : "No"}</Badge></span>
-            <span>Victims: <Badge variant={victimCount > 0 ? "default" : "secondary"}>{victimCount}</Badge></span>
-            <span>Zone Defined: <Badge variant={isAvalancheZoneSet ? "default" : "secondary"}>{isAvalancheZoneSet ? "Yes" : "No"}</Badge></span>
+            <span>Risk Pts: <Badge variant={riskPointCount > 0 ? "default" : "secondary"}>{riskPointCount}</Badge></span>
+            <span>Zone Defined: <Badge variant={isUnstableZoneSet ? "default" : "secondary"}>{isUnstableZoneSet ? "Yes" : "No"}</Badge></span>
         </div>
         <div className="grid grid-cols-1 gap-2">
-            <Button onClick={onGenerate} disabled={isGenerating || isAnalyzing} className="w-full bg-accent hover:bg-accent/90 text-accent-foreground">
-              {isGenerating ? (
+            <Button onClick={onAnalyze} disabled={isAnalyzing || !isUnstableZoneSet || riskPointCount === 0} className="w-full bg-accent hover:bg-accent/90 text-accent-foreground">
+              {isAnalyzing ? (
                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />
               ) : (
                 <BrainCircuit className="mr-2"/>
               )}
-              {isGenerating ? "Generating..." : "Generate Routes"}
+              {isAnalyzing ? "Analyzing..." : "Analyze Risk"}
             </Button>
         </div>
-        <div className="grid grid-cols-3 gap-2">
-             <Button onClick={onAnalyze} disabled={isAnalyzing || isGenerating || !isAvalancheZoneSet || victimCount === 0} variant="outline">
-                {isAnalyzing ? (
-                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                ) : (
-                  <Search className="mr-2"/>
-                )}
-                {isAnalyzing ? "Analyzing..." : "Analyze"}
-            </Button>
+        <div className="grid grid-cols-2 gap-2">
             <Button onClick={onUndo} variant="outline" disabled={!canUndo}>
                 <Undo2 className="mr-2"/> Undo
             </Button>

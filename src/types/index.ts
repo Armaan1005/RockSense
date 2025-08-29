@@ -1,20 +1,15 @@
 
-import type { GenerateRescueRoutesOutput as GenkitGenerateRescueRoutesOutput } from "@/ai/flows/generate-rescue-routes";
+import type { PredictRiskZonesOutput as GenkitPredictRiskZonesOutput } from "@/ai/flows/predict-risk-zones";
 
 export type LatLngLiteral = google.maps.LatLngLiteral;
 export type LatLngTuple = [number, number];
 
-export type GenerateRescueRoutesOutput = GenkitGenerateRescueRoutesOutput;
+export type PredictRiskZonesOutput = GenkitPredictRiskZonesOutput;
 
-export type RescueRoute = GenkitGenerateRescueRoutesOutput['routes'][0];
+export type RiskZone = GenkitPredictRiskZonesOutput['riskZones'][0];
 
-export type Team = {
-  name: string;
-  color: string;
-};
-
-export type PlacingMode = 'base' | 'victim' | 'avalanche' | null;
+export type PlacingMode = 'base' | 'risk-point' | 'unstable-zone' | null;
 
 export type MapTypeId = 'roadmap' | 'satellite' | 'hybrid' | 'terrain';
 
-export type RescueStrategy = 'multi' | 'single';
+export type SlopeMaterial = 'granite' | 'limestone' | 'sandstone' | 'shale';

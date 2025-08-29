@@ -2,14 +2,14 @@
 "use client";
 
 import * as React from 'react';
-import type { LatLngLiteral, PlacingMode, RescueRoute, Team, MapTypeId, RescueStrategy } from '@/types';
+import type { LatLngLiteral, PlacingMode, RiskZone, MapTypeId, SlopeMaterial } from '@/types';
 
 import dynamic from 'next/dynamic';
 import Header from '@/components/Header';
 import RescueSidebar from '@/components/RescueSidebar';
 import { useToast } from '@/hooks/use-toast';
 import { Skeleton } from './ui/skeleton';
-import { getRescueRoutesAction, getVictimProbabilityAction } from '@/lib/actions';
+import { predictRiskZonesAction } from '@/lib/actions';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { Sheet, SheetContent } from './ui/sheet';
 
@@ -18,15 +18,13 @@ const MapWrapper = dynamic(() => import('@/components/map/MapWrapper'), {
   loading: () => <div className="h-full w-full bg-muted flex items-center justify-center p-4"><Skeleton className="w-full h-full" /></div>
 });
 
-export const TEAM_COLORS: { [key: string]: string } = {
-  'Team Alpha': '#3498db', // Blue
-  'Team Bravo': '#2ecc71', // Green
-  'Team Charlie': '#f1c40f', // Yellow
-  'Team Delta': '#e67e22', // Orange
-  'Team Omega': '#9b59b6', // Purple for single team
+export const RISK_COLORS: { [key: string]: string } = {
+  'Low': '#2ecc71', // Green
+  'Medium': '#f1c40f', // Yellow
+  'High': '#e74c3c', // Red
 };
 
-type LastAction = 'base' | 'victim' | 'avalanche' | null;
+type LastAction = 'base' | 'risk-point' | 'unstable-zone' | null;
 
 const ClientDashboard: React.FC = () => {
   const { toast } = useToast();
@@ -35,19 +33,17 @@ const ClientDashboard: React.FC = () => {
 
   const [placingMode, setPlacingMode] = React.useState<PlacingMode>(null);
   const [baseLocation, setBaseLocation] = React.useState<LatLngLiteral | null>(null);
-  const [victimLocations, setVictimLocations] = React.useState<LatLngLiteral[]>([]);
-  const [avalancheZone, setAvalancheZone] = React.useState<LatLngLiteral[]>([]);
+  const [highRiskPoints, setHighRiskPoints] = React.useState<LatLngLiteral[]>([]);
+  const [unstableZone, setUnstableZone] = React.useState<LatLngLiteral[]>([]);
   const [lastActionStack, setLastActionStack] = React.useState<LastAction[]>([]);
-
-  const [weather, setWeather] = React.useState<string>('Light Snow');
-  const [timeElapsed, setTimeElapsed] = React.useState<string>('< 1 hour');
+  
+  const [slopeAngle, setSlopeAngle] = React.useState<string>('45');
+  const [slopeMaterial, setSlopeMaterial] = React.useState<SlopeMaterial>('limestone');
+  const [environmentalFactors, setEnvironmentalFactors] = React.useState<string>('Heavy Rainfall');
   const [mapTypeId, setMapTypeId] = React.useState<MapTypeId>('terrain');
-  const [rescueStrategy, setRescueStrategy] = React.useState<RescueStrategy>('multi');
 
-  const [isGenerating, setIsGenerating] = React.useState(false);
   const [isAnalyzing, setIsAnalyzing] = React.useState(false);
-  const [routes, setRoutes] = React.useState<RescueRoute[]>([]);
-  const [teams, setTeams] = React.useState<Team[]>([]);
+  const [riskZones, setRiskZones] = React.useState<RiskZone[]>([]);
   const [analysisSummary, setAnalysisSummary] = React.useState<string | null>(null);
 
   const addMapPoint = (e: google.maps.MapMouseEvent) => {
@@ -57,78 +53,41 @@ const ClientDashboard: React.FC = () => {
       setBaseLocation(newPoint);
       setPlacingMode(null);
       setLastActionStack(prev => [...prev, 'base']);
-    } else if (placingMode === 'victim') {
-      setVictimLocations(prev => [...prev, newPoint]);
-      setLastActionStack(prev => [...prev, 'victim']);
-    } else if (placingMode === 'avalanche') {
-      setAvalancheZone(prev => [...prev, newPoint]);
-      setLastActionStack(prev => [...prev, 'avalanche']);
-    }
-  };
-  
-  const handleGenerateRoutes = async () => {
-    if (!baseLocation) {
-      toast({ title: 'Missing Information', description: 'Please set a rescue base location.', variant: 'destructive' });
-      return;
-    }
-    if (victimLocations.length === 0) {
-      toast({ title: 'Missing Information', description: 'Please add at least one victim location.', variant: 'destructive' });
-      return;
-    }
-
-    setIsGenerating(true);
-    setRoutes([]);
-    setTeams([]);
-
-    try {
-      const result = await getRescueRoutesAction({
-        baseLocation: `${baseLocation.lat},${baseLocation.lng}`,
-        victimLocations: victimLocations.map(v => `${v.lat},${v.lng}`),
-        weatherConditions: weather,
-        rescueStrategy: rescueStrategy,
-      });
-
-      setRoutes(result.routes);
-      
-      const newTeams = result.routes.map(route => ({
-        name: route.teamName,
-        color: TEAM_COLORS[route.teamName] || '#ffffff'
-      }));
-      setTeams(newTeams);
-
-      toast({ title: 'Success', description: 'Rescue routes generated successfully.' });
-    } catch (error) {
-      console.error(error);
-      toast({ title: 'Error', description: (error as Error).message, variant: 'destructive' });
-    } finally {
-      setIsGenerating(false);
+    } else if (placingMode === 'risk-point') {
+      setHighRiskPoints(prev => [...prev, newPoint]);
+      setLastActionStack(prev => [...prev, 'risk-point']);
+    } else if (placingMode === 'unstable-zone') {
+      setUnstableZone(prev => [...prev, newPoint]);
+      setLastActionStack(prev => [...prev, 'unstable-zone']);
     }
   };
 
-  const handleAnalyzeProbabilities = async () => {
-    if (avalancheZone.length < 3) {
-      toast({ title: 'Missing Information', description: 'Please define an avalanche zone with at least 3 points.', variant: 'destructive' });
+  const handleAnalyzeRisk = async () => {
+    if (unstableZone.length < 3) {
+      toast({ title: 'Missing Information', description: 'Please define an unstable zone with at least 3 points.', variant: 'destructive' });
       return;
     }
-     if (victimLocations.length === 0) {
-      toast({ title: 'Missing Information', description: 'Please add at least one victim location for analysis.', variant: 'destructive' });
+    if (highRiskPoints.length === 0) {
+      toast({ title: 'Missing Information', description: 'Please add at least one high-risk point for analysis.', variant: 'destructive' });
       return;
     }
 
     setIsAnalyzing(true);
+    setRiskZones([]);
     setAnalysisSummary(null);
 
-
     try {
-       const result = await getVictimProbabilityAction({
-        weatherConditions: weather,
-        timeElapsed: timeElapsed,
-        avalancheZoneCoordinates: avalancheZone.map(p => `${p.lat},${p.lng}`).join(';'),
-        victimCoordinates: victimLocations.map(v => `${v.lat},${v.lng}`).join(';'),
+      const result = await predictRiskZonesAction({
+        slopeGeometry: `Angle: ${slopeAngle} degrees`,
+        slopeMaterial: slopeMaterial,
+        environmentalFactors: environmentalFactors,
+        unstableZone: unstableZone.map(p => `${p.lat},${p.lng}`),
+        highRiskPoints: highRiskPoints.map(p => `${p.lat},${p.lng}`),
       });
 
+      setRiskZones(result.riskZones);
       setAnalysisSummary(result.summary);
-      toast({ title: 'Success', description: 'Victim probability analyzed.' });
+      toast({ title: 'Success', description: 'Rockfall risk analysis complete.' });
 
     } catch (error) {
       console.error(error);
@@ -145,10 +104,10 @@ const ClientDashboard: React.FC = () => {
 
     if (lastAction === 'base') {
       setBaseLocation(null);
-    } else if (lastAction === 'victim') {
-      setVictimLocations(prev => prev.slice(0, -1));
-    } else if (lastAction === 'avalanche') {
-      setAvalancheZone(prev => prev.slice(0, -1));
+    } else if (lastAction === 'risk-point') {
+      setHighRiskPoints(prev => prev.slice(0, -1));
+    } else if (lastAction === 'unstable-zone') {
+      setUnstableZone(prev => prev.slice(0, -1));
     }
 
     setLastActionStack(prev => prev.slice(0, -1));
@@ -156,11 +115,10 @@ const ClientDashboard: React.FC = () => {
 
   const clearAll = () => {
     setBaseLocation(null);
-    setVictimLocations([]);
-    setAvalancheZone([]);
-    setRoutes([]);
+    setHighRiskPoints([]);
+    setUnstableZone([]);
+    setRiskZones([]);
     setPlacingMode(null);
-    setTeams([]);
     setLastActionStack([]);
     setAnalysisSummary(null);
   }
@@ -168,26 +126,23 @@ const ClientDashboard: React.FC = () => {
   const sidebarProps = {
       placingMode,
       setPlacingMode,
-      weather,
-      setWeather,
-      timeElapsed,
-      setTimeElapsed,
+      slopeAngle,
+      setSlopeAngle,
+      slopeMaterial,
+      setSlopeMaterial,
+      environmentalFactors,
+      setEnvironmentalFactors,
       mapTypeId,
       setMapTypeId,
-      rescueStrategy,
-      setRescueStrategy,
-      onGenerate: handleGenerateRoutes,
-      isGenerating,
-      onAnalyze: handleAnalyzeProbabilities,
+      onAnalyze: handleAnalyzeRisk,
       isAnalyzing,
-      routes,
-      teams,
+      riskZones,
       onClear: clearAll,
       onUndo: handleUndo,
       canUndo: lastActionStack.length > 0,
-      victimCount: victimLocations.length,
+      riskPointCount: highRiskPoints.length,
       isBaseSet: !!baseLocation,
-      isAvalancheZoneSet: avalancheZone.length > 2,
+      isUnstableZoneSet: unstableZone.length > 2,
       analysisSummary,
       isMobile,
   };
@@ -200,9 +155,9 @@ const ClientDashboard: React.FC = () => {
         <div className="flex-1 relative h-full">
           <MapWrapper
             baseLocation={baseLocation}
-            victimLocations={victimLocations}
-            avalancheZone={avalancheZone}
-            routes={routes}
+            highRiskPoints={highRiskPoints}
+            unstableZoneShape={unstableZone}
+            riskZones={riskZones}
             onMapClick={addMapPoint}
             placingMode={placingMode}
             mapTypeId={mapTypeId}
@@ -226,5 +181,3 @@ const ClientDashboard: React.FC = () => {
 };
 
 export default ClientDashboard;
-
-    

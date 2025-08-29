@@ -3,8 +3,8 @@ import './globals.css';
 import { Toaster } from "@/components/ui/toaster"
 
 export const metadata: Metadata = {
-  title: 'SnowTrace',
-  description: 'AI-Guided Avalanche Rescue Routes in Seconds',
+  title: 'RockSense',
+  description: 'AI-Based Rockfall Prediction and Alert System',
 };
 
 export default function RootLayout({

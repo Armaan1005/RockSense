@@ -1,6 +1,6 @@
 
 import { Button } from '@/components/ui/button';
-import { MountainSnow, BrainCircuit, Map, Crosshair } from 'lucide-react';
+import { Cpu, Map, ShieldAlert, Mountain } from 'lucide-react';
 import Link from 'next/link';
 
 export default function LandingPage() {
@@ -8,8 +8,8 @@ export default function LandingPage() {
     <div className="flex flex-col min-h-dvh bg-background dark text-foreground">
       <header className="px-4 lg:px-6 h-16 flex items-center border-b">
         <div className="flex items-center gap-2">
-          <MountainSnow className="h-6 w-6 text-primary" />
-          <h1 className="text-xl font-bold tracking-tighter">SnowTrace</h1>
+          <Mountain className="h-6 w-6 text-primary" />
+          <h1 className="text-xl font-bold tracking-tighter">RockSense</h1>
         </div>
         <nav className="ml-auto flex gap-4 sm:gap-6">
           <Link
@@ -32,10 +32,10 @@ export default function LandingPage() {
             <div className="flex flex-col items-center space-y-4 text-center">
               <div className="space-y-2">
                 <h1 className="text-3xl font-bold tracking-tighter sm:text-6xl xl:text-7xl/none text-primary">
-                  AI-Guided Avalanche Rescue
+                  AI-Powered Rockfall Prediction
                 </h1>
                 <p className="mx-auto max-w-[700px] text-muted-foreground md:text-xl">
-                  SnowTrace leverages cutting-edge AI to generate optimal rescue routes in seconds, helping search and rescue teams save lives in treacherous terrain.
+                  RockSense leverages cutting-edge AI to predict rockfall hazards in open-pit mines, providing real-time alerts to enhance safety and prevent accidents.
                 </p>
               </div>
               <div className="space-y-2">
@@ -54,33 +54,33 @@ export default function LandingPage() {
                   Key Features
                 </div>
                 <h2 className="text-3xl font-bold tracking-tighter sm:text-5xl">
-                  Plan, Analyze, and Rescue Faster
+                  Predict, Analyze, and Secure Your Site
                 </h2>
                 <p className="max-w-[900px] text-muted-foreground md:text-xl/relaxed lg:text-base/relaxed xl:text-xl/relaxed">
-                  Our platform provides the critical tools needed for rapid and effective avalanche rescue operations.
+                  Our platform provides the critical tools for proactive geotechnical risk management in open-pit mines.
                 </p>
               </div>
             </div>
             <div className="mx-auto grid max-w-5xl items-start gap-6 py-12 sm:grid-cols-1 md:grid-cols-3 lg:gap-12">
               <div className="grid gap-1 text-center">
-                <BrainCircuit className="mx-auto h-12 w-12 text-primary" />
-                <h3 className="text-xl font-bold">AI Route Generation</h3>
+                <Cpu className="mx-auto h-12 w-12 text-primary" />
+                <h3 className="text-xl font-bold">ML-Powered Prediction</h3>
                 <p className="text-sm text-muted-foreground">
-                  Generate multiple, optimized rescue routes in seconds based on victim locations, weather, and rescue strategy.
+                  Utilize advanced machine learning models to analyze historical and real-time data for accurate rockfall prediction.
                 </p>
               </div>
               <div className="grid gap-1 text-center">
                 <Map className="mx-auto h-12 w-12 text-primary" />
-                <h3 className="text-xl font-bold">Interactive Mission Map</h3>
+                <h3 className="text-xl font-bold">Interactive Risk Map</h3>
                 <p className="text-sm text-muted-foreground">
-                  Visualize the entire operation. Place the rescue base, victim locations, and avalanche zones on a dynamic map.
+                  Visualize geotechnical data and high-risk zones on a dynamic map. Mark unstable areas and monitor environmental factors in real-time.
                 </p>
               </div>
               <div className="grid gap-1 text-center">
-                <Crosshair className="mx-auto h-12 w-12 text-primary" />
-                <h3 className="text-xl font-bold">Probability Analysis</h3>
+                <ShieldAlert className="mx-auto h-12 w-12 text-primary" />
+                <h3 className="text-xl font-bold">Factor of Safety Analysis</h3>
                 <p className="text-sm text-muted-foreground">
-                 Leverage AI to analyze victim probability based on time, weather, and location to prioritize search areas.
+                 Leverage AI to perform Factor of Safety calculations and receive automatic alerts for areas that fall below safety thresholds.
                 </p>
               </div>
             </div>
@@ -89,7 +89,7 @@ export default function LandingPage() {
       </main>
       <footer className="flex flex-col gap-2 sm:flex-row py-6 w-full shrink-0 items-center px-4 md:px-6 border-t">
         <p className="text-xs text-muted-foreground">
-          © 2024 SnowTrace. All rights reserved.
+          © 2024 RockSense. All rights reserved.
         </p>
       </footer>
     </div>
