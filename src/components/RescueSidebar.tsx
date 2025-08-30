@@ -157,92 +157,121 @@ const RescueSidebar: React.FC<RescueSidebarProps> = ({
 
           <Separator/>
 
-          <div className="space-y-2">
-            <h3 className="text-md font-medium">Geotechnical Parameters</h3>
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <label className="text-sm font-medium" htmlFor="slope-angle">Slope Angle (°)</label>
-                <Input id="slope-angle" value={slopeAngle} onChange={(e) => setSlopeAngle(e.target.value)} placeholder="e.g., 45" />
-              </div>
-              <div>
-                <label className="text-sm font-medium" htmlFor="slope-material">Slope Material</label>
-                 <Select value={slopeMaterial} onValueChange={(v) => setSlopeMaterial(v as SlopeMaterial)}>
-                  <SelectTrigger id="slope-material"><Mountain className="mr-2"/>{slopeMaterial.charAt(0).toUpperCase() + slopeMaterial.slice(1)}</SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="granite">Granite</SelectItem>
-                    <SelectItem value="limestone">Limestone</SelectItem>
-                    <SelectItem value="sandstone">Sandstone</SelectItem>
-                    <SelectItem value="shale">Shale</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-               <div>
-                <label className="text-sm font-medium" htmlFor="env-factors">Environment</label>
-                <Select value={environmentalFactors} onValueChange={setEnvironmentalFactors}>
-                  <SelectTrigger id="env-factors"><Cloud className="mr-2"/>{environmentalFactors}</SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="Clear">Clear</SelectItem>
-                    <SelectItem value="Light Rainfall">Light Rainfall</SelectItem>
-                    <SelectItem value="Heavy Rainfall">Heavy Rainfall</SelectItem>
-                    <SelectItem value="Seismic Activity">Seismic Activity</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-              <div>
-                <label className="text-sm font-medium" htmlFor="map-type">Map Type</label>
-                <Select value={mapTypeId} onValueChange={(v) => setMapTypeId(v as MapTypeId)}>
-                  <SelectTrigger id="map-type"><Map className="mr-2"/>{mapTypeId.charAt(0).toUpperCase() + mapTypeId.slice(1)}</SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="terrain">Terrain</SelectItem>
-                    <SelectItem value="roadmap">Roadmap</SelectItem>
-                    <SelectItem value="satellite">Satellite</SelectItem>
-                    <SelectItem value="hybrid">Hybrid</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-            </div>
-          </div>
-          
-          <Separator />
-           <div>
-            <h3 className="text-md font-semibold mb-2">Visual Inspection</h3>
-            <Card>
-                <CardContent className="pt-6 space-y-4">
-                    <Input type="file" accept="image/*" className="hidden" ref={fileInputRef} onChange={handleFileSelect} />
-                    <Button variant="outline" className="w-full" onClick={() => fileInputRef.current?.click()}>
-                        <FileImage className="mr-2" />
-                        {rockFaceImage ? rockFaceImage.name : "Select Image"}
-                    </Button>
-                    <Button onClick={onInspect} disabled={isInspecting || !rockFaceImage} className="w-full">
-                        {isInspecting ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Camera className="mr-2" />}
-                        {isInspecting ? "Analyzing..." : "Analyze Rock Face"}
-                    </Button>
-                </CardContent>
-            </Card>
-
-            {isInspecting && (
-              <Card className="mt-4">
-                  <CardContent className="pt-6 text-center text-sm text-muted-foreground">
-                      <p>Running visual analysis on the image...</p>
-                  </CardContent>
-              </Card>
-            )}
-
-            {inspectionResult && !isInspecting && (
-                 <Card className="mt-4">
-                    <CardHeader>
-                        <CardTitle>Inspection Result</CardTitle>
-                        <CardDescription>Stability Rating: <Badge variant={inspectionResult.stabilityRating === 'Unstable' || inspectionResult.stabilityRating === 'Potentially Unstable' ? 'destructive' : 'default'}>{inspectionResult.stabilityRating}</Badge></CardDescription>
-                    </CardHeader>
-                    <CardContent className="space-y-2 text-sm">
-                        <p><strong>Crack Detection:</strong> {inspectionResult.crackAnalysis.detected ? `Found ${inspectionResult.crackAnalysis.count} cracks.` : 'No significant cracks detected.'}</p>
-                        <p><strong>Severity:</strong> <Badge variant={inspectionResult.crackAnalysis.severity === 'High' ? 'destructive' : (inspectionResult.crackAnalysis.severity === 'Medium' ? 'secondary' : 'default')}>{inspectionResult.crackAnalysis.severity}</Badge></p>
-                        <p><strong>Description:</strong> {inspectionResult.crackAnalysis.description}</p>
-                        <p><strong>Additional Notes:</strong> {inspectionResult.additionalObservations}</p>
+          <Accordion type="multiple" defaultValue={['geotechnical-params', 'visual-inspection']} className="w-full">
+            <AccordionItem value="geotechnical-params">
+              <AccordionTrigger className="text-md font-semibold">Geotechnical Parameters</AccordionTrigger>
+              <AccordionContent>
+                <div className="grid grid-cols-2 gap-4 pt-2">
+                  <div>
+                    <label className="text-sm font-medium" htmlFor="slope-angle">Slope Angle (°)</label>
+                    <Input id="slope-angle" value={slopeAngle} onChange={(e) => setSlopeAngle(e.target.value)} placeholder="e.g., 45" />
+                  </div>
+                  <div>
+                    <label className="text-sm font-medium" htmlFor="slope-material">Slope Material</label>
+                     <Select value={slopeMaterial} onValueChange={(v) => setSlopeMaterial(v as SlopeMaterial)}>
+                      <SelectTrigger id="slope-material"><Mountain className="mr-2"/>{slopeMaterial.charAt(0).toUpperCase() + slopeMaterial.slice(1)}</SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="granite">Granite</SelectItem>
+                        <SelectItem value="limestone">Limestone</SelectItem>
+                        <SelectItem value="sandstone">Sandstone</SelectItem>
+                        <SelectItem value="shale">Shale</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                   <div>
+                    <label className="text-sm font-medium" htmlFor="env-factors">Environment</label>
+                    <Select value={environmentalFactors} onValueChange={setEnvironmentalFactors}>
+                      <SelectTrigger id="env-factors"><Cloud className="mr-2"/>{environmentalFactors}</SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="Clear">Clear</SelectItem>
+                        <SelectItem value="Light Rainfall">Light Rainfall</SelectItem>
+                        <SelectItem value="Heavy Rainfall">Heavy Rainfall</SelectItem>
+                        <SelectItem value="Seismic Activity">Seismic Activity</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div>
+                    <label className="text-sm font-medium" htmlFor="map-type">Map Type</label>
+                    <Select value={mapTypeId} onValueChange={(v) => setMapTypeId(v as MapTypeId)}>
+                      <SelectTrigger id="map-type"><Map className="mr-2"/>{mapTypeId.charAt(0).toUpperCase() + mapTypeId.slice(1)}</SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="terrain">Terrain</SelectItem>
+                        <SelectItem value="roadmap">Roadmap</SelectItem>
+                        <SelectItem value="satellite">Satellite</SelectItem>
+                        <SelectItem value="hybrid">Hybrid</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </div>
+              </AccordionContent>
+            </AccordionItem>
+            
+            <AccordionItem value="visual-inspection">
+              <AccordionTrigger className="text-md font-semibold">Visual Inspection</AccordionTrigger>
+              <AccordionContent>
+                <Card className="mt-2">
+                    <CardContent className="pt-6 space-y-4">
+                        <Input type="file" accept="image/*" className="hidden" ref={fileInputRef} onChange={handleFileSelect} />
+                        <Button variant="outline" className="w-full" onClick={() => fileInputRef.current?.click()}>
+                            <FileImage className="mr-2" />
+                            {rockFaceImage ? rockFaceImage.name : "Select Image"}
+                        </Button>
+                        <Button onClick={onInspect} disabled={isInspecting || !rockFaceImage} className="w-full">
+                            {isInspecting ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Camera className="mr-2" />}
+                            {isInspecting ? "Analyzing..." : "Analyze Rock Face"}
+                        </Button>
                     </CardContent>
                 </Card>
-            )}
-           </div>
+
+                {isInspecting && (
+                  <Card className="mt-4">
+                      <CardContent className="pt-6 text-center text-sm text-muted-foreground">
+                          <Loader2 className="mr-2 h-4 w-4 animate-spin inline" />
+                          <span>Running visual analysis...</span>
+                      </CardContent>
+                  </Card>
+                )}
+
+                {inspectionResult && !isInspecting && (
+                     <Card className="mt-4">
+                        <CardHeader>
+                            <CardTitle>Inspection Result</CardTitle>
+                            <CardDescription>Stability Rating: <Badge variant={inspectionResult.stabilityRating === 'Unstable' || inspectionResult.stabilityRating === 'Potentially Unstable' ? 'destructive' : 'default'}>{inspectionResult.stabilityRating}</Badge></CardDescription>
+                        </CardHeader>
+                        <CardContent className="space-y-2 text-sm">
+                            <p><strong>Crack Detection:</strong> {inspectionResult.crackAnalysis.detected ? `Found ${inspectionResult.crackAnalysis.count} cracks.` : 'No significant cracks detected.'}</p>
+                            <p><strong>Severity:</strong> <Badge variant={inspectionResult.crackAnalysis.severity === 'High' ? 'destructive' : (inspectionResult.crackAnalysis.severity === 'Medium' ? 'secondary' : 'default')}>{inspectionResult.crackAnalysis.severity}</Badge></p>
+                            <p><strong>Description:</strong> {inspectionResult.crackAnalysis.description}</p>
+                            <p><strong>Additional Notes:</strong> {inspectionResult.additionalObservations}</p>
+                        </CardContent>
+                    </Card>
+                )}
+              </AccordionContent>
+            </AccordionItem>
+            
+            <AccordionItem value="detailed-analysis">
+              <AccordionTrigger className="text-md font-semibold">Detailed Analysis</AccordionTrigger>
+              <AccordionContent>
+                <div className="space-y-4 pt-2">
+                    <div className="grid grid-cols-2 gap-4">
+                        <div>
+                            <label className="text-sm font-medium" htmlFor="water-content">Water Content (%)</label>
+                            <Input id="water-content" placeholder="e.g., 15" />
+                        </div>
+                        <div>
+                            <label className="text-sm font-medium" htmlFor="rock-density">Rock Density (kg/m³)</label>
+                            <Input id="rock-density" placeholder="e.g., 2700" />
+                        </div>
+                    </div>
+                    <Button disabled className="w-full">
+                        <BrainCircuit className="mr-2" />
+                        Run Detailed Simulation
+                    </Button>
+                    <p className="text-xs text-center text-muted-foreground">More detailed analysis coming soon.</p>
+                </div>
+              </AccordionContent>
+            </AccordionItem>
+          </Accordion>
 
           <Separator />
 
@@ -273,13 +302,6 @@ const RescueSidebar: React.FC<RescueSidebarProps> = ({
                 ))}
               </Accordion>
             )}
-             {!isAnalyzing && riskZones.length === 0 && (
-                <p className="text-sm text-muted-foreground">No prediction generated yet.</p>
-             )}
-          </div>
-          <Separator />
-           <div>
-            <h3 className="text-md font-semibold mb-2">Analysis Summary</h3>
              {isAnalyzing && (
               <Card>
                 <CardContent className="pt-6 text-center text-sm text-muted-foreground">
@@ -287,6 +309,13 @@ const RescueSidebar: React.FC<RescueSidebarProps> = ({
                 </CardContent>
               </Card>
             )}
+             {!isAnalyzing && riskZones.length === 0 && (
+                <p className="text-sm text-muted-foreground">No prediction generated yet.</p>
+             )}
+          </div>
+          <Separator />
+           <div>
+            <h3 className="text-md font-semibold mb-2">Analysis Summary</h3>
             {analysisSummary && !isAnalyzing && (
                  <Card>
                     <CardContent className="pt-6">
@@ -332,3 +361,5 @@ const RescueSidebar: React.FC<RescueSidebarProps> = ({
 };
 
 export default RescueSidebar;
+
+    
