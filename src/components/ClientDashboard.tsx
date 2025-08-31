@@ -107,7 +107,7 @@ const ClientDashboard: React.FC = () => {
             const friction = row.row?.features.find(f => f.name === 'friction')?.value || 0;
             // Simple logic to create some variance in the chart
             const riskScore = Math.min(100, Math.round(parseFloat(friction) * 1.5 + 20 + (Math.random() * 10)));
-            const month = new Date(2024, index, 1).toLocaleString('default', { month: 'short', year: '2-digit' });
+            const month = new Date(2025, index, 1).toLocaleString('default', { month: 'short', year: '2-digit' });
             return { month: month.replace(' ', ''), riskScore };
         });
         setChartData(newChartData);
