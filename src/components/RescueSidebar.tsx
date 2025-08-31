@@ -269,9 +269,9 @@ const RescueSidebar: React.FC<RescueSidebarProps> = ({
             <Card className="mt-2">
                 <CardContent className="pt-6 space-y-4">
                     <Input type="file" accept="image/*" className="hidden" ref={fileInputRef} onChange={handleFileSelect} />
-                    <Button variant="outline" className="w-full" onClick={() => fileInputRef.current?.click()}>
+                    <Button variant="outline" className="w-full justify-start" onClick={() => fileInputRef.current?.click()}>
                         <FileImage className="mr-2" />
-                        <span className="truncate block">
+                        <span className="truncate">
                          {rockFaceImage ? rockFaceImage.name : "Select Image"}
                         </span>
                     </Button>
