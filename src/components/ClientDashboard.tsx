@@ -2,16 +2,17 @@
 "use client";
 
 import * as React from 'react';
-import type { LatLngLiteral, PlacingMode, RiskZone, MapTypeId, SlopeMaterial, AnalyzeRockFaceOutput, DatasetRow } from '@/types';
+import type { LatLngLiteral, PlacingMode, RiskZone, MapTypeId, SlopeMaterial, AnalyzeRockFaceOutput, DatasetRow, PredictRiskZonesOutput } from '@/types';
 
 import dynamic from 'next/dynamic';
 import Header from '@/components/Header';
 import RescueSidebar from '@/components/RescueSidebar';
 import { useToast } from '@/hooks/use-toast';
 import { Skeleton } from './ui/skeleton';
-import { predictRiskZonesAction, analyzeRockFaceAction } from '@/lib/actions';
+import { predictRiskZonesAction, analyzeRockFaceAction, generateReportCsvAction } from '@/lib/actions';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { Sheet, SheetContent } from './ui/sheet';
+import Papa from 'papaparse';
 
 const MapWrapper = dynamic(() => import('@/components/map/MapWrapper'), {
   ssr: false,
@@ -44,15 +45,16 @@ const ClientDashboard: React.FC = () => {
   const [mapTypeId, setMapTypeId] = React.useState<MapTypeId>('terrain');
 
   const [isAnalyzing, setIsAnalyzing] = React.useState(false);
-  const [riskZones, setRiskZones] = React.useState<RiskZone[]>([]);
-  const [analysisSummary, setAnalysisSummary] = React.useState<string | null>(null);
-
+  const [analysisResult, setAnalysisResult] = React.useState<PredictRiskZonesOutput | null>(null);
+  
   const [isInspecting, setIsInspecting] = React.useState(false);
   const [rockFaceImage, setRockFaceImage] = React.useState<File | null>(null);
   const [inspectionResult, setInspectionResult] = React.useState<AnalyzeRockFaceOutput | null>(null);
 
   const [datasetRows, setDatasetRows] = React.useState<DatasetRow[]>([]);
   const [isFetchingData, setIsFetchingData] = React.useState(false);
+  const [isExporting, setIsExporting] = React.useState(false);
+
 
   const handleFetchDataset = async () => {
     setIsFetchingData(true);
@@ -100,8 +102,7 @@ const ClientDashboard: React.FC = () => {
     }
 
     setIsAnalyzing(true);
-    setRiskZones([]);
-    setAnalysisSummary(null);
+    setAnalysisResult(null);
 
     try {
       const result = await predictRiskZonesAction({
@@ -112,8 +113,7 @@ const ClientDashboard: React.FC = () => {
         highRiskPoints: highRiskPoints.map(p => `${p.lat},${p.lng}`),
       });
 
-      setRiskZones(result.riskZones);
-      setAnalysisSummary(result.summary);
+      setAnalysisResult(result);
       toast({ title: 'Success', description: 'Rockfall risk analysis complete.' });
 
     } catch (error) {
@@ -153,6 +153,34 @@ const ClientDashboard: React.FC = () => {
       setIsInspecting(false);
     } 
   }
+  
+  const handleExportReport = async () => {
+    if (!analysisResult) {
+       toast({ title: 'No Data', description: 'Please run an analysis before exporting.', variant: 'destructive' });
+       return;
+    }
+    setIsExporting(true);
+    try {
+      const { csvData } = await generateReportCsvAction(analysisResult);
+      const blob = new Blob([csvData], { type: 'text/csv;charset=utf-8;' });
+      const link = document.createElement("a");
+      if (link.download !== undefined) {
+        const url = URL.createObjectURL(blob);
+        link.setAttribute("href", url);
+        link.setAttribute("download", "RockSense_Report.csv");
+        link.style.visibility = 'hidden';
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+      }
+      toast({ title: 'Success', description: 'Report exported successfully.' });
+    } catch (error) {
+       console.error("Export Error:", error);
+       toast({ title: 'Export Error', description: (error as Error).message, variant: 'destructive' });
+    } finally {
+       setIsExporting(false);
+    }
+};
 
   const handleUndo = () => {
     if (lastActionStack.length === 0) return;
@@ -174,10 +202,9 @@ const ClientDashboard: React.FC = () => {
     setBaseLocation(null);
     setHighRiskPoints([]);
     setUnstableZone([]);
-    setRiskZones([]);
+    setAnalysisResult(null);
     setPlacingMode(null);
     setLastActionStack([]);
-    setAnalysisSummary(null);
     setRockFaceImage(null);
     setInspectionResult(null);
     setDatasetRows([]);
@@ -196,14 +223,14 @@ const ClientDashboard: React.FC = () => {
       setMapTypeId,
       onAnalyze: handleAnalyzeRisk,
       isAnalyzing,
-      riskZones,
+      riskZones: analysisResult?.riskZones ?? [],
+      analysisSummary: analysisResult?.summary ?? null,
       onClear: clearAll,
       onUndo: handleUndo,
       canUndo: lastActionStack.length > 0,
       riskPointCount: highRiskPoints.length,
       isBaseSet: !!baseLocation,
       isUnstableZoneSet: unstableZone.length > 2,
-      analysisSummary,
       isMobile,
       rockFaceImage,
       setRockFaceImage,
@@ -214,6 +241,9 @@ const ClientDashboard: React.FC = () => {
       onFetchDataset: handleFetchDataset,
       isFetchingData,
       totalRecords: datasetRows.length,
+      onExport: handleExportReport,
+      isExporting,
+      hasAnalysisData: !!analysisResult,
   };
 
 
@@ -226,7 +256,7 @@ const ClientDashboard: React.FC = () => {
             baseLocation={baseLocation}
             highRiskPoints={highRiskPoints}
             unstableZoneShape={unstableZone}
-            riskZones={riskZones}
+            riskZones={analysisResult?.riskZones ?? []}
             onMapClick={addMapPoint}
             placingMode={placingMode}
             mapTypeId={mapTypeId}

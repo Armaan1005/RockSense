@@ -1,5 +1,6 @@
 import type { PredictRiskZonesOutput as GenkitPredictRiskZonesOutput } from "@/ai/flows/predict-risk-zones";
 import type { AnalyzeRockFaceOutput as GenkitAnalyzeRockFaceOutput } from "@/ai/flows/analyze-rock-face";
+import type { GenerateReportCsvInput as GenkitGenerateReportCsvInput, GenerateReportCsvOutput as GenkitGenerateReportCsvOutput } from "@/ai/flows/generate-report-csv";
 
 
 export type LatLngLiteral = google.maps.LatLngLiteral;
@@ -7,6 +8,9 @@ export type LatLngTuple = [number, number];
 
 export type PredictRiskZonesOutput = GenkitPredictRiskZonesOutput;
 export type AnalyzeRockFaceOutput = GenkitAnalyzeRockFaceOutput;
+export type GenerateReportCsvInput = GenkitGenerateReportCsvInput;
+export type GenerateReportCsvOutput = GenkitGenerateReportCsvOutput;
+
 
 export type RiskZone = GenkitPredictRiskZonesOutput['riskZones'][0];
 export interface RiskZonePolygon extends RiskZone {
