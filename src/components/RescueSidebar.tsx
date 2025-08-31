@@ -271,7 +271,9 @@ const RescueSidebar: React.FC<RescueSidebarProps> = ({
                     <Input type="file" accept="image/*" className="hidden" ref={fileInputRef} onChange={handleFileSelect} />
                     <Button variant="outline" className="w-full" onClick={() => fileInputRef.current?.click()}>
                         <FileImage className="mr-2" />
-                        {rockFaceImage ? rockFaceImage.name : "Select Image"}
+                        <span className="truncate block">
+                         {rockFaceImage ? rockFaceImage.name : "Select Image"}
+                        </span>
                     </Button>
                     <Button onClick={onInspect} disabled={isInspecting || !rockFaceImage} className="w-full">
                         {isInspecting ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Camera className="mr-2" />}
