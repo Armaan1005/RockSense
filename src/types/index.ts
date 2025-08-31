@@ -22,7 +22,7 @@ export type SlopeMaterial = 'granite' | 'limestone' | 'sandstone' | 'shale';
 
 export interface DatasetRow {
     row_idx: number;
-    row: {
+    row?: {
         features: {
             feature_idx: number;
             name: string;
@@ -31,3 +31,8 @@ export interface DatasetRow {
     };
     truncated_cells: any[];
 }
+
+export type ChartData = {
+  month: string;
+  riskScore: number;
+};
