@@ -213,6 +213,7 @@ const ClientDashboard: React.FC = () => {
       datasetRows,
       onFetchDataset: handleFetchDataset,
       isFetchingData,
+      totalRecords: datasetRows.length,
   };
 
 
