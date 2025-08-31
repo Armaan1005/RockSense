@@ -102,8 +102,9 @@ const ClientDashboard: React.FC = () => {
 
    React.useEffect(() => {
     if (datasetRows.length > 0) {
-        // Simulate generating chart data from the dataset
-        const newChartData: ChartData[] = datasetRows.slice(0, 12).map((row, index) => {
+        const currentMonth = new Date().getMonth();
+        // Simulate generating chart data from the dataset, only up to the current month
+        const newChartData: ChartData[] = datasetRows.slice(0, currentMonth + 1).map((row, index) => {
             const friction = row.row?.features.find(f => f.name === 'friction')?.value || 0;
             // Simple logic to create some variance in the chart
             const riskScore = Math.min(100, Math.round(parseFloat(friction) * 1.5 + 20 + (Math.random() * 10)));
