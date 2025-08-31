@@ -1,3 +1,4 @@
+
 'use client';
 
 import * as React from 'react';
@@ -150,8 +151,8 @@ const RescueSidebar: React.FC<RescueSidebarProps> = ({
                 </TabsList>
             </div>
             <div className="flex-1 min-h-0">
-              <ScrollArea className="h-full">
-                <TabsContent value="analysis" className="mt-0">
+              <TabsContent value="analysis" className="mt-0 h-full">
+                <ScrollArea className="h-full">
                   <div className={cn("p-4 space-y-4", isMobile && "pt-12")}>
                     <div>
                       <div className="flex items-center justify-between">
@@ -417,8 +418,10 @@ const RescueSidebar: React.FC<RescueSidebarProps> = ({
                       </div>
                     </div>
                   </div>
-                </TabsContent>
-                <TabsContent value="reports" className="mt-0">
+                </ScrollArea>
+              </TabsContent>
+              <TabsContent value="reports" className="mt-0 h-full">
+                <ScrollArea className="h-full">
                   <div className="p-4 space-y-4">
                       <div>
                           <h2 className="text-lg font-semibold">Dashboard</h2>
@@ -508,8 +511,8 @@ const RescueSidebar: React.FC<RescueSidebarProps> = ({
                           {isExporting ? "Exporting..." : "Export Report Data"}
                       </Button>
                   </div>
-                </TabsContent>
-              </ScrollArea>
+                </ScrollArea>
+              </TabsContent>
             </div>
         </Tabs>
       </div>
