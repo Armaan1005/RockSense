@@ -216,186 +216,180 @@ const RescueSidebar: React.FC<RescueSidebarProps> = ({
                       </div>
                       <p className="text-sm text-muted-foreground">Configure and manage your geotechnical analysis.</p>
                     </div>
-                    <div className="grid grid-cols-1 gap-2 p-4 pt-0">
+                    <div className="grid grid-cols-1 gap-2">
                       <Button variant={placingMode === 'base' ? 'secondary' : 'outline'} onClick={() => setPlacingMode('base')}><TowerControl className="mr-2"/> Set Monitoring Base</Button>
                       <Button variant={placingMode === 'risk-point' ? 'secondary' : 'outline'} onClick={() => setPlacingMode('risk-point')}><Crosshair className="mr-2"/> Add High-Risk Point</Button>
                       <Button variant={placingMode === 'unstable-zone' ? 'secondary' : 'outline'} onClick={() => setPlacingMode('unstable-zone')}><AlertTriangle className="mr-2"/> Define Unstable Zone</Button>
                     </div>
                     
-                    <p className="text-xs text-muted-foreground p-2 bg-muted rounded-md mx-4">
+                    <p className="text-xs text-muted-foreground p-2 bg-muted rounded-md">
                         {placingMode ? `Click on the map to place the ${placingMode}. For risk points, click multiple times. For the unstable zone, click to form a polygon.` : "Select an action above to start marking the map."}
                     </p>
 
-                    <div className="p-4">
-                      <Separator/>
-                    </div>
+                    <Separator/>
 
-                    <div className="p-4 pt-0">
-                      <Accordion type="multiple" defaultValue={['geotechnical-params']} className="w-full">
-                        <AccordionItem value="geotechnical-params">
-                          <AccordionTrigger className="text-md font-semibold">Geotechnical Parameters</AccordionTrigger>
-                          <AccordionContent>
-                            <div className="grid grid-cols-2 gap-4 pt-2">
-                              <div>
-                                <label className="text-sm font-medium" htmlFor="slope-angle">Slope Angle (°)</label>
-                                <Input id="slope-angle" value={slopeAngle} onChange={(e) => setSlopeAngle(e.target.value)} placeholder="e.g., 45" />
-                              </div>
-                              <div>
-                                <label className="text-sm font-medium" htmlFor="slope-material">Slope Material</label>
-                                <Select value={slopeMaterial} onValueChange={(v) => setSlopeMaterial(v as SlopeMaterial)}>
-                                  <SelectTrigger id="slope-material"><Mountain className="mr-2"/>{slopeMaterial.charAt(0).toUpperCase() + slopeMaterial.slice(1)}</SelectTrigger>
-                                  <SelectContent>
-                                    <SelectItem value="granite">Granite</SelectItem>
-                                    <SelectItem value="limestone">Limestone</SelectItem>
-                                    <SelectItem value="sandstone">Sandstone</SelectItem>
-                                    <SelectItem value="shale">Shale</SelectItem>
-                                  </SelectContent>
-                                </Select>
-                              </div>
-                              <div>
-                                <label className="text-sm font-medium" htmlFor="env-factors">Environment</label>
-                                <Select value={environmentalFactors} onValueChange={setEnvironmentalFactors}>
-                                  <SelectTrigger id="env-factors"><Cloud className="mr-2"/>{environmentalFactors}</SelectTrigger>
-                                  <SelectContent>
-                                    <SelectItem value="Clear">Clear</SelectItem>
-                                    <SelectItem value="Light Rainfall">Light Rainfall</SelectItem>
-                                    <SelectItem value="Heavy Rainfall">Heavy Rainfall</SelectItem>
-                                    <SelectItem value="Seismic Activity">Seismic Activity</SelectItem>
-                                  </SelectContent>
-                                </Select>
-                              </div>
-                              <div>
-                                <label className="text-sm font-medium" htmlFor="map-type">Map Type</label>
-                                <Select value={mapTypeId} onValueChange={(v) => setMapTypeId(v as MapTypeId)}>
-                                  <SelectTrigger id="map-type"><Map className="mr-2"/>{mapTypeId.charAt(0).toUpperCase() + mapTypeId.slice(1)}</SelectTrigger>
-                                  <SelectContent>
-                                    <SelectItem value="terrain">Terrain</SelectItem>
-                                    <SelectItem value="roadmap">Roadmap</SelectItem>
-                                    <SelectItem value="satellite">Satellite</SelectItem>
-                                    <SelectItem value="hybrid">Hybrid</SelectItem>
-                                  </SelectContent>
-                                </Select>
-                              </div>
+                    <Accordion type="multiple" defaultValue={['geotechnical-params']} className="w-full">
+                      <AccordionItem value="geotechnical-params">
+                        <AccordionTrigger className="text-md font-semibold">Geotechnical Parameters</AccordionTrigger>
+                        <AccordionContent>
+                          <div className="grid grid-cols-2 gap-4 pt-2">
+                            <div>
+                              <label className="text-sm font-medium" htmlFor="slope-angle">Slope Angle (°)</label>
+                              <Input id="slope-angle" value={slopeAngle} onChange={(e) => setSlopeAngle(e.target.value)} placeholder="e.g., 45" />
                             </div>
-                          </AccordionContent>
-                        </AccordionItem>
-                        
-                        <AccordionItem value="visual-inspection">
-                          <AccordionTrigger className="text-md font-semibold">Visual Inspection</AccordionTrigger>
-                          <AccordionContent>
-                            <Card className="mt-2">
-                                <CardContent className="pt-6 space-y-4">
-                                    <Input type="file" accept="image/*" className="hidden" ref={fileInputRef} onChange={handleFileSelect} />
-                                    <Button variant="outline" className="w-full" onClick={() => fileInputRef.current?.click()}>
-                                        <FileImage className="mr-2" />
-                                        {rockFaceImage ? rockFaceImage.name : "Select Image"}
-                                    </Button>
-                                    <Button onClick={onInspect} disabled={isInspecting || !rockFaceImage} className="w-full">
-                                        {isInspecting ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Camera className="mr-2" />}
-                                        {isInspecting ? "Analyzing..." : "Analyze Rock Face"}
-                                    </Button>
+                            <div>
+                              <label className="text-sm font-medium" htmlFor="slope-material">Slope Material</label>
+                              <Select value={slopeMaterial} onValueChange={(v) => setSlopeMaterial(v as SlopeMaterial)}>
+                                <SelectTrigger id="slope-material"><Mountain className="mr-2"/>{slopeMaterial.charAt(0).toUpperCase() + slopeMaterial.slice(1)}</SelectTrigger>
+                                <SelectContent>
+                                  <SelectItem value="granite">Granite</SelectItem>
+                                  <SelectItem value="limestone">Limestone</SelectItem>
+                                  <SelectItem value="sandstone">Sandstone</SelectItem>
+                                  <SelectItem value="shale">Shale</SelectItem>
+                                </SelectContent>
+                              </Select>
+                            </div>
+                            <div>
+                              <label className="text-sm font-medium" htmlFor="env-factors">Environment</label>
+                              <Select value={environmentalFactors} onValueChange={setEnvironmentalFactors}>
+                                <SelectTrigger id="env-factors"><Cloud className="mr-2"/>{environmentalFactors}</SelectTrigger>
+                                <SelectContent>
+                                  <SelectItem value="Clear">Clear</SelectItem>
+                                  <SelectItem value="Light Rainfall">Light Rainfall</SelectItem>
+                                  <SelectItem value="Heavy Rainfall">Heavy Rainfall</SelectItem>
+                                  <SelectItem value="Seismic Activity">Seismic Activity</SelectItem>
+                                </SelectContent>
+                              </Select>
+                            </div>
+                            <div>
+                              <label className="text-sm font-medium" htmlFor="map-type">Map Type</label>
+                              <Select value={mapTypeId} onValueChange={(v) => setMapTypeId(v as MapTypeId)}>
+                                <SelectTrigger id="map-type"><Map className="mr-2"/>{mapTypeId.charAt(0).toUpperCase() + mapTypeId.slice(1)}</SelectTrigger>
+                                <SelectContent>
+                                  <SelectItem value="terrain">Terrain</SelectItem>
+                                  <SelectItem value="roadmap">Roadmap</SelectItem>
+                                  <SelectItem value="satellite">Satellite</SelectItem>
+                                  <SelectItem value="hybrid">Hybrid</SelectItem>
+                                </SelectContent>
+                              </Select>
+                            </div>
+                          </div>
+                        </AccordionContent>
+                      </AccordionItem>
+                      
+                      <AccordionItem value="visual-inspection">
+                        <AccordionTrigger className="text-md font-semibold">Visual Inspection</AccordionTrigger>
+                        <AccordionContent>
+                          <Card className="mt-2">
+                              <CardContent className="pt-6 space-y-4">
+                                  <Input type="file" accept="image/*" className="hidden" ref={fileInputRef} onChange={handleFileSelect} />
+                                  <Button variant="outline" className="w-full" onClick={() => fileInputRef.current?.click()}>
+                                      <FileImage className="mr-2" />
+                                      {rockFaceImage ? rockFaceImage.name : "Select Image"}
+                                  </Button>
+                                  <Button onClick={onInspect} disabled={isInspecting || !rockFaceImage} className="w-full">
+                                      {isInspecting ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Camera className="mr-2" />}
+                                      {isInspecting ? "Analyzing..." : "Analyze Rock Face"}
+                                  </Button>
+                              </CardContent>
+                          </Card>
+
+                          {isInspecting && (
+                            <Card className="mt-4">
+                                <CardContent className="pt-6 text-center text-sm text-muted-foreground">
+                                    <Loader2 className="mr-2 h-4 w-4 animate-spin inline" />
+                                    <span>Running visual analysis...</span>
                                 </CardContent>
                             </Card>
+                          )}
 
-                            {isInspecting && (
+                          {inspectionResult && !isInspecting && (
                               <Card className="mt-4">
-                                  <CardContent className="pt-6 text-center text-sm text-muted-foreground">
-                                      <Loader2 className="mr-2 h-4 w-4 animate-spin inline" />
-                                      <span>Running visual analysis...</span>
+                                  <CardHeader>
+                                      <CardTitle>Inspection Result</CardTitle>
+                                      <CardDescription>Stability Rating: <Badge variant={inspectionResult.stabilityRating === 'Unstable' || inspectionResult.stabilityRating === 'Potentially Unstable' ? 'destructive' : 'default'}>{inspectionResult.stabilityRating}</Badge></CardDescription>
+                                  </CardHeader>
+                                  <CardContent className="space-y-2 text-sm">
+                                      <p><strong>Crack Detection:</strong> {inspectionResult.crackAnalysis.detected ? `Found ${inspectionResult.crackAnalysis.count} cracks.` : 'No significant cracks detected.'}</p>
+                                      <p><strong>Severity:</strong> <Badge variant={inspectionResult.crackAnalysis.severity === 'High' ? 'destructive' : (inspectionResult.crackAnalysis.severity === 'Medium' ? 'secondary' : 'default')}>{inspectionResult.crackAnalysis.severity}</Badge></p>
+                                      <p><strong>Description:</strong> {inspectionResult.crackAnalysis.description}</p>
+                                      <p><strong>Additional Notes:</strong> {inspectionResult.additionalObservations}</p>
                                   </CardContent>
                               </Card>
-                            )}
-
-                            {inspectionResult && !isInspecting && (
-                                <Card className="mt-4">
-                                    <CardHeader>
-                                        <CardTitle>Inspection Result</CardTitle>
-                                        <CardDescription>Stability Rating: <Badge variant={inspectionResult.stabilityRating === 'Unstable' || inspectionResult.stabilityRating === 'Potentially Unstable' ? 'destructive' : 'default'}>{inspectionResult.stabilityRating}</Badge></CardDescription>
-                                    </CardHeader>
-                                    <CardContent className="space-y-2 text-sm">
-                                        <p><strong>Crack Detection:</strong> {inspectionResult.crackAnalysis.detected ? `Found ${inspectionResult.crackAnalysis.count} cracks.` : 'No significant cracks detected.'}</p>
-                                        <p><strong>Severity:</strong> <Badge variant={inspectionResult.crackAnalysis.severity === 'High' ? 'destructive' : (inspectionResult.crackAnalysis.severity === 'Medium' ? 'secondary' : 'default')}>{inspectionResult.crackAnalysis.severity}</Badge></p>
-                                        <p><strong>Description:</strong> {inspectionResult.crackAnalysis.description}</p>
-                                        <p><strong>Additional Notes:</strong> {inspectionResult.additionalObservations}</p>
-                                    </CardContent>
-                                </Card>
-                            )}
-                          </AccordionContent>
-                        </AccordionItem>
-                        
-                        <AccordionItem value="detailed-analysis">
-                          <AccordionTrigger className="text-md font-semibold">Detailed Analysis</AccordionTrigger>
-                          <AccordionContent>
-                            <div className="space-y-4 pt-2">
-                                <p className="text-xs text-muted-foreground">Provide optional sensor data for a more accurate analysis.</p>
-                                <div className="grid grid-cols-1 gap-4">
-                                    <div>
-                                        <label className="text-sm font-medium" htmlFor="displacement">Displacement (mm)</label>
-                                        <Input id="displacement" value={displacement} onChange={(e) => setDisplacement(e.target.value)} placeholder="e.g., 5.2" />
+                          )}
+                        </AccordionContent>
+                      </AccordionItem>
+                      
+                      <AccordionItem value="detailed-analysis">
+                        <AccordionTrigger className="text-md font-semibold">Detailed Analysis</AccordionTrigger>
+                        <AccordionContent>
+                          <div className="space-y-4 pt-2">
+                              <p className="text-xs text-muted-foreground">Provide optional sensor data for a more accurate analysis.</p>
+                              <div className="grid grid-cols-1 gap-4">
+                                  <div>
+                                      <label className="text-sm font-medium" htmlFor="displacement">Displacement (mm)</label>
+                                      <Input id="displacement" value={displacement} onChange={(e) => setDisplacement(e.target.value)} placeholder="e.g., 5.2" />
+                                  </div>
+                                  <div>
+                                      <label className="text-sm font-medium" htmlFor="strain">Strain (με)</label>
+                                      <Input id="strain" value={strain} onChange={(e) => setStrain(e.target.value)} placeholder="e.g., 300" />
+                                  </div>
+                                  <div>
+                                      <label className="text-sm font-medium" htmlFor="pore-pressure">Pore Pressure (kPa)</label>
+                                      <Input id="pore-pressure" value={porePressure} onChange={(e) => setPorePressure(e.target.value)} placeholder="e.g., 20" />
+                                  </div>
+                              </div>
+                          </div>
+                        </AccordionContent>
+                      </AccordionItem>
+                      <AccordionItem value="dataset-explorer">
+                        <AccordionTrigger className="text-md font-semibold">Dataset Explorer</AccordionTrigger>
+                        <AccordionContent>
+                            <Card className="mt-2">
+                                <CardContent className="pt-6 space-y-2">
+                                    <p className="text-sm text-muted-foreground">Load sample data or upload your own CSV file.</p>
+                                    <div className="grid grid-cols-2 gap-2">
+                                      <Button onClick={onFetchDataset} disabled={isFetchingData} className="w-full">
+                                          {isFetchingData ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Database className="mr-2" />}
+                                          {isFetchingData ? "Loading..." : "Load Sample"}
+                                      </Button>
+                                      <Input type="file" accept=".csv" className="hidden" ref={csvInputRef} onChange={handleCsvFileSelect} />
+                                      <Button variant="outline" onClick={() => csvInputRef.current?.click()} disabled={isFetchingData}>
+                                          <Upload className="mr-2" /> Upload CSV
+                                      </Button>
                                     </div>
-                                    <div>
-                                        <label className="text-sm font-medium" htmlFor="strain">Strain (με)</label>
-                                        <Input id="strain" value={strain} onChange={(e) => setStrain(e.target.value)} placeholder="e.g., 300" />
-                                    </div>
-                                    <div>
-                                        <label className="text-sm font-medium" htmlFor="pore-pressure">Pore Pressure (kPa)</label>
-                                        <Input id="pore-pressure" value={porePressure} onChange={(e) => setPorePressure(e.target.value)} placeholder="e.g., 20" />
-                                    </div>
-                                </div>
-                            </div>
-                          </AccordionContent>
-                        </AccordionItem>
-                        <AccordionItem value="dataset-explorer">
-                          <AccordionTrigger className="text-md font-semibold">Dataset Explorer</AccordionTrigger>
-                          <AccordionContent>
-                              <Card className="mt-2">
-                                  <CardContent className="pt-6 space-y-2">
-                                      <p className="text-sm text-muted-foreground">Load sample data or upload your own CSV file.</p>
-                                      <div className="grid grid-cols-2 gap-2">
-                                        <Button onClick={onFetchDataset} disabled={isFetchingData} className="w-full">
-                                            {isFetchingData ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Database className="mr-2" />}
-                                            {isFetchingData ? "Loading..." : "Load Sample"}
-                                        </Button>
-                                        <Input type="file" accept=".csv" className="hidden" ref={csvInputRef} onChange={handleCsvFileSelect} />
-                                        <Button variant="outline" onClick={() => csvInputRef.current?.click()} disabled={isFetchingData}>
-                                            <Upload className="mr-2" /> Upload CSV
-                                        </Button>
-                                      </div>
-                                      {datasetRows.length > 0 && (
-                                          <div className="max-h-64 overflow-y-auto border rounded-md">
-                                              <Table>
-                                                  <TableHeader>
-                                                      <TableRow>
-                                                          <TableHead>Cohesion</TableHead>
-                                                          <TableHead>Friction</TableHead>
-                                                          <TableHead>Unit Weight</TableHead>
-                                                      </TableRow>
-                                                  </TableHeader>
-                                                  <TableBody>
-                                                      {datasetRows.map((item, index) => (
-                                                          <TableRow key={index}>
-                                                              <TableCell>{item.row?.features?.[0]?.value ?? 'N/A'}</TableCell>
-                                                              <TableCell>{item.row?.features?.[1]?.value ?? 'N/A'}</TableCell>
-                                                              <TableCell>{item.row?.features?.[2]?.value ?? 'N/A'}</TableCell>
-                                                          </TableRow>
-                                                      ))}
-                                                  </TableBody>
-                                              </Table>
-                                          </div>
-                                      )}
-                                      {isFetchingData && <p className="text-sm text-center text-muted-foreground">Fetching data...</p>}
-                                  </CardContent>
-                              </Card>
-                          </AccordionContent>
-                        </AccordionItem>
-                      </Accordion>
-                    </div>
+                                    {datasetRows.length > 0 && (
+                                        <div className="max-h-64 overflow-y-auto border rounded-md">
+                                            <Table>
+                                                <TableHeader>
+                                                    <TableRow>
+                                                        <TableHead>Cohesion</TableHead>
+                                                        <TableHead>Friction</TableHead>
+                                                        <TableHead>Unit Weight</TableHead>
+                                                    </TableRow>
+                                                </TableHeader>
+                                                <TableBody>
+                                                    {datasetRows.map((item, index) => (
+                                                        <TableRow key={index}>
+                                                            <TableCell>{item.row?.features?.[0]?.value ?? 'N/A'}</TableCell>
+                                                            <TableCell>{item.row?.features?.[1]?.value ?? 'N/A'}</TableCell>
+                                                            <TableCell>{item.row?.features?.[2]?.value ?? 'N/A'}</TableCell>
+                                                        </TableRow>
+                                                    ))}
+                                                </TableBody>
+                                            </Table>
+                                        </div>
+                                    )}
+                                    {isFetchingData && <p className="text-sm text-center text-muted-foreground">Fetching data...</p>}
+                                </CardContent>
+                            </Card>
+                        </AccordionContent>
+                      </AccordionItem>
+                    </Accordion>
+                    
+                    <Separator />
 
-                    <div className="p-4">
-                      <Separator />
-                    </div>
-
-                    <div className="px-4 space-y-4">
+                    <div className="space-y-4">
                       <div>
                         <h3 className="text-md font-semibold mb-2">Risk Prediction</h3>
                         {riskZones.length > 0 && (
