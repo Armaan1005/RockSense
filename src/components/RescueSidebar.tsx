@@ -24,7 +24,6 @@ import {
   Shield,
   Download,
   Upload,
-  Image,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
@@ -83,7 +82,6 @@ interface RescueSidebarProps {
   inspectionResult: AnalyzeRockFaceOutput | null;
   datasetRows: DatasetRow[];
   onLoadSampleData: () => void;
-  onLoadSampleImage: () => void;
   onFileUpload: (file: File) => void;
   isParsing: boolean;
   totalRecords: number;
@@ -128,7 +126,6 @@ const RescueSidebar: React.FC<RescueSidebarProps> = ({
   inspectionResult,
   datasetRows,
   onLoadSampleData,
-  onLoadSampleImage,
   onFileUpload,
   isParsing,
   totalRecords,
@@ -271,15 +268,11 @@ const RescueSidebar: React.FC<RescueSidebarProps> = ({
           <AccordionContent>
             <Card className="mt-2">
                 <CardContent className="pt-6 space-y-2">
-                    <div className="grid grid-cols-2 gap-2">
-                        <Button onClick={onLoadSampleImage} className="w-full">
-                            <Image className="mr-2" />
-                            Load Sample
-                        </Button>
+                    <div className="grid grid-cols-1 gap-2">
                         <Input type="file" accept="image/*" className="hidden" ref={fileInputRef} onChange={handleFileSelect} />
-                        <Button variant="outline" className="w-full justify-start overflow-hidden" onClick={() => fileInputRef.current?.click()}>
+                        <Button variant="outline" className="w-full justify-start overflow-hidden flex items-center" onClick={() => fileInputRef.current?.click()}>
                             <FileImage className="mr-2 flex-shrink-0" />
-                            <span className="truncate">
+                            <span className="flex-1 truncate text-left">
                             {rockFaceImage ? rockFaceImage.name : "Select Image"}
                             </span>
                         </Button>

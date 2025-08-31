@@ -67,19 +67,6 @@ const ClientDashboard: React.FC = () => {
     toast({ title: 'Success', description: 'Sample dataset loaded successfully.' });
   };
 
-  const handleLoadSampleImage = async () => {
-    try {
-        const response = await fetch('/sample-rock-face.jpg');
-        const blob = await response.blob();
-        const file = new File([blob], 'sample-rock-face.jpg', { type: 'image/jpeg' });
-        setRockFaceImage(file);
-        toast({ title: 'Success', description: 'Sample image loaded successfully.' });
-    } catch (error) {
-        console.error("Failed to load sample image:", error);
-        toast({ title: 'Error', description: 'Could not load sample image.', variant: 'destructive' });
-    }
-  };
-
   const handleFileUpload = (file: File) => {
     if (!file) {
       toast({ title: 'Error', description: 'No file selected.', variant: 'destructive' });
@@ -306,7 +293,6 @@ const ClientDashboard: React.FC = () => {
       inspectionResult,
       datasetRows,
       onLoadSampleData: handleLoadSampleData,
-      onLoadSampleImage: handleLoadSampleImage,
       onFileUpload: handleFileUpload,
       isParsing,
       totalRecords: datasetRows.length,
