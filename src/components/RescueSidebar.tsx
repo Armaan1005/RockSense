@@ -18,6 +18,9 @@ import {
   FileImage,
   Database,
   TrendingUp,
+  ShieldAlert,
+  ShieldCheck,
+  Shield,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
@@ -104,6 +107,7 @@ const RescueSidebar: React.FC<RescueSidebarProps> = ({
   datasetRows,
   onFetchDataset,
   isFetchingData,
+  totalRecords,
 }) => {
   
   const fileInputRef = React.useRef<HTMLInputElement>(null);
@@ -122,6 +126,12 @@ const RescueSidebar: React.FC<RescueSidebarProps> = ({
         return (order[b.riskLevel] || 0) - (order[a.riskLevel] || 0);
       })[0]
     : null;
+    
+  const highRiskCount = riskZones.filter(z => z.riskLevel === 'High').length;
+  const mediumRiskCount = riskZones.filter(z => z.riskLevel === 'Medium').length;
+  const lowRiskCount = riskZones.filter(z => z.riskLevel === 'Low').length;
+  const totalRiskZones = riskZones.length;
+
 
   return (
     <aside className="w-full md:w-[380px] flex flex-col border-l bg-background/80 backdrop-blur-sm h-full">
@@ -426,6 +436,45 @@ const RescueSidebar: React.FC<RescueSidebarProps> = ({
                                 <CardContent>
                                     <p className="font-semibold text-sm">{highestRiskZone?.recommendation || 'N/A'}</p>
                                     <p className="text-xs text-muted-foreground">Immediate action recommended</p>
+                                </CardContent>
+                            </Card>
+                        </div>
+                        <Separator />
+                         <div className="grid grid-cols-2 gap-4">
+                            <Card>
+                                <CardHeader className="pb-2">
+                                    <CardTitle className="text-sm font-medium flex items-center gap-2"><Database /> Total Records</CardTitle>
+                                </CardHeader>
+                                <CardContent>
+                                    <p className="text-2xl font-bold">{totalRecords}</p>
+                                    <p className="text-xs text-muted-foreground">From Hugging Face</p>
+                                </CardContent>
+                            </Card>
+                             <Card>
+                                <CardHeader className="pb-2">
+                                    <CardTitle className="text-sm font-medium flex items-center gap-2"><ShieldAlert /> High Risk Cases</CardTitle>
+                                </CardHeader>
+                                <CardContent>
+                                    <p className="text-2xl font-bold">{highRiskCount}</p>
+                                    <p className="text-xs text-muted-foreground">{totalRiskZones > 0 ? `${Math.round((highRiskCount / totalRiskZones) * 100)}% of total` : 'N/A'}</p>
+                                </CardContent>
+                            </Card>
+                             <Card>
+                                <CardHeader className="pb-2">
+                                    <CardTitle className="text-sm font-medium flex items-center gap-2"><Shield /> Medium Risk Cases</CardTitle>
+                                </CardHeader>
+                                <CardContent>
+                                    <p className="text-2xl font-bold">{mediumRiskCount}</p>
+                                    <p className="text-xs text-muted-foreground">{totalRiskZones > 0 ? `${Math.round((mediumRiskCount / totalRiskZones) * 100)}% of total` : 'N/A'}</p>
+                                </CardContent>
+                            </Card>
+                             <Card>
+                                <CardHeader className="pb-2">
+                                    <CardTitle className="text-sm font-medium flex items-center gap-2"><ShieldCheck /> Low Risk Cases</CardTitle>
+                                </CardHeader>
+                                <CardContent>
+                                    <p className="text-2xl font-bold">{lowRiskCount}</p>
+                                    <p className="text-xs text-muted-foreground">{totalRiskZones > 0 ? `${Math.round((lowRiskCount / totalRiskZones) * 100)}% of total` : 'N/A'}</p>
                                 </CardContent>
                             </Card>
                         </div>
