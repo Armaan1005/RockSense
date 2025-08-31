@@ -3,6 +3,7 @@
 
 import { Mountain, PanelLeftOpen } from 'lucide-react';
 import { Button } from './ui/button';
+import { ThemeToggleButton } from './theme-toggle';
 
 interface HeaderProps {
     isMobile?: boolean;
@@ -19,14 +20,14 @@ const Header: React.FC<HeaderProps> = ({ isMobile, onMenuClick }) => {
       <p className="hidden md:block ml-4 text-sm text-muted-foreground">
         AI-Based Rockfall Prediction and Alert System
       </p>
-       {isMobile && (
-        <div className="ml-auto">
+      <div className="ml-auto flex items-center gap-2">
+       {isMobile ? (
           <Button variant="ghost" size="icon" onClick={onMenuClick}>
             <PanelLeftOpen className="h-6 w-6" />
             <span className="sr-only">Open Site Analysis Control</span>
           </Button>
-        </div>
-      )}
+      ) : <ThemeToggleButton />}
+      </div>
     </header>
   );
 };
