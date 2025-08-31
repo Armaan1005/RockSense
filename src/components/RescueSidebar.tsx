@@ -394,18 +394,20 @@ const RescueSidebar: React.FC<RescueSidebarProps> = ({
         </AccordionItem>
       </Accordion>
       
-      <div className="space-y-4 mt-4">
+      <div className="space-y-4">
         <div>
-          <h3 className="text-md font-semibold">Risk Prediction</h3>
+          <h3 className="text-md font-semibold mt-4">Risk Prediction</h3>
           {riskZones.length > 0 && (
-            <Accordion type="single" collapsible defaultValue="item-0">
+            <Accordion type="single" collapsible defaultValue="item-0" className="w-full">
               {riskZones.map((zone, index) => (
                 <AccordionItem value={`item-${index}`} key={index}>
                   <AccordionTrigger>
-                    <div className="flex items-center gap-2">
-                      <span className="w-3 h-3 rounded-full" style={{backgroundColor: RISK_COLORS[zone.riskLevel] || '#fff'}}></span>
-                      <span className="font-semibold">{zone.zoneName}</span>
-                      <Badge variant={zone.riskLevel === 'High' ? 'destructive' : (zone.riskLevel === 'Medium' ? 'secondary' : 'default')}>{zone.riskLevel} Risk</Badge>
+                    <div className="flex items-start gap-2 w-full">
+                        <span className="w-3 h-3 rounded-full mt-1.5 flex-shrink-0" style={{backgroundColor: RISK_COLORS[zone.riskLevel] || '#fff'}}></span>
+                        <div className="flex-1 text-left">
+                            <span className="font-semibold">{zone.zoneName}</span>
+                        </div>
+                        <Badge variant={zone.riskLevel === 'High' ? 'destructive' : (zone.riskLevel === 'Medium' ? 'secondary' : 'default')} className="ml-auto flex-shrink-0">{zone.riskLevel} Risk</Badge>
                     </div>
                   </AccordionTrigger>
                   <AccordionContent className="space-y-3">
