@@ -439,7 +439,7 @@ const RescueSidebar: React.FC<RescueSidebarProps> = ({
                                   <CardTitle className="text-sm font-medium flex justify-between items-center">Risk Probability <TrendingUp className="w-4 h-4 text-muted-foreground" /></CardTitle>
                               </CardHeader>
                               <CardContent>
-                                  <p className="text-2xl font-bold">{highestRiskZone ? {High: '72%', Medium: '48%', Low: '15%'}[highestRiskZone.riskLevel] : 'N/A'}</p>
+                                  <p className="text-2xl font-bold">{highestRiskZone ? `${highestRiskZone.probability.toFixed(0)}%` : 'N/A'}</p>
                                   <p className="text-xs text-muted-foreground">Based on current slope conditions</p>
                               </CardContent>
                           </Card>

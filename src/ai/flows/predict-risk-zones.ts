@@ -54,6 +54,7 @@ const prompt = ai.definePrompt({
         - A steep slope ('Angle: 60 degrees') + weak material ('shale') + 'Heavy Rainfall' should result in a 'High' risk.
         - A gentle slope ('Angle: 30 degrees') + strong material ('granite') + 'Clear' weather should result in a 'Low' risk.
     - Write a concise 'analysis' justifying the assigned risk level.
+    - **Crucially, generate a 'probability' percentage (0-100).** High risk should be >70%, Medium 40-70%, and Low <40%.
     - Provide a practical, actionable 'recommendation' for each zone.
     - **Crucially, for each zone, generate a 'zoneCoordinates' array.** This should be a polygon that plausibly encompasses some of the "High-Risk Points" or sections of the "Main Unstable Zone". The polygons should be distinct but can overlap. Each polygon must have at least 3 points. The coordinates should be in the same "latitude,longitude" format as the input.
 `,
