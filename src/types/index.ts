@@ -1,5 +1,4 @@
 import type { AnalyzeRockFaceOutput as GenkitAnalyzeRockFaceOutput } from "@/ai/flows/analyze-rock-face";
-import type { GenerateReportCsvInput as GenkitGenerateReportCsvInput, GenerateReportCsvOutput as GenkitGenerateReportCsvOutput } from "@/ai/flows/generate-report-csv";
 import { z } from 'genkit';
 
 
@@ -20,11 +19,17 @@ export const PredictRiskZonesOutputSchema = z.object({
   riskZones: z.array(RiskZoneSchema).describe('An array of identified risk zones with their analysis and recommendations.'),
 });
 
+export const GenerateReportCsvInputSchema = PredictRiskZonesOutputSchema;
+export type GenerateReportCsvInput = z.infer<typeof GenerateReportCsvInputSchema>;
+
+export const GenerateReportCsvOutputSchema = z.object({
+  csvData: z.string().describe('The full report data formatted as a CSV string.'),
+});
+export type GenerateReportCsvOutput = z.infer<typeof GenerateReportCsvOutputSchema>;
+
 
 export type PredictRiskZonesOutput = z.infer<typeof PredictRiskZonesOutputSchema>;
 export type AnalyzeRockFaceOutput = GenkitAnalyzeRockFaceOutput;
-export type GenerateReportCsvInput = GenkitGenerateReportCsvInput;
-export type GenerateReportCsvOutput = GenkitGenerateReportCsvOutput;
 
 
 export type RiskZone = z.infer<typeof RiskZoneSchema>;

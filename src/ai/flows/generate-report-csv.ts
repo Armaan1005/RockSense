@@ -10,17 +10,7 @@
 
 import {ai} from '@/ai/genkit';
 import {z} from 'genkit';
-import {PredictRiskZonesOutputSchema} from '@/types/index';
-
-export const GenerateReportCsvInputSchema = PredictRiskZonesOutputSchema;
-export type GenerateReportCsvInput = z.infer<typeof GenerateReportCsvInputSchema>;
-
-
-export const GenerateReportCsvOutputSchema = z.object({
-  csvData: z.string().describe('The full report data formatted as a CSV string.'),
-});
-export type GenerateReportCsvOutput = z.infer<typeof GenerateReportCsvOutputSchema>;
-
+import { GenerateReportCsvInputSchema, GenerateReportCsvOutputSchema, type GenerateReportCsvInput, type GenerateReportCsvOutput } from '@/types/index';
 
 export async function generateReportCsv(
   input: GenerateReportCsvInput
