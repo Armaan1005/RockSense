@@ -23,6 +23,7 @@ import {
   ShieldCheck,
   Shield,
   Download,
+  Upload,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
@@ -33,7 +34,7 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { Accordion, AccordionItem, AccordionTrigger, AccordionContent } from '@/components/ui/accordion';
-import type { PlacingMode, RiskZone, MapTypeId, SlopeMaterial, AnalyzeRockFaceOutput, DatasetRow } from '@/types';
+import type { PlacingMode, RiskZone, MapTypeId, SlopeMaterial, AnalyzeRockFaceOutput, DatasetRow, ChartData } from '@/types';
 import { ScrollArea } from './ui/scroll-area';
 import { Separator } from './ui/separator';
 import { Badge } from './ui/badge';
@@ -57,6 +58,12 @@ interface RescueSidebarProps {
   setEnvironmentalFactors: (value: string) => void;
   mapTypeId: MapTypeId;
   setMapTypeId: (value: MapTypeId) => void;
+  displacement: string;
+  setDisplacement: (value: string) => void;
+  strain: string;
+  setStrain: (value: string) => void;
+  porePressure: string;
+  setPorePressure: (value: string) => void;
   onAnalyze: () => void;
   isAnalyzing: boolean;
   riskZones: RiskZone[];
@@ -75,11 +82,13 @@ interface RescueSidebarProps {
   inspectionResult: AnalyzeRockFaceOutput | null;
   datasetRows: DatasetRow[];
   onFetchDataset: () => void;
+  onFileUpload: (file: File) => void;
   isFetchingData: boolean;
   totalRecords: number;
   onExport: () => void;
   isExporting: boolean;
   hasAnalysisData: boolean;
+  chartData: ChartData[];
 }
 
 const RescueSidebar: React.FC<RescueSidebarProps> = ({
@@ -93,6 +102,12 @@ const RescueSidebar: React.FC<RescueSidebarProps> = ({
   setEnvironmentalFactors,
   mapTypeId,
   setMapTypeId,
+  displacement,
+  setDisplacement,
+  strain,
+  setStrain,
+  porePressure,
+  setPorePressure,
   onAnalyze,
   isAnalyzing,
   riskZones,
@@ -111,20 +126,30 @@ const RescueSidebar: React.FC<RescueSidebarProps> = ({
   inspectionResult,
   datasetRows,
   onFetchDataset,
+  onFileUpload,
   isFetchingData,
   totalRecords,
   onExport,
   isExporting,
   hasAnalysisData,
+  chartData,
 }) => {
   
   const fileInputRef = React.useRef<HTMLInputElement>(null);
+  const csvInputRef = React.useRef<HTMLInputElement>(null);
   const [activeTab, setActiveTab] = React.useState('analysis');
 
   const handleFileSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (file) {
       setRockFaceImage(file);
+    }
+  };
+
+  const handleCsvFileSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (file) {
+      onFileUpload(file);
     }
   };
   
@@ -302,21 +327,21 @@ const RescueSidebar: React.FC<RescueSidebarProps> = ({
                           <AccordionTrigger className="text-md font-semibold">Detailed Analysis</AccordionTrigger>
                           <AccordionContent>
                             <div className="space-y-4 pt-2">
-                                <div className="grid grid-cols-2 gap-4">
+                                <p className="text-xs text-muted-foreground">Provide optional sensor data for a more accurate analysis.</p>
+                                <div className="grid grid-cols-1 gap-4">
                                     <div>
-                                        <label className="text-sm font-medium" htmlFor="water-content">Water Content (%)</label>
-                                        <Input id="water-content" placeholder="e.g., 15" />
+                                        <label className="text-sm font-medium" htmlFor="displacement">Displacement (mm)</label>
+                                        <Input id="displacement" value={displacement} onChange={(e) => setDisplacement(e.target.value)} placeholder="e.g., 5.2" />
                                     </div>
                                     <div>
-                                        <label className="text-sm font-medium" htmlFor="rock-density">Rock Density (kg/m³)</label>
-                                        <Input id="rock-density" placeholder="e.g., 2700" />
+                                        <label className="text-sm font-medium" htmlFor="strain">Strain (με)</label>
+                                        <Input id="strain" value={strain} onChange={(e) => setStrain(e.target.value)} placeholder="e.g., 300" />
+                                    </div>
+                                    <div>
+                                        <label className="text-sm font-medium" htmlFor="pore-pressure">Pore Pressure (kPa)</label>
+                                        <Input id="pore-pressure" value={porePressure} onChange={(e) => setPorePressure(e.target.value)} placeholder="e.g., 20" />
                                     </div>
                                 </div>
-                                <Button disabled className="w-full">
-                                    <BrainCircuit className="mr-2" />
-                                    Run Detailed Simulation
-                                </Button>
-                                <p className="text-xs text-center text-muted-foreground">More detailed analysis coming soon.</p>
                             </div>
                           </AccordionContent>
                         </AccordionItem>
@@ -324,13 +349,20 @@ const RescueSidebar: React.FC<RescueSidebarProps> = ({
                           <AccordionTrigger className="text-md font-semibold">Dataset Explorer</AccordionTrigger>
                           <AccordionContent>
                               <Card className="mt-2">
-                                  <CardContent className="pt-6 space-y-4">
-                                      <Button onClick={onFetchDataset} disabled={isFetchingData} className="w-full">
-                                          {isFetchingData ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Database className="mr-2" />}
-                                          {isFetchingData ? "Loading..." : "Load Dataset"}
-                                      </Button>
+                                  <CardContent className="pt-6 space-y-2">
+                                      <p className="text-sm text-muted-foreground">Load sample data or upload your own CSV file.</p>
+                                      <div className="grid grid-cols-2 gap-2">
+                                        <Button onClick={onFetchDataset} disabled={isFetchingData} className="w-full">
+                                            {isFetchingData ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Database className="mr-2" />}
+                                            {isFetchingData ? "Loading..." : "Load Sample"}
+                                        </Button>
+                                        <Input type="file" accept=".csv" className="hidden" ref={csvInputRef} onChange={handleCsvFileSelect} />
+                                        <Button variant="outline" onClick={() => csvInputRef.current?.click()} disabled={isFetchingData}>
+                                            <Upload className="mr-2" /> Upload CSV
+                                        </Button>
+                                      </div>
                                       {datasetRows.length > 0 && (
-                                          <div className="max-h-64 overflow-y-auto">
+                                          <div className="max-h-64 overflow-y-auto border rounded-md">
                                               <Table>
                                                   <TableHeader>
                                                       <TableRow>
@@ -342,16 +374,16 @@ const RescueSidebar: React.FC<RescueSidebarProps> = ({
                                                   <TableBody>
                                                       {datasetRows.map((item, index) => (
                                                           <TableRow key={index}>
-                                                              <TableCell>{item.row?.features?.[0]?.value}</TableCell>
-                                                              <TableCell>{item.row?.features?.[1]?.value}</TableCell>
-                                                              <TableCell>{item.row?.features?.[2]?.value}</TableCell>
+                                                              <TableCell>{item.row?.features?.[0]?.value ?? 'N/A'}</TableCell>
+                                                              <TableCell>{item.row?.features?.[1]?.value ?? 'N/A'}</TableCell>
+                                                              <TableCell>{item.row?.features?.[2]?.value ?? 'N/A'}</TableCell>
                                                           </TableRow>
                                                       ))}
                                                   </TableBody>
                                               </Table>
                                           </div>
                                       )}
-                                      {isFetchingData && <p className="text-sm text-center text-muted-foreground">Fetching data from Hugging Face...</p>}
+                                      {isFetchingData && <p className="text-sm text-center text-muted-foreground">Fetching data...</p>}
                                   </CardContent>
                               </Card>
                           </AccordionContent>
@@ -464,7 +496,7 @@ const RescueSidebar: React.FC<RescueSidebarProps> = ({
                               </CardHeader>
                               <CardContent>
                                   <p className="text-2xl font-bold">{totalRecords}</p>
-                                  <p className="text-xs text-muted-foreground">From Hugging Face</p>
+                                  <p className="text-xs text-muted-foreground">From Dataset</p>
                               </CardContent>
                           </Card>
                            <Card>
@@ -499,10 +531,10 @@ const RescueSidebar: React.FC<RescueSidebarProps> = ({
                        <Card>
                           <CardHeader>
                               <CardTitle>Risk Trend Analysis</CardTitle>
-                              <CardDescription>Monthly risk score progression over the past 8 months</CardDescription>
+                              <CardDescription>Monthly risk score progression based on dataset</CardDescription>
                           </CardHeader>
                           <CardContent>
-                              <RiskTrendChart />
+                              <RiskTrendChart data={chartData} />
                           </CardContent>
                       </Card>
                       <Separator />

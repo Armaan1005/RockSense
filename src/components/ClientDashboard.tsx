@@ -2,7 +2,7 @@
 "use client";
 
 import * as React from 'react';
-import type { LatLngLiteral, PlacingMode, RiskZone, MapTypeId, SlopeMaterial, AnalyzeRockFaceOutput, DatasetRow, PredictRiskZonesOutput } from '@/types';
+import type { LatLngLiteral, PlacingMode, RiskZone, MapTypeId, SlopeMaterial, AnalyzeRockFaceOutput, DatasetRow, PredictRiskZonesOutput, ChartData } from '@/types';
 
 import dynamic from 'next/dynamic';
 import Header from '@/components/Header';
@@ -44,6 +44,10 @@ const ClientDashboard: React.FC = () => {
   const [environmentalFactors, setEnvironmentalFactors] = React.useState<string>('Heavy Rainfall');
   const [mapTypeId, setMapTypeId] = React.useState<MapTypeId>('terrain');
 
+  const [displacement, setDisplacement] = React.useState('');
+  const [strain, setStrain] = React.useState('');
+  const [porePressure, setPorePressure] = React.useState('');
+
   const [isAnalyzing, setIsAnalyzing] = React.useState(false);
   const [analysisResult, setAnalysisResult] = React.useState<PredictRiskZonesOutput | null>(null);
   
@@ -52,6 +56,7 @@ const ClientDashboard: React.FC = () => {
   const [inspectionResult, setInspectionResult] = React.useState<AnalyzeRockFaceOutput | null>(null);
 
   const [datasetRows, setDatasetRows] = React.useState<DatasetRow[]>([]);
+  const [chartData, setChartData] = React.useState<ChartData[]>([]);
   const [isFetchingData, setIsFetchingData] = React.useState(false);
   const [isExporting, setIsExporting] = React.useState(false);
 
@@ -73,6 +78,53 @@ const ClientDashboard: React.FC = () => {
       setIsFetchingData(false);
     }
   };
+
+  const handleFileUpload = (file: File) => {
+    if (!file) {
+      toast({ title: 'Error', description: 'No file selected.', variant: 'destructive' });
+      return;
+    }
+    setIsFetchingData(true);
+    Papa.parse(file, {
+      header: true,
+      skipEmptyLines: true,
+      complete: (results) => {
+        // Assuming the CSV has 'cohesion', 'friction', 'unit_weight' columns
+        const parsedRows: DatasetRow[] = (results.data as any[]).map((row, index) => ({
+            row_idx: index,
+            row: {
+                features: [
+                    { feature_idx: 0, name: 'cohesion', value: row.cohesion || 'N/A' },
+                    { feature_idx: 1, name: 'friction', value: row.friction || 'N/A' },
+                    { feature_idx: 2, name: 'unit_weight', value: row.unit_weight || 'N/A' },
+                ]
+            },
+            truncated_cells: []
+        }));
+        setDatasetRows(parsedRows);
+        setIsFetchingData(false);
+        toast({ title: 'Success', description: 'CSV file uploaded and parsed successfully.' });
+      },
+      error: (error) => {
+        setIsFetchingData(false);
+        toast({ title: 'Error', description: `CSV parsing error: ${error.message}`, variant: 'destructive' });
+      }
+    });
+  };
+
+   React.useEffect(() => {
+    if (datasetRows.length > 0) {
+        // Simulate generating chart data from the dataset
+        const newChartData: ChartData[] = datasetRows.slice(0, 12).map((row, index) => {
+            const friction = row.row?.features.find(f => f.name === 'friction')?.value || 0;
+            // Simple logic to create some variance in the chart
+            const riskScore = Math.min(100, Math.round(parseFloat(friction) * 1.5 + 20 + (Math.random() * 10)));
+            const month = new Date(2024, index, 1).toLocaleString('default', { month: 'short', year: '2-digit' });
+            return { month: month.replace(' ', ''), riskScore };
+        });
+        setChartData(newChartData);
+    }
+  }, [datasetRows]);
 
 
   const addMapPoint = (e: google.maps.MapMouseEvent) => {
@@ -111,6 +163,9 @@ const ClientDashboard: React.FC = () => {
         environmentalFactors: environmentalFactors,
         unstableZone: unstableZone.map(p => `${p.lat},${p.lng}`),
         highRiskPoints: highRiskPoints.map(p => `${p.lat},${p.lng}`),
+        displacement,
+        strain,
+        porePressure,
       });
 
       setAnalysisResult(result);
@@ -208,6 +263,10 @@ const ClientDashboard: React.FC = () => {
     setRockFaceImage(null);
     setInspectionResult(null);
     setDatasetRows([]);
+    setChartData([]);
+    setDisplacement('');
+    setStrain('');
+    setPorePressure('');
   }
   
   const sidebarProps = {
@@ -221,6 +280,12 @@ const ClientDashboard: React.FC = () => {
       setEnvironmentalFactors,
       mapTypeId,
       setMapTypeId,
+      displacement,
+      setDisplacement,
+      strain,
+      setStrain,
+      porePressure,
+      setPorePressure,
       onAnalyze: handleAnalyzeRisk,
       isAnalyzing,
       riskZones: analysisResult?.riskZones ?? [],
@@ -239,11 +304,13 @@ const ClientDashboard: React.FC = () => {
       inspectionResult,
       datasetRows,
       onFetchDataset: handleFetchDataset,
+      onFileUpload: handleFileUpload,
       isFetchingData,
       totalRecords: datasetRows.length,
       onExport: handleExportReport,
       isExporting,
       hasAnalysisData: !!analysisResult,
+      chartData,
   };
 
 

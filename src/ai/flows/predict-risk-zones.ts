@@ -12,16 +12,9 @@
 import {ai} from '@/ai/genkit';
 import {z} from 'genkit';
 import { GaxiosError } from 'gaxios';
-import { PredictRiskZonesOutputSchema } from '@/types/index';
+import { PredictRiskZonesOutputSchema, PredictRiskZonesInputSchema } from '@/types/index';
 
 
-const PredictRiskZonesInputSchema = z.object({
-  slopeGeometry: z.string().describe('The geometry of the slope, including angle.'),
-  slopeMaterial: z.string().describe('The primary material of the slope (e.g., granite, limestone).'),
-  environmentalFactors: z.string().describe('Current environmental conditions like rainfall or seismic activity.'),
-  unstableZone: z.array(z.string()).describe('An array of coordinate strings (latitude, longitude) defining the polygon of the main unstable zone.'),
-  highRiskPoints: z.array(z.string()).describe('A list of specific high-risk points of interest.'),
-});
 export type PredictRiskZonesInput = z.infer<typeof PredictRiskZonesInputSchema>;
 export type PredictRiskZonesOutput = z.infer<typeof PredictRiskZonesOutputSchema>;
 
@@ -46,15 +39,27 @@ const prompt = ai.definePrompt({
 - Main Unstable Zone Coordinates: {{#each unstableZone}}{{{this}}}{{#unless @last}}, {{/unless}}{{/each}}
 - Specific High-Risk Points: {{#each highRiskPoints}}{{{this}}}{{#unless @last}}, {{/unless}}{{/each}}
 
+{{#if displacement}}
+- Displacement Data: {{{displacement}}}
+{{/if}}
+{{#if strain}}
+- Strain Data: {{{strain}}}
+{{/if}}
+{{#if porePressure}}
+- Pore Pressure Data: {{{porePressure}}}
+{{/if}}
+
+
 **Instructions:**
-1.  **Generate a 'summary'**: Provide a high-level overview of the site's stability based on the inputs.
+1.  **Generate a 'summary'**: Provide a high-level overview of the site's stability based on all available inputs. If sensor data (displacement, strain, pore pressure) is provided, it should heavily influence the summary.
 2.  **Generate 'riskZones'**: Create 1-3 distinct risk zones based on the provided "Unstable Zone" and "High-Risk Points".
     - For each zone, assign a 'zoneName'.
-    - Determine a 'riskLevel' ('Low', 'Medium', 'High') based on a simulated Factor of Safety calculation. Consider how the combination of slope angle, material, and environmental factors would influence stability. For example:
+    - Determine a 'riskLevel' ('Low', 'Medium', 'High') based on a simulated Factor of Safety calculation. Consider how the combination of slope angle, material, and environmental factors would influence stability. The presence of high displacement, strain, or pore pressure should significantly increase the risk level. For example:
         - A steep slope ('Angle: 60 degrees') + weak material ('shale') + 'Heavy Rainfall' should result in a 'High' risk.
         - A gentle slope ('Angle: 30 degrees') + strong material ('granite') + 'Clear' weather should result in a 'Low' risk.
-    - Write a concise 'analysis' justifying the assigned risk level.
-    - **Crucially, generate a 'probability' percentage (0-100).** High risk should be >70%, Medium 40-70%, and Low <40%.
+        - Any scenario with high 'Displacement' readings should be considered 'High' risk.
+    - Write a concise 'analysis' justifying the assigned risk level, explicitly mentioning the impact of sensor data if present.
+    - **Crucially, generate a 'probability' percentage (0-100).** High risk should be >70%, Medium 40-70%, and Low <40%. This should also be influenced by sensor data.
     - Provide a practical, actionable 'recommendation' for each zone.
     - **Crucially, for each zone, generate a 'zoneCoordinates' array.** This should be a polygon that plausibly encompasses some of the "High-Risk Points" or sections of the "Main Unstable Zone". The polygons should be distinct but can overlap. Each polygon must have at least 3 points. The coordinates should be in the same "latitude,longitude" format as the input.
 `,

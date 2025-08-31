@@ -1,3 +1,4 @@
+
 import type { AnalyzeRockFaceOutput as GenkitAnalyzeRockFaceOutput } from "@/ai/flows/analyze-rock-face";
 import { z } from 'genkit';
 
@@ -5,6 +6,16 @@ import { z } from 'genkit';
 export type LatLngLiteral = google.maps.LatLngLiteral;
 export type LatLngTuple = [number, number];
 
+export const PredictRiskZonesInputSchema = z.object({
+  slopeGeometry: z.string().describe('The geometry of the slope, including angle.'),
+  slopeMaterial: z.string().describe('The primary material of the slope (e.g., granite, limestone).'),
+  environmentalFactors: z.string().describe('Current environmental conditions like rainfall or seismic activity.'),
+  unstableZone: z.array(z.string()).describe('An array of coordinate strings (latitude, longitude) defining the polygon of the main unstable zone.'),
+  highRiskPoints: z.array(z.string()).describe('A list of specific high-risk points of interest.'),
+  displacement: z.string().optional().describe('Optional: Sensor data for ground displacement in millimeters.'),
+  strain: z.string().optional().describe('Optional: Sensor data for ground strain in microstrains (με).'),
+  porePressure: z.string().optional().describe('Optional: Sensor data for pore water pressure in kilopascals (kPa).'),
+});
 
 export const RiskZoneSchema = z.object({
   zoneName: z.string().describe('A descriptive name for the risk zone (e.g., "North Wall Face", "Haul Road Section 3").'),
