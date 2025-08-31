@@ -330,123 +330,122 @@ const RescueSidebar: React.FC<RescueSidebarProps> = ({
         </AccordionItem>
         <AccordionItem value="dataset-explorer">
           <AccordionTrigger className="text-md font-semibold">
-            <div className="flex items-center justify-between w-full">
-                <span>Dataset Explorer</span>
-                <Popover>
-                  <PopoverTrigger asChild onClick={(e) => e.stopPropagation()}>
-                    <Button variant="ghost" size="icon" className="h-6 w-6">
-                      <Info className="h-4 w-4 text-foreground" />
-                      <span className="sr-only">CSV Format Info</span>
-                    </Button>
-                  </PopoverTrigger>
-                  <PopoverContent className="text-sm w-[320px] md:w-auto" onClick={(e) => e.stopPropagation()}>
-                    <h4 className="font-semibold mb-2">CSV Upload Format</h4>
-                    <p>Please ensure your CSV file includes the following headers:</p>
-                    <ul className="list-disc list-inside mt-2 space-y-1 font-mono text-xs">
-                        <li>cohesion</li>
-                        <li>friction</li>
-                        <li>unit_weight</li>
-                    </ul>
-                  </PopoverContent>
-                </Popover>
-            </div>
+            Dataset Explorer
           </AccordionTrigger>
           <AccordionContent>
-              <Card className="mt-2">
-                  <CardContent className="pt-6 space-y-2">
-                      <p className="text-sm text-muted-foreground">Load sample data or upload your own CSV file.</p>
-                      <div className="grid grid-cols-2 gap-2">
-                        <Button onClick={onFetchDataset} disabled={isFetchingData} className="w-full">
-                            {isFetchingData ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Database className="mr-2" />}
-                            {isFetchingData ? "Loading..." : "Load Sample"}
-                        </Button>
-                        <Input type="file" accept=".csv" className="hidden" ref={csvInputRef} onChange={handleCsvFileSelect} />
-                        <Button variant="outline" onClick={() => csvInputRef.current?.click()} disabled={isFetchingData}>
-                            <Upload className="mr-2" /> Upload CSV
-                        </Button>
-                      </div>
-                      {datasetRows.length > 0 && (
-                          <div className="max-h-64 overflow-y-auto border rounded-md">
-                              <Table>
-                                  <TableHeader>
-                                      <TableRow>
-                                          <TableHead>Cohesion</TableHead>
-                                          <TableHead>Friction</TableHead>
-                                          <TableHead>Unit Weight</TableHead>
+            <Card className="mt-2">
+              <CardHeader className="flex flex-row items-center justify-between pb-2">
+                  <CardDescription>Load sample data or upload your own CSV file.</CardDescription>
+                  <Popover>
+                    <PopoverTrigger asChild onClick={(e) => e.stopPropagation()}>
+                      <Button variant="ghost" size="icon" className="h-6 w-6">
+                        <Info className="h-4 w-4 text-foreground" />
+                        <span className="sr-only">CSV Format Info</span>
+                      </Button>
+                    </PopoverTrigger>
+                    <PopoverContent className="text-sm w-[320px] md:w-auto" onClick={(e) => e.stopPropagation()}>
+                      <h4 className="font-semibold mb-2">CSV Upload Format</h4>
+                      <p>Please ensure your CSV file includes the following headers:</p>
+                      <ul className="list-disc list-inside mt-2 space-y-1 font-mono text-xs">
+                          <li>cohesion</li>
+                          <li>friction</li>
+                          <li>unit_weight</li>
+                      </ul>
+                    </PopoverContent>
+                  </Popover>
+              </CardHeader>
+              <CardContent className="space-y-2">
+                  <div className="grid grid-cols-2 gap-2">
+                    <Button onClick={onFetchDataset} disabled={isFetchingData} className="w-full">
+                        {isFetchingData ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Database className="mr-2" />}
+                        {isFetchingData ? "Loading..." : "Load Sample"}
+                    </Button>
+                    <Input type="file" accept=".csv" className="hidden" ref={csvInputRef} onChange={handleCsvFileSelect} />
+                    <Button variant="outline" onClick={() => csvInputRef.current?.click()} disabled={isFetchingData}>
+                        <Upload className="mr-2" /> Upload CSV
+                    </Button>
+                  </div>
+                  {datasetRows.length > 0 && (
+                      <div className="max-h-64 overflow-y-auto border rounded-md">
+                          <Table>
+                              <TableHeader>
+                                  <TableRow>
+                                      <TableHead>Cohesion</TableHead>
+                                      <TableHead>Friction</TableHead>
+                                      <TableHead>Unit Weight</TableHead>
+                                  </TableRow>
+                              </TableHeader>
+                              <TableBody>
+                                  {datasetRows.map((item, index) => (
+                                      <TableRow key={index}>
+                                          <TableCell>{item.row?.features?.[0]?.value ?? 'N/A'}</TableCell>
+                                          <TableCell>{item.row?.features?.[1]?.value ?? 'N/A'}</TableCell>
+                                          <TableCell>{item.row?.features?.[2]?.value ?? 'N/A'}</TableCell>
                                       </TableRow>
-                                  </TableHeader>
-                                  <TableBody>
-                                      {datasetRows.map((item, index) => (
-                                          <TableRow key={index}>
-                                              <TableCell>{item.row?.features?.[0]?.value ?? 'N/A'}</TableCell>
-                                              <TableCell>{item.row?.features?.[1]?.value ?? 'N/A'}</TableCell>
-                                              <TableCell>{item.row?.features?.[2]?.value ?? 'N/A'}</TableCell>
-                                          </TableRow>
-                                      ))}
-                                  </TableBody>
-                              </Table>
-                          </div>
-                      )}
-                      {isFetchingData && <p className="text-sm text-center text-muted-foreground">Fetching data...</p>}
-                  </CardContent>
-              </Card>
+                                  ))}
+                              </TableBody>
+                          </Table>
+                      </div>
+                  )}
+                  {isFetchingData && <p className="text-sm text-center text-muted-foreground">Fetching data...</p>}
+              </CardContent>
+            </Card>
           </AccordionContent>
         </AccordionItem>
       </Accordion>
       
-      <Separator />
-
-      <div>
-        <h3 className="text-md font-semibold mb-2">Risk Prediction</h3>
-        {riskZones.length > 0 && (
-          <Accordion type="single" collapsible defaultValue="item-0">
-            {riskZones.map((zone, index) => (
-              <AccordionItem value={`item-${index}`} key={index}>
-                <AccordionTrigger>
-                  <div className="flex items-center gap-2">
-                    <span className="w-3 h-3 rounded-full" style={{backgroundColor: RISK_COLORS[zone.riskLevel] || '#fff'}}></span>
-                    <span className="font-semibold">{zone.zoneName}</span>
-                    <Badge variant={zone.riskLevel === 'High' ? 'destructive' : (zone.riskLevel === 'Medium' ? 'secondary' : 'default')}>{zone.riskLevel} Risk</Badge>
-                  </div>
-                </AccordionTrigger>
-                <AccordionContent className="space-y-3">
-                  <p className="text-sm">{zone.analysis}</p>
-                  <div className='flex flex-col gap-2 text-sm'>
-                    <div className='flex items-center gap-2 text-muted-foreground'>
-                        <HardHat className='w-4 h-4' />
-                        <span>Recommendation:</span>
-                        <span className='font-semibold text-foreground'>{zone.recommendation}</span>
+      <div className="space-y-4">
+        <div>
+          <h3 className="text-md font-semibold">Risk Prediction</h3>
+          {riskZones.length > 0 && (
+            <Accordion type="single" collapsible defaultValue="item-0">
+              {riskZones.map((zone, index) => (
+                <AccordionItem value={`item-${index}`} key={index}>
+                  <AccordionTrigger>
+                    <div className="flex items-center gap-2">
+                      <span className="w-3 h-3 rounded-full" style={{backgroundColor: RISK_COLORS[zone.riskLevel] || '#fff'}}></span>
+                      <span className="font-semibold">{zone.zoneName}</span>
+                      <Badge variant={zone.riskLevel === 'High' ? 'destructive' : (zone.riskLevel === 'Medium' ? 'secondary' : 'default')}>{zone.riskLevel} Risk</Badge>
                     </div>
-                  </div>
-                </AccordionContent>
-              </AccordionItem>
-            ))}
-          </Accordion>
-        )}
-        {isAnalyzing && (
-          <Card>
-            <CardContent className="pt-6 text-center text-sm text-muted-foreground">
-              <p>Analyzing risk factors...</p>
-            </CardContent>
-          </Card>
-        )}
-        {!isAnalyzing && riskZones.length === 0 && (
-            <p className="text-sm text-muted-foreground">No prediction generated yet.</p>
-        )}
-      </div>
-      <Separator />
-      <div>
-        <h3 className="text-md font-semibold mb-2">Analysis Summary</h3>
-        {analysisSummary && !isAnalyzing && (
+                  </AccordionTrigger>
+                  <AccordionContent className="space-y-3">
+                    <p className="text-sm">{zone.analysis}</p>
+                    <div className='flex flex-col gap-2 text-sm'>
+                      <div className='flex items-center gap-2 text-muted-foreground'>
+                          <HardHat className='w-4 h-4' />
+                          <span>Recommendation:</span>
+                          <span className='font-semibold text-foreground'>{zone.recommendation}</span>
+                      </div>
+                    </div>
+                  </AccordionContent>
+                </AccordionItem>
+              ))}
+            </Accordion>
+          )}
+          {isAnalyzing && (
             <Card>
-                <CardContent className="pt-6">
-                    <p className="text-sm text-muted-foreground">{analysisSummary}</p>
-                </CardContent>
+              <CardContent className="pt-6 text-center text-sm text-muted-foreground">
+                <p>Analyzing risk factors...</p>
+              </CardContent>
             </Card>
-        )}
-        {!analysisSummary && !isAnalyzing && (
-            <p className="text-sm text-muted-foreground">No analysis performed yet.</p>
-        )}
+          )}
+          {!isAnalyzing && riskZones.length === 0 && (
+              <p className="text-sm text-muted-foreground">No prediction generated yet.</p>
+          )}
+        </div>
+        <div>
+          <h3 className="text-md font-semibold">Analysis Summary</h3>
+          {analysisSummary && !isAnalyzing && (
+              <Card>
+                  <CardContent className="pt-6">
+                      <p className="text-sm text-muted-foreground">{analysisSummary}</p>
+                  </CardContent>
+              </Card>
+          )}
+          {!analysisSummary && !isAnalyzing && (
+              <p className="text-sm text-muted-foreground">No analysis performed yet.</p>
+          )}
+        </div>
       </div>
     </div>
   );
