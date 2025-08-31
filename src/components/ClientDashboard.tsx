@@ -13,6 +13,7 @@ import { predictRiskZonesAction, analyzeRockFaceAction, generateReportCsvAction 
 import { useIsMobile } from '@/hooks/use-mobile';
 import { Sheet, SheetContent } from './ui/sheet';
 import Papa from 'papaparse';
+import { sampleDataset } from '@/lib/sample-data';
 
 const MapWrapper = dynamic(() => import('@/components/map/MapWrapper'), {
   ssr: false,
@@ -57,26 +58,13 @@ const ClientDashboard: React.FC = () => {
 
   const [datasetRows, setDatasetRows] = React.useState<DatasetRow[]>([]);
   const [chartData, setChartData] = React.useState<ChartData[]>([]);
-  const [isFetchingData, setIsFetchingData] = React.useState(false);
+  const [isParsing, setIsParsing] = React.useState(false);
   const [isExporting, setIsExporting] = React.useState(false);
 
 
-  const handleFetchDataset = async () => {
-    setIsFetchingData(true);
-    try {
-      const response = await fetch("https://datasets-server.huggingface.co/rows?dataset=zhaoyiww%2FRockfall_Simulator&config=default&split=train&offset=0&length=100");
-      if (!response.ok) {
-        throw new Error("Failed to fetch dataset from Hugging Face.");
-      }
-      const data = await response.json();
-      setDatasetRows(data.rows);
-      toast({ title: 'Success', description: 'Dataset loaded successfully.' });
-    } catch (error) {
-      console.error(error);
-      toast({ title: 'Error', description: (error as Error).message, variant: 'destructive' });
-    } finally {
-      setIsFetchingData(false);
-    }
+  const handleLoadSampleData = () => {
+    setDatasetRows(sampleDataset);
+    toast({ title: 'Success', description: 'Sample dataset loaded successfully.' });
   };
 
   const handleFileUpload = (file: File) => {
@@ -84,7 +72,7 @@ const ClientDashboard: React.FC = () => {
       toast({ title: 'Error', description: 'No file selected.', variant: 'destructive' });
       return;
     }
-    setIsFetchingData(true);
+    setIsParsing(true);
     Papa.parse(file, {
       header: true,
       skipEmptyLines: true,
@@ -102,11 +90,11 @@ const ClientDashboard: React.FC = () => {
             truncated_cells: []
         }));
         setDatasetRows(parsedRows);
-        setIsFetchingData(false);
+        setIsParsing(false);
         toast({ title: 'Success', description: 'CSV file uploaded and parsed successfully.' });
       },
       error: (error) => {
-        setIsFetchingData(false);
+        setIsParsing(false);
         toast({ title: 'Error', description: `CSV parsing error: ${error.message}`, variant: 'destructive' });
       }
     });
@@ -303,9 +291,9 @@ const ClientDashboard: React.FC = () => {
       isInspecting,
       inspectionResult,
       datasetRows,
-      onFetchDataset: handleFetchDataset,
+      onLoadSampleData: handleLoadSampleData,
       onFileUpload: handleFileUpload,
-      isFetchingData,
+      isParsing,
       totalRecords: datasetRows.length,
       onExport: handleExportReport,
       isExporting,
@@ -347,3 +335,5 @@ const ClientDashboard: React.FC = () => {
 };
 
 export default ClientDashboard;
+
+    

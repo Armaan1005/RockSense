@@ -81,9 +81,9 @@ interface RescueSidebarProps {
   isInspecting: boolean;
   inspectionResult: AnalyzeRockFaceOutput | null;
   datasetRows: DatasetRow[];
-  onFetchDataset: () => void;
+  onLoadSampleData: () => void;
   onFileUpload: (file: File) => void;
-  isFetchingData: boolean;
+  isParsing: boolean;
   totalRecords: number;
   onExport: () => void;
   isExporting: boolean;
@@ -125,9 +125,9 @@ const RescueSidebar: React.FC<RescueSidebarProps> = ({
   isInspecting,
   inspectionResult,
   datasetRows,
-  onFetchDataset,
+  onLoadSampleData,
   onFileUpload,
-  isFetchingData,
+  isParsing,
   totalRecords,
   onExport,
   isExporting,
@@ -356,13 +356,14 @@ const RescueSidebar: React.FC<RescueSidebarProps> = ({
               </CardHeader>
               <CardContent className="space-y-2">
                   <div className="grid grid-cols-2 gap-2">
-                    <Button onClick={onFetchDataset} disabled={isFetchingData} className="w-full">
-                        {isFetchingData ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Database className="mr-2" />}
-                        {isFetchingData ? "Loading..." : "Load Sample"}
+                    <Button onClick={onLoadSampleData} disabled={isParsing} className="w-full">
+                        <Database className="mr-2" />
+                        Load Sample
                     </Button>
                     <Input type="file" accept=".csv" className="hidden" ref={csvInputRef} onChange={handleCsvFileSelect} />
-                    <Button variant="outline" onClick={() => csvInputRef.current?.click()} disabled={isFetchingData}>
-                        <Upload className="mr-2" /> Upload CSV
+                    <Button variant="outline" onClick={() => csvInputRef.current?.click()} disabled={isParsing}>
+                         {isParsing ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Upload className="mr-2" />}
+                         {isParsing ? "Parsing..." : "Upload CSV"}
                     </Button>
                   </div>
                   {datasetRows.length > 0 && (
@@ -387,14 +388,13 @@ const RescueSidebar: React.FC<RescueSidebarProps> = ({
                           </Table>
                       </div>
                   )}
-                  {isFetchingData && <p className="text-sm text-center text-muted-foreground">Fetching data...</p>}
               </CardContent>
             </Card>
           </AccordionContent>
         </AccordionItem>
       </Accordion>
       
-      <div className="space-y-4">
+      <div className="space-y-4 mt-4">
         <div>
           <h3 className="text-md font-semibold">Risk Prediction</h3>
           {riskZones.length > 0 && (
@@ -599,3 +599,5 @@ const RescueSidebar: React.FC<RescueSidebarProps> = ({
 };
 
 export default RescueSidebar;
+
+    
