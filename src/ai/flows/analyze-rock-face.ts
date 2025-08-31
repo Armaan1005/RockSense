@@ -1,3 +1,4 @@
+
 'use server';
 
 /**
@@ -10,6 +11,7 @@
 
 import {ai} from '@/ai/genkit';
 import {z} from 'genkit';
+import { GaxiosError } from 'gaxios';
 
 const AnalyzeRockFaceInputSchema = z.object({
   photoDataUri: z
@@ -70,10 +72,17 @@ const analyzeRockFaceFlow = ai.defineFlow(
     outputSchema: AnalyzeRockFaceOutputSchema,
   },
   async input => {
-    const {output} = await prompt(input);
-    if (!output) {
-      throw new Error("The AI model failed to return a valid analysis. Please try a different image.");
+    try {
+      const {output} = await prompt(input);
+      if (!output) {
+        throw new Error("The AI model failed to return a valid analysis. Please try a different image.");
+      }
+      return output;
+    } catch (e) {
+      if (e instanceof GaxiosError) {
+        console.error(JSON.stringify(e.response?.data, null, 2));
+      }
+      throw e;
     }
-    return output;
   }
 );
