@@ -3,7 +3,7 @@
 
 import * as React from 'react';
 import { GoogleMap, useLoadScript, MarkerF, PolygonF } from '@react-google-maps/api';
-import type { LatLngLiteral, PlacingMode, MapTypeId, RiskZone } from '@/types';
+import type { LatLngLiteral, PlacingMode, MapTypeId, RiskZone, RiskZonePolygon } from '@/types';
 import { Skeleton } from '../ui/skeleton';
 import { RISK_COLORS } from '../ClientDashboard';
 
@@ -26,7 +26,7 @@ interface MapWrapperProps {
   baseLocation: LatLngLiteral | null;
   highRiskPoints: LatLngLiteral[];
   unstableZoneShape: LatLngLiteral[];
-  riskZones: RiskZone[];
+  riskZones: RiskZonePolygon[];
   onMapClick: (e: google.maps.MapMouseEvent) => void;
   placingMode: PlacingMode;
   mapTypeId: MapTypeId;
@@ -101,7 +101,7 @@ const MapWrapper: React.FC<MapWrapperProps> = ({
   }
 
   // Find the risk zone that contains the unstable zone shape to color it
-  const mainRiskZone = riskZones.length > 0 ? riskZones[0] : null;
+  const mainRiskZone = riskZones.length > 0 ? riskZones.find(z => z.zoneName.includes('Unstable')) || riskZones[0] : null;
   const riskColor = mainRiskZone ? RISK_COLORS[mainRiskZone.riskLevel] || 'hsl(var(--primary))' : 'hsl(var(--primary))';
 
 
@@ -142,6 +142,30 @@ const MapWrapper: React.FC<MapWrapperProps> = ({
                     }}
                 />
             )}
+
+            {riskZones.map((zone, index) => {
+              const zoneColor = RISK_COLORS[zone.riskLevel] || '#888';
+              const coords = zone.zoneCoordinates.map(c => {
+                  const [lat, lng] = c.split(',').map(Number);
+                  return { lat, lng };
+              });
+
+              if (coords.length < 3) return null;
+
+              return (
+                  <PolygonF
+                      key={`risk-zone-${index}`}
+                      paths={coords}
+                      options={{
+                          strokeColor: zoneColor,
+                          strokeOpacity: 0.9,
+                          strokeWeight: 2.5,
+                          fillColor: zoneColor,
+                          fillOpacity: 0.4,
+                      }}
+                  />
+              );
+            })}
 
         </GoogleMap>
     </div>

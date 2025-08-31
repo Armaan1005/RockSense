@@ -2,7 +2,7 @@
 "use client";
 
 import * as React from 'react';
-import type { LatLngLiteral, PlacingMode, RiskZone, MapTypeId, SlopeMaterial, AnalyzeRockFaceOutput } from '@/types';
+import type { LatLngLiteral, PlacingMode, RiskZone, MapTypeId, SlopeMaterial, AnalyzeRockFaceOutput, DatasetRow } from '@/types';
 
 import dynamic from 'next/dynamic';
 import Header from '@/components/Header';
@@ -22,6 +22,7 @@ export const RISK_COLORS: { [key: string]: string } = {
   'Low': '#2ecc71', // Green
   'Medium': '#f1c40f', // Yellow
   'High': '#e74c3c', // Red
+  'Unstable': '#9b59b6', // Purple
 };
 
 type LastAction = 'base' | 'risk-point' | 'unstable-zone' | null;
@@ -49,6 +50,27 @@ const ClientDashboard: React.FC = () => {
   const [isInspecting, setIsInspecting] = React.useState(false);
   const [rockFaceImage, setRockFaceImage] = React.useState<File | null>(null);
   const [inspectionResult, setInspectionResult] = React.useState<AnalyzeRockFaceOutput | null>(null);
+
+  const [datasetRows, setDatasetRows] = React.useState<DatasetRow[]>([]);
+  const [isFetchingData, setIsFetchingData] = React.useState(false);
+
+  const handleFetchDataset = async () => {
+    setIsFetchingData(true);
+    try {
+      const response = await fetch("https://datasets-server.huggingface.co/rows?dataset=zhaoyiww%2FRockfall_Simulator&config=default&split=train&offset=0&length=100");
+      if (!response.ok) {
+        throw new Error("Failed to fetch dataset from Hugging Face.");
+      }
+      const data = await response.json();
+      setDatasetRows(data.rows);
+      toast({ title: 'Success', description: 'Dataset loaded successfully.' });
+    } catch (error) {
+      console.error(error);
+      toast({ title: 'Error', description: (error as Error).message, variant: 'destructive' });
+    } finally {
+      setIsFetchingData(false);
+    }
+  };
 
 
   const addMapPoint = (e: google.maps.MapMouseEvent) => {
@@ -158,6 +180,7 @@ const ClientDashboard: React.FC = () => {
     setAnalysisSummary(null);
     setRockFaceImage(null);
     setInspectionResult(null);
+    setDatasetRows([]);
   }
   
   const sidebarProps = {
@@ -187,6 +210,9 @@ const ClientDashboard: React.FC = () => {
       onInspect: handleInspectRockFace,
       isInspecting,
       inspectionResult,
+      datasetRows,
+      onFetchDataset: handleFetchDataset,
+      isFetchingData,
   };
 
 

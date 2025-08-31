@@ -27,6 +27,7 @@ const RiskZoneSchema = z.object({
   riskLevel: z.enum(['Low', 'Medium', 'High']).describe('The predicted risk level for this zone.'),
   analysis: z.string().describe('A brief analysis explaining the risk level, referencing input factors.'),
   recommendation: z.string().describe('A concrete, actionable recommendation to mitigate the risk (e.g., "Install rock bolts", "Close haul road temporarily", "Increase monitoring frequency").'),
+  zoneCoordinates: z.array(z.string()).describe("An array of coordinate strings (latitude, longitude) defining the polygon of this specific risk zone."),
 });
 
 const PredictRiskZonesOutputSchema = z.object({
@@ -58,13 +59,14 @@ const prompt = ai.definePrompt({
 
 **Instructions:**
 1.  **Generate a 'summary'**: Provide a high-level overview of the site's stability based on the inputs.
-2.  **Generate 'riskZones'**: Create 1-3 distinct risk zones based on the provided "Unstable Zone" and "High-Risk Points". You can group points or treat the main zone as one area.
+2.  **Generate 'riskZones'**: Create 1-3 distinct risk zones based on the provided "Unstable Zone" and "High-Risk Points".
     - For each zone, assign a 'zoneName'.
     - Determine a 'riskLevel' ('Low', 'Medium', 'High') based on a simulated Factor of Safety calculation. Consider how the combination of slope angle, material, and environmental factors would influence stability. For example:
         - A steep slope ('Angle: 60 degrees') + weak material ('shale') + 'Heavy Rainfall' should result in a 'High' risk.
         - A gentle slope ('Angle: 30 degrees') + strong material ('granite') + 'Clear' weather should result in a 'Low' risk.
     - Write a concise 'analysis' justifying the assigned risk level.
     - Provide a practical, actionable 'recommendation' for each zone.
+    - **Crucially, for each zone, generate a 'zoneCoordinates' array.** This should be a polygon that plausibly encompasses some of the "High-Risk Points" or sections of the "Main Unstable Zone". The polygons should be distinct but can overlap. Each polygon must have at least 3 points. The coordinates should be in the same "latitude,longitude" format as the input.
 `,
 });
 

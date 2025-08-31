@@ -9,9 +9,25 @@ export type PredictRiskZonesOutput = GenkitPredictRiskZonesOutput;
 export type AnalyzeRockFaceOutput = GenkitAnalyzeRockFaceOutput;
 
 export type RiskZone = GenkitPredictRiskZonesOutput['riskZones'][0];
+export interface RiskZonePolygon extends RiskZone {
+    zoneCoordinates: string[];
+}
+
 
 export type PlacingMode = 'base' | 'risk-point' | 'unstable-zone' | null;
 
 export type MapTypeId = 'roadmap' | 'satellite' | 'hybrid' | 'terrain';
 
 export type SlopeMaterial = 'granite' | 'limestone' | 'sandstone' | 'shale';
+
+export interface DatasetRow {
+    row_idx: number;
+    row: {
+        features: {
+            feature_idx: number;
+            name: string;
+            value: any;
+        }[];
+    };
+    truncated_cells: any[];
+}
