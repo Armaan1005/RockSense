@@ -1,18 +1,34 @@
-import type { PredictRiskZonesOutput as GenkitPredictRiskZonesOutput } from "@/ai/flows/predict-risk-zones";
 import type { AnalyzeRockFaceOutput as GenkitAnalyzeRockFaceOutput } from "@/ai/flows/analyze-rock-face";
 import type { GenerateReportCsvInput as GenkitGenerateReportCsvInput, GenerateReportCsvOutput as GenkitGenerateReportCsvOutput } from "@/ai/flows/generate-report-csv";
+import { z } from 'genkit';
 
 
 export type LatLngLiteral = google.maps.LatLngLiteral;
 export type LatLngTuple = [number, number];
 
-export type PredictRiskZonesOutput = GenkitPredictRiskZonesOutput;
+
+export const RiskZoneSchema = z.object({
+  zoneName: z.string().describe('A descriptive name for the risk zone (e.g., "North Wall Face", "Haul Road Section 3").'),
+  riskLevel: z.enum(['Low', 'Medium', 'High']).describe('The predicted risk level for this zone.'),
+  analysis: z.string().describe('A brief analysis explaining the risk level, referencing input factors.'),
+  recommendation: z.string().describe('A concrete, actionable recommendation to mitigate the risk (e.g., "Install rock bolts", "Close haul road temporarily", "Increase monitoring frequency").'),
+  zoneCoordinates: z.array(z.string()).describe("An array of coordinate strings (latitude, longitude) defining the polygon of this specific risk zone."),
+});
+
+export const PredictRiskZonesOutputSchema = z.object({
+  summary: z.string().describe('A high-level summary of the overall stability and key findings of the site.'),
+  riskZones: z.array(RiskZoneSchema).describe('An array of identified risk zones with their analysis and recommendations.'),
+});
+
+
+export type PredictRiskZonesOutput = z.infer<typeof PredictRiskZonesOutputSchema>;
 export type AnalyzeRockFaceOutput = GenkitAnalyzeRockFaceOutput;
 export type GenerateReportCsvInput = GenkitGenerateReportCsvInput;
 export type GenerateReportCsvOutput = GenkitGenerateReportCsvOutput;
 
 
-export type RiskZone = GenkitPredictRiskZonesOutput['riskZones'][0];
+export type RiskZone = z.infer<typeof RiskZoneSchema>;
+
 export interface RiskZonePolygon extends RiskZone {
     zoneCoordinates: string[];
 }

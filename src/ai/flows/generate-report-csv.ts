@@ -10,7 +10,7 @@
 
 import {ai} from '@/ai/genkit';
 import {z} from 'genkit';
-import {PredictRiskZonesOutputSchema} from './predict-risk-zones';
+import {PredictRiskZonesOutputSchema} from '@/types/index';
 
 export const GenerateReportCsvInputSchema = PredictRiskZonesOutputSchema;
 export type GenerateReportCsvInput = z.infer<typeof GenerateReportCsvInputSchema>;

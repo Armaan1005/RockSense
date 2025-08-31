@@ -12,6 +12,8 @@
 import {ai} from '@/ai/genkit';
 import {z} from 'genkit';
 import { GaxiosError } from 'gaxios';
+import { PredictRiskZonesOutputSchema } from '@/types/index';
+
 
 const PredictRiskZonesInputSchema = z.object({
   slopeGeometry: z.string().describe('The geometry of the slope, including angle.'),
@@ -21,19 +23,6 @@ const PredictRiskZonesInputSchema = z.object({
   highRiskPoints: z.array(z.string()).describe('A list of specific high-risk points of interest.'),
 });
 export type PredictRiskZonesInput = z.infer<typeof PredictRiskZonesInputSchema>;
-
-const RiskZoneSchema = z.object({
-  zoneName: z.string().describe('A descriptive name for the risk zone (e.g., "North Wall Face", "Haul Road Section 3").'),
-  riskLevel: z.enum(['Low', 'Medium', 'High']).describe('The predicted risk level for this zone.'),
-  analysis: z.string().describe('A brief analysis explaining the risk level, referencing input factors.'),
-  recommendation: z.string().describe('A concrete, actionable recommendation to mitigate the risk (e.g., "Install rock bolts", "Close haul road temporarily", "Increase monitoring frequency").'),
-  zoneCoordinates: z.array(z.string()).describe("An array of coordinate strings (latitude, longitude) defining the polygon of this specific risk zone."),
-});
-
-export const PredictRiskZonesOutputSchema = z.object({
-  summary: z.string().describe('A high-level summary of the overall stability and key findings of the site.'),
-  riskZones: z.array(RiskZoneSchema).describe('An array of identified risk zones with their analysis and recommendations.'),
-});
 export type PredictRiskZonesOutput = z.infer<typeof PredictRiskZonesOutputSchema>;
 
 export async function predictRiskZones(
