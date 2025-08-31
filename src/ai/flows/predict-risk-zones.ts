@@ -30,7 +30,7 @@ const RiskZoneSchema = z.object({
   zoneCoordinates: z.array(z.string()).describe("An array of coordinate strings (latitude, longitude) defining the polygon of this specific risk zone."),
 });
 
-const PredictRiskZonesOutputSchema = z.object({
+export const PredictRiskZonesOutputSchema = z.object({
   summary: z.string().describe('A high-level summary of the overall stability and key findings of the site.'),
   riskZones: z.array(RiskZoneSchema).describe('An array of identified risk zones with their analysis and recommendations.'),
 });
