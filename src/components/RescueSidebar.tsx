@@ -548,13 +548,24 @@ const RescueSidebar: React.FC<RescueSidebarProps> = ({
     </div>
   );
 
+  const predictionContent = (
+    <div className="p-4 space-y-4 h-full flex flex-col items-center justify-center text-center">
+        <BrainCircuit className="w-16 h-16 text-muted-foreground" />
+        <h2 className="text-lg font-semibold">Machine Learning Models</h2>
+        <p className="text-sm text-muted-foreground">
+            Advanced prediction models and machine learning features will be integrated here soon.
+        </p>
+    </div>
+    );
+
   return (
     <aside className="w-full md:w-[380px] flex flex-col border-l bg-background/80 backdrop-blur-sm h-full">
         <div className="flex-1 flex flex-col min-h-0">
           <Tabs value={activeTab} onValueChange={setActiveTab} className="flex-1 flex flex-col min-h-0">
               <div className="p-4 pb-0 shrink-0">
-                  <TabsList className="grid w-full grid-cols-2">
+                  <TabsList className="grid w-full grid-cols-3">
                       <TabsTrigger value="analysis">Analysis</TabsTrigger>
+                      <TabsTrigger value="prediction">Prediction</TabsTrigger>
                       <TabsTrigger value="reports">Reports</TabsTrigger>
                   </TabsList>
               </div>
@@ -563,6 +574,9 @@ const RescueSidebar: React.FC<RescueSidebarProps> = ({
                   <ScrollArea className="h-full">
                     {analysisContent}
                   </ScrollArea>
+                </TabsContent>
+                <TabsContent value="prediction" className="mt-0 h-full">
+                   {predictionContent}
                 </TabsContent>
                 <TabsContent value="reports" className="mt-0 h-full">
                   <ScrollArea className="h-full">
