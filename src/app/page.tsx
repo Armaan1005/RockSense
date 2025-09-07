@@ -38,9 +38,11 @@ export default function LandingPage() {
                   RockSense leverages cutting-edge AI to predict rockfall hazards in open-pit mines, providing real-time alerts to enhance safety and prevent accidents.
                 </p>
               </div>
-              <Button asChild size="lg">
-                <Link href="/dashboard">View Live Demo</Link>
-              </Button>
+              <div className="flex justify-center">
+                <Button asChild size="lg">
+                  <Link href="/dashboard">View Live Demo</Link>
+                </Button>
+              </div>
             </div>
           </div>
         </section>
