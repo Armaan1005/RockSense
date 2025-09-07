@@ -45,7 +45,7 @@ export default function LandingPage() {
           </div>
         </section>
         <section id="features" className="w-full py-12 md:py-24 lg:py-32 bg-muted">
-          <div className="container flex flex-col items-center justify-center px-4 md:px-6">
+          <div className="container px-4 md:px-6">
             <div className="flex flex-col items-center justify-center space-y-4 text-center">
               <div className="space-y-2">
                 <div className="inline-block rounded-lg bg-background px-3 py-1 text-sm">
@@ -58,28 +58,28 @@ export default function LandingPage() {
                   Our platform provides the critical tools for proactive geotechnical risk management in open-pit mines.
                 </p>
               </div>
-            </div>
-            <div className="mx-auto grid max-w-5xl items-start gap-6 py-12 sm:grid-cols-1 md:grid-cols-3 lg:gap-12">
-              <div className="grid gap-1 text-center justify-items-center">
-                <Cpu className="h-12 w-12 text-primary" />
-                <h3 className="text-xl font-bold">ML-Powered Prediction</h3>
-                <p className="text-sm text-muted-foreground">
-                  Utilize advanced machine learning models to analyze historical and real-time data for accurate rockfall prediction.
-                </p>
-              </div>
-              <div className="grid gap-1 text-center justify-items-center">
-                <Map className="h-12 w-12 text-primary" />
-                <h3 className="text-xl font-bold">Interactive Risk Map</h3>
-                <p className="text-sm text-muted-foreground">
-                  Visualize geotechnical data and high-risk zones on a dynamic map. Mark unstable areas and monitor environmental factors in real-time.
-                </p>
-              </div>
-              <div className="grid gap-1 text-center justify-items-center">
-                <ShieldAlert className="h-12 w-12 text-primary" />
-                <h3 className="text-xl font-bold">Factor of Safety Analysis</h3>
-                <p className="text-sm text-muted-foreground">
-                 Leverage AI to perform Factor of Safety calculations and receive automatic alerts for areas that fall below safety thresholds.
-                </p>
+              <div className="mx-auto grid max-w-5xl items-start gap-6 py-12 sm:grid-cols-1 md:grid-cols-3 lg:gap-12">
+                <div className="grid gap-1 text-center justify-items-center">
+                  <Cpu className="h-12 w-12 text-primary" />
+                  <h3 className="text-xl font-bold">ML-Powered Prediction</h3>
+                  <p className="text-sm text-muted-foreground">
+                    Utilize advanced machine learning models to analyze historical and real-time data for accurate rockfall prediction.
+                  </p>
+                </div>
+                <div className="grid gap-1 text-center justify-items-center">
+                  <Map className="h-12 w-12 text-primary" />
+                  <h3 className="text-xl font-bold">Interactive Risk Map</h3>
+                  <p className="text-sm text-muted-foreground">
+                    Visualize geotechnical data and high-risk zones on a dynamic map. Mark unstable areas and monitor environmental factors in real-time.
+                  </p>
+                </div>
+                <div className="grid gap-1 text-center justify-items-center">
+                  <ShieldAlert className="h-12 w-12 text-primary" />
+                  <h3 className="text-xl font-bold">Factor of Safety Analysis</h3>
+                  <p className="text-sm text-muted-foreground">
+                   Leverage AI to perform Factor of Safety calculations and receive automatic alerts for areas that fall below safety thresholds.
+                  </p>
+                </div>
               </div>
             </div>
           </div>
