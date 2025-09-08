@@ -11,7 +11,7 @@ export const metadata: Metadata = {
     description: 'AI-Based Rockfall Prediction and Alert System',
     images: [
       {
-        url: 'https://picsum.photos/seed/rocksense/1200/630',
+        url: 'https://placehold.co/1200x630/645546/FFFFFF/png?text=RockSense',
         width: 1200,
         height: 630,
         alt: 'RockSense Application Preview',
