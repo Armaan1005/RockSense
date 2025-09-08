@@ -37,8 +37,8 @@ Follow these instructions to get a copy of the project up and running on your lo
 
 1.  **Clone the repository:**
     ```bash
-    git clone <your-repository-url>
-    cd <repository-folder>
+    git clone https://github.com/Armaan1005/RockSense
+    cd RockSense
     ```
 
 2.  **Install dependencies:**
